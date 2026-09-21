@@ -1,0 +1,54 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 120,
+  "sortImports": {
+    "newlinesBetween": false,
+    "groups": [
+      "constructs",
+      "aws-cdk-lib",
+      "@aws-cdk",
+      {
+        "newlinesBetween": true
+      },
+      "external",
+      {
+        "newlinesBetween": true
+      },
+      "builtin",
+      {
+        "newlinesBetween": true
+      },
+      "internal",
+      [
+        "parent",
+        "sibling",
+        "index"
+      ]
+    ],
+    "customGroups": [
+      {
+        "groupName": "constructs",
+        "elementNamePattern": [
+          "constructs",
+        ]
+      },
+      {
+        "groupName": "aws-cdk-lib",
+        "elementNamePattern": [
+          "aws-cdk-lib",
+          "aws-cdk-lib/**",
+        ]
+      },
+      {
+        "groupName": "@aws-cdk",
+        "elementNamePattern": [
+          "@aws-cdk/**",
+        ]
+      }
+    ],
+  },
+  "sortPackageJson": {
+    "sortScripts": true
+  },
+  "ignorePatterns": []
+}
