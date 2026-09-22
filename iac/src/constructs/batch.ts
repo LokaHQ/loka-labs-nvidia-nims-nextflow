@@ -50,6 +50,7 @@ export class PipelineBatch extends Construct {
       managedPolicies: [
         ManagedPolicy.fromAwsManagedPolicyName("service-role/AmazonEC2ContainerServiceforEC2Role"),
         ManagedPolicy.fromAwsManagedPolicyName("CloudWatchAgentServerPolicy"),
+        ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMManagedInstanceCore"),
       ],
     });
 

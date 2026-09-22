@@ -1088,6 +1088,18 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
               ],
             ],
           },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/AmazonSSMManagedInstanceCore",
+              ],
+            ],
+          },
         ],
         "Tags": [
           {
@@ -1226,6 +1238,10 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
                 "ecr:BatchCheckLayerAvailability",
                 "ecr:GetDownloadUrlForLayer",
                 "ecr:BatchGetImage",
+                "ecr:CompleteLayerUpload",
+                "ecr:UploadLayerPart",
+                "ecr:InitiateLayerUpload",
+                "ecr:PutImage",
               ],
               "Effect": "Allow",
               "Resource": {

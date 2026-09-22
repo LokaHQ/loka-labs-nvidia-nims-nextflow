@@ -38,4 +38,8 @@ export class ContainerRegistry extends Construct {
   public grantPull(grantee: IGrantable): void {
     this.repository.grantPull(grantee);
   }
+
+  public grantPullPush(grantee: IGrantable): void {
+    this.repository.grantPullPush(grantee);
+  }
 }

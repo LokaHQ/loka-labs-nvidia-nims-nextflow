@@ -41,7 +41,7 @@ export class NvidiaNimsStack extends Stack {
 
     this.storage.grantPipelineAccess(this.batch.jobRole);
     this.storage.grantPipelineAccess(this.batch.instanceRole);
-    this.registry.grantPull(this.batch.instanceRole);
+    this.registry.grantPullPush(this.batch.instanceRole);
     this.storage.restrictAccessTo([this.batch.jobRole, this.batch.instanceRole]);
 
     this.addOutputs();
