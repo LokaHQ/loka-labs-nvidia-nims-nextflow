@@ -21,17 +21,20 @@ process COMBINE_SCORES {
   path 'binders.fasta', emit: binders_fasta
 
   script:
+  // Bare script names, not \${projectDir}/bin/... - that hardcodes the local
+  // pipeline checkout path into the task script, which doesn't exist on remote
+  // executors like AWS Batch. Nextflow auto-adds the top-level bin/ dir to PATH.
   """
     # Run the af2 score aggregation script
-    python ${projectDir}/bin/af2_combine_scores.py af2ig_scores --output af2_initial_guess_scores.tsv
+    af2_combine_scores.py af2ig_scores --output af2_initial_guess_scores.tsv
 
     # Run the shape score calculation script (Rg, Dmax, asphericity, Stokes Radius, chain, length, sequence)
     pushd pdbs
-      python ${projectDir}/bin/calculate_shape_scores.py --chain A *.pdb >../shape_scores.tsv
+      calculate_shape_scores.py --chain A *.pdb >../shape_scores.tsv
     popd
 
     # Merge both tables
-    python ${projectDir}/bin/merge_scores.py \
+    merge_scores.py \
       af2_initial_guess_scores.tsv \
       shape_scores.tsv \
       extra_scores.tsv \
@@ -42,7 +45,7 @@ process COMBINE_SCORES {
     # Only run this if the boltz scores and rmsd scores are non-empty files
     if [[ -s boltz_scores_complex.tsv && -s rmsd_monomer_vs_complex.tsv && -s rmsd_target_aligned_binder.tsv ]]; then
       # Merge boltz refolding scores with combined scores
-      python ${projectDir}/bin/merge_scores.py \
+      merge_scores.py \
         prerefold_combined_scores.tsv boltz_scores_complex.tsv \
         --column-prefix boltz_ \
         --keys id,description \
@@ -50,7 +53,7 @@ process COMBINE_SCORES {
 
       csvtk -t cut -b -f structure1,rmsd_all rmsd_monomer_vs_complex.tsv >tmp_monomer_rmsd.tsv
 
-      python ${projectDir}/bin/merge_scores.py \
+      merge_scores.py \
         refold_combined_scores.tsv tmp_monomer_rmsd.tsv \
         --column-prefix boltz_monomer_vs_complex_ \
         --keys structure1,description \
@@ -59,7 +62,7 @@ process COMBINE_SCORES {
 
       csvtk -t cut -b -f structure1,rmsd_all rmsd_target_aligned_binder.tsv >tmp_target_aligned_binder_rmsd.tsv
 
-      python ${projectDir}/bin/merge_scores.py \
+      merge_scores.py \
         rmsd1_scores.tsv tmp_target_aligned_binder_rmsd.tsv \
         --column-prefix boltz_target_aligned_binder_ \
         --first-column filename,description,pae_interaction,plddt_binder,boltz_confidence_score,boltz_iptm,boltz_monomer_vs_complex_rmsd_all,boltz_target_aligned_binder_rmsd_all \
@@ -71,10 +74,10 @@ process COMBINE_SCORES {
       cp prerefold_combined_scores.tsv combined_scores.tsv && \
       rm prerefold_combined_scores.tsv
     fi
-  
+
 
     # Output FASTA sequences of binders, with scores in the header
-    python ${projectDir}/bin/pdb_to_fasta.py \
+    pdb_to_fasta.py \
         --scores-table combined_scores.tsv \
         --scores pae_interaction,plddt_binder,rg,length \
         --chains A \
