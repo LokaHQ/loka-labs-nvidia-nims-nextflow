@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`snapshot for ProteinDesignStack matches previous state 1`] = `
+exports[`snapshot for NvidiaNimsStack matches previous state 1`] = `
 {
   "Outputs": {
     "CpuSmallQueue": {
@@ -32,13 +32,15 @@ exports[`snapshot for ProteinDesignStack matches previous state 1`] = `
         ],
       },
     },
-    "EcrNamespace": {
-      "Description": "params.ecr_namespace - repositories are <registry>/<namespace>/<tool>",
-      "Value": "protein-design",
-    },
     "EcrRegistry": {
       "Description": "params.ecr_registry",
       "Value": "123456789012.dkr.ecr.us-east-1.amazonaws.com",
+    },
+    "EcrRepository": {
+      "Description": "params.ecr_repository - one shared repository, images tagged <tool>-<version>",
+      "Value": {
+        "Ref": "RegistryRepositoryC6C96DCD",
+      },
     },
     "GpuHighmemQueue": {
       "Description": "params.gpu_highmem_queue - AF2 NIM",
@@ -99,7 +101,7 @@ exports[`snapshot for ProteinDesignStack matches previous state 1`] = `
       },
     },
     "InputBucket": {
-      "Description": "params.input_bucket - task inputs and the Nextflow work directory",
+      "Description": "params.input_bucket - task inputs",
       "Value": {
         "Ref": "StorageInputBucket0767FBBB",
       },
@@ -117,6 +119,12 @@ exports[`snapshot for ProteinDesignStack matches previous state 1`] = `
       "Description": "params.output_bucket - publishDir target",
       "Value": {
         "Ref": "StorageOutputBucketCD2EEB3A",
+      },
+    },
+    "WorkdirBucket": {
+      "Description": "workDir - the Nextflow work directory",
+      "Value": {
+        "Ref": "StorageWorkdirBucketB48E0B6A",
       },
     },
   },
@@ -154,7 +162,7 @@ exports[`snapshot for ProteinDesignStack matches previous state 1`] = `
                 },
                 {
                   "Key": "Project",
-                  "Value": "protein-design",
+                  "Value": "nvidia-nims",
                 },
                 {
                   "Key": "Team",
@@ -175,7 +183,7 @@ exports[`snapshot for ProteinDesignStack matches previous state 1`] = `
                 },
                 {
                   "Key": "Project",
-                  "Value": "protein-design",
+                  "Value": "nvidia-nims",
                 },
                 {
                   "Key": "Team",
@@ -229,7 +237,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
               },
               {
                 "Key": "Project",
-                "Value": "protein-design",
+                "Value": "nvidia-nims",
               },
               {
                 "Key": "Team",
@@ -286,10 +294,13 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
             {
               "Ref": "NetworkVpcprivateSubnet2Subnet6E5E8804",
             },
+            {
+              "Ref": "NetworkVpcprivateSubnet3SubnetC252FE86",
+            },
           ],
           "Tags": {
             "GitRepository": "loka-labs-nvidia-nims-nextflow",
-            "Project": "protein-design",
+            "Project": "nvidia-nims",
             "Team": "loka-labs",
           },
           "Type": "EC2",
@@ -299,7 +310,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
         "State": "ENABLED",
         "Tags": {
           "GitRepository": "loka-labs-nvidia-nims-nextflow",
-          "Project": "protein-design",
+          "Project": "nvidia-nims",
           "Team": "loka-labs",
         },
         "Type": "managed",
@@ -339,12 +350,12 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
             "Order": 2,
           },
         ],
-        "JobQueueName": "protein-design-cpu-small",
+        "JobQueueName": "nvidia-nims-cpu-small",
         "Priority": 10,
         "State": "ENABLED",
         "Tags": {
           "GitRepository": "loka-labs-nvidia-nims-nextflow",
-          "Project": "protein-design",
+          "Project": "nvidia-nims",
           "Team": "loka-labs",
         },
       },
@@ -395,10 +406,13 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
             {
               "Ref": "NetworkVpcprivateSubnet2Subnet6E5E8804",
             },
+            {
+              "Ref": "NetworkVpcprivateSubnet3SubnetC252FE86",
+            },
           ],
           "Tags": {
             "GitRepository": "loka-labs-nvidia-nims-nextflow",
-            "Project": "protein-design",
+            "Project": "nvidia-nims",
             "Team": "loka-labs",
           },
           "Type": "SPOT",
@@ -408,7 +422,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
         "State": "ENABLED",
         "Tags": {
           "GitRepository": "loka-labs-nvidia-nims-nextflow",
-          "Project": "protein-design",
+          "Project": "nvidia-nims",
           "Team": "loka-labs",
         },
         "Type": "managed",
@@ -459,7 +473,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
                 },
                 {
                   "Key": "Project",
-                  "Value": "protein-design",
+                  "Value": "nvidia-nims",
                 },
                 {
                   "Key": "Team",
@@ -480,7 +494,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
                 },
                 {
                   "Key": "Project",
-                  "Value": "protein-design",
+                  "Value": "nvidia-nims",
                 },
                 {
                   "Key": "Team",
@@ -534,7 +548,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
               },
               {
                 "Key": "Project",
-                "Value": "protein-design",
+                "Value": "nvidia-nims",
               },
               {
                 "Key": "Team",
@@ -552,7 +566,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           "AllocationStrategy": "BEST_FIT_PROGRESSIVE",
           "Ec2Configuration": [
             {
-              "ImageType": "ECS_AL2_NVIDIA",
+              "ImageType": "ECS_AL2023_NVIDIA",
             },
           ],
           "InstanceRole": {
@@ -587,10 +601,13 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
             {
               "Ref": "NetworkVpcprivateSubnet2Subnet6E5E8804",
             },
+            {
+              "Ref": "NetworkVpcprivateSubnet3SubnetC252FE86",
+            },
           ],
           "Tags": {
             "GitRepository": "loka-labs-nvidia-nims-nextflow",
-            "Project": "protein-design",
+            "Project": "nvidia-nims",
             "Team": "loka-labs",
           },
           "Type": "EC2",
@@ -600,7 +617,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
         "State": "ENABLED",
         "Tags": {
           "GitRepository": "loka-labs-nvidia-nims-nextflow",
-          "Project": "protein-design",
+          "Project": "nvidia-nims",
           "Team": "loka-labs",
         },
         "Type": "managed",
@@ -640,12 +657,12 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
             "Order": 2,
           },
         ],
-        "JobQueueName": "protein-design-gpu-highmem",
+        "JobQueueName": "nvidia-nims-gpu-highmem",
         "Priority": 10,
         "State": "ENABLED",
         "Tags": {
           "GitRepository": "loka-labs-nvidia-nims-nextflow",
-          "Project": "protein-design",
+          "Project": "nvidia-nims",
           "Team": "loka-labs",
         },
       },
@@ -657,7 +674,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           "AllocationStrategy": "BEST_FIT_PROGRESSIVE",
           "Ec2Configuration": [
             {
-              "ImageType": "ECS_AL2_NVIDIA",
+              "ImageType": "ECS_AL2023_NVIDIA",
             },
           ],
           "InstanceRole": {
@@ -692,10 +709,13 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
             {
               "Ref": "NetworkVpcprivateSubnet2Subnet6E5E8804",
             },
+            {
+              "Ref": "NetworkVpcprivateSubnet3SubnetC252FE86",
+            },
           ],
           "Tags": {
             "GitRepository": "loka-labs-nvidia-nims-nextflow",
-            "Project": "protein-design",
+            "Project": "nvidia-nims",
             "Team": "loka-labs",
           },
           "Type": "SPOT",
@@ -705,7 +725,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
         "State": "ENABLED",
         "Tags": {
           "GitRepository": "loka-labs-nvidia-nims-nextflow",
-          "Project": "protein-design",
+          "Project": "nvidia-nims",
           "Team": "loka-labs",
         },
         "Type": "managed",
@@ -756,7 +776,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
                 },
                 {
                   "Key": "Project",
-                  "Value": "protein-design",
+                  "Value": "nvidia-nims",
                 },
                 {
                   "Key": "Team",
@@ -777,7 +797,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
                 },
                 {
                   "Key": "Project",
-                  "Value": "protein-design",
+                  "Value": "nvidia-nims",
                 },
                 {
                   "Key": "Team",
@@ -831,7 +851,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
               },
               {
                 "Key": "Project",
-                "Value": "protein-design",
+                "Value": "nvidia-nims",
               },
               {
                 "Key": "Team",
@@ -849,7 +869,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           "AllocationStrategy": "BEST_FIT_PROGRESSIVE",
           "Ec2Configuration": [
             {
-              "ImageType": "ECS_AL2_NVIDIA",
+              "ImageType": "ECS_AL2023_NVIDIA",
             },
           ],
           "InstanceRole": {
@@ -885,10 +905,13 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
             {
               "Ref": "NetworkVpcprivateSubnet2Subnet6E5E8804",
             },
+            {
+              "Ref": "NetworkVpcprivateSubnet3SubnetC252FE86",
+            },
           ],
           "Tags": {
             "GitRepository": "loka-labs-nvidia-nims-nextflow",
-            "Project": "protein-design",
+            "Project": "nvidia-nims",
             "Team": "loka-labs",
           },
           "Type": "EC2",
@@ -898,7 +921,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
         "State": "ENABLED",
         "Tags": {
           "GitRepository": "loka-labs-nvidia-nims-nextflow",
-          "Project": "protein-design",
+          "Project": "nvidia-nims",
           "Team": "loka-labs",
         },
         "Type": "managed",
@@ -938,12 +961,12 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
             "Order": 2,
           },
         ],
-        "JobQueueName": "protein-design-gpu-standard",
+        "JobQueueName": "nvidia-nims-gpu-standard",
         "Priority": 10,
         "State": "ENABLED",
         "Tags": {
           "GitRepository": "loka-labs-nvidia-nims-nextflow",
-          "Project": "protein-design",
+          "Project": "nvidia-nims",
           "Team": "loka-labs",
         },
       },
@@ -955,7 +978,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           "AllocationStrategy": "BEST_FIT_PROGRESSIVE",
           "Ec2Configuration": [
             {
-              "ImageType": "ECS_AL2_NVIDIA",
+              "ImageType": "ECS_AL2023_NVIDIA",
             },
           ],
           "InstanceRole": {
@@ -991,10 +1014,13 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
             {
               "Ref": "NetworkVpcprivateSubnet2Subnet6E5E8804",
             },
+            {
+              "Ref": "NetworkVpcprivateSubnet3SubnetC252FE86",
+            },
           ],
           "Tags": {
             "GitRepository": "loka-labs-nvidia-nims-nextflow",
-            "Project": "protein-design",
+            "Project": "nvidia-nims",
             "Team": "loka-labs",
           },
           "Type": "SPOT",
@@ -1004,7 +1030,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
         "State": "ENABLED",
         "Tags": {
           "GitRepository": "loka-labs-nvidia-nims-nextflow",
-          "Project": "protein-design",
+          "Project": "nvidia-nims",
           "Team": "loka-labs",
         },
         "Type": "managed",
@@ -1070,7 +1096,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -1138,6 +1164,43 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
               "Resource": [
                 {
                   "Fn::GetAtt": [
+                    "StorageWorkdirBucketB48E0B6A",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "StorageWorkdirBucketB48E0B6A",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
                     "StorageOutputBucketCD2EEB3A",
                     "Arn",
                   ],
@@ -1167,7 +1230,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
               "Effect": "Allow",
               "Resource": {
                 "Fn::GetAtt": [
-                  "RegistryRepositoryRfdiffusion7054B873",
+                  "RegistryRepositoryC6C96DCD",
                   "Arn",
                 ],
               },
@@ -1176,62 +1239,6 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
               "Action": "ecr:GetAuthorizationToken",
               "Effect": "Allow",
               "Resource": "*",
-            },
-            {
-              "Action": [
-                "ecr:BatchCheckLayerAvailability",
-                "ecr:GetDownloadUrlForLayer",
-                "ecr:BatchGetImage",
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "RegistryRepositoryProteinmpnnNimD7191B37",
-                  "Arn",
-                ],
-              },
-            },
-            {
-              "Action": [
-                "ecr:BatchCheckLayerAvailability",
-                "ecr:GetDownloadUrlForLayer",
-                "ecr:BatchGetImage",
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "RegistryRepositoryProteinmpnnNonim60961694",
-                  "Arn",
-                ],
-              },
-            },
-            {
-              "Action": [
-                "ecr:BatchCheckLayerAvailability",
-                "ecr:GetDownloadUrlForLayer",
-                "ecr:BatchGetImage",
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "RegistryRepositoryAf2NimE6D998A3",
-                  "Arn",
-                ],
-              },
-            },
-            {
-              "Action": [
-                "ecr:BatchCheckLayerAvailability",
-                "ecr:GetDownloadUrlForLayer",
-                "ecr:BatchGetImage",
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "RegistryRepositoryAf2Nonim32B41C40",
-                  "Arn",
-                ],
-              },
             },
           ],
           "Version": "2012-10-17",
@@ -1267,7 +1274,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -1309,6 +1316,43 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
                       {
                         "Fn::GetAtt": [
                           "StorageInputBucket0767FBBB",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "StorageWorkdirBucketB48E0B6A",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "StorageWorkdirBucketB48E0B6A",
                           "Arn",
                         ],
                       },
@@ -1479,7 +1523,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -1509,7 +1553,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -1538,6 +1582,9 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           {
             "Ref": "NetworkVpcprivateSubnet2Subnet6E5E8804",
           },
+          {
+            "Ref": "NetworkVpcprivateSubnet3SubnetC252FE86",
+          },
         ],
         "Tags": [
           {
@@ -1550,7 +1597,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -1613,7 +1660,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -1645,6 +1692,9 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           {
             "Ref": "NetworkVpcprivateSubnet2Subnet6E5E8804",
           },
+          {
+            "Ref": "NetworkVpcprivateSubnet3SubnetC252FE86",
+          },
         ],
         "Tags": [
           {
@@ -1657,7 +1707,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -1720,7 +1770,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -1752,6 +1802,9 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           {
             "Ref": "NetworkVpcprivateSubnet2Subnet6E5E8804",
           },
+          {
+            "Ref": "NetworkVpcprivateSubnet3SubnetC252FE86",
+          },
         ],
         "Tags": [
           {
@@ -1764,7 +1817,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -1827,7 +1880,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -1853,7 +1906,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -1893,10 +1946,16 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
             "Ref": "NetworkVpcprivateSubnet2RouteTable53A5479A",
           },
           {
+            "Ref": "NetworkVpcprivateSubnet3RouteTable8F14EDD2",
+          },
+          {
             "Ref": "NetworkVpcpublicSubnet1RouteTableDFE49ED6",
           },
           {
             "Ref": "NetworkVpcpublicSubnet2RouteTable216E89B0",
+          },
+          {
+            "Ref": "NetworkVpcpublicSubnet3RouteTableC81D91ED",
           },
         ],
         "ServiceName": {
@@ -1922,7 +1981,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -1972,7 +2031,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -2020,7 +2079,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -2058,7 +2117,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -2106,7 +2165,93 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "NetworkVpcprivateSubnet3DefaultRouteC9A352FA": {
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "NetworkVpcpublicSubnet1NATGateway939C8F7E",
+        },
+        "RouteTableId": {
+          "Ref": "NetworkVpcprivateSubnet3RouteTable8F14EDD2",
+        },
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "NetworkVpcprivateSubnet3RouteTable8F14EDD2": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc/privateSubnet3",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "NetworkVpcprivateSubnet3RouteTableAssociation20B8B113": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "NetworkVpcprivateSubnet3RouteTable8F14EDD2",
+        },
+        "SubnetId": {
+          "Ref": "NetworkVpcprivateSubnet3SubnetC252FE86",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "NetworkVpcprivateSubnet3SubnetC252FE86": {
+      "Properties": {
+        "AvailabilityZone": "dummy1c",
+        "CidrBlock": "10.60.96.0/19",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "private",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Private",
+          },
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc/privateSubnet3",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -2148,7 +2293,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -2184,7 +2329,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -2218,7 +2363,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -2255,7 +2400,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -2296,7 +2441,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -2344,7 +2489,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -2357,67 +2502,96 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
       },
       "Type": "AWS::EC2::Subnet",
     },
-    "RegistryRepositoryAf2NimE6D998A3": {
-      "DeletionPolicy": "Retain",
+    "NetworkVpcpublicSubnet3DefaultRouteB75369CF": {
+      "DependsOn": [
+        "NetworkVpcVPCGW8F3799B5",
+      ],
       "Properties": {
-        "EmptyOnDelete": false,
-        "ImageScanningConfiguration": {
-          "ScanOnPush": true,
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "NetworkVpcIGW6BEA7B02",
         },
-        "ImageTagMutability": "MUTABLE",
-        "LifecyclePolicy": {
-          "LifecyclePolicyText": "{"rules":[{"rulePriority":1,"description":"Expire untagged images","selection":{"tagStatus":"untagged","countType":"sinceImagePushed","countNumber":14,"countUnit":"days"},"action":{"type":"expire"}}]}",
+        "RouteTableId": {
+          "Ref": "NetworkVpcpublicSubnet3RouteTableC81D91ED",
         },
-        "RepositoryName": "protein-design/af2-nim",
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "NetworkVpcpublicSubnet3RouteTableAssociation70793AFA": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "NetworkVpcpublicSubnet3RouteTableC81D91ED",
+        },
+        "SubnetId": {
+          "Ref": "NetworkVpcpublicSubnet3SubnetB6CE113A",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "NetworkVpcpublicSubnet3RouteTableC81D91ED": {
+      "Properties": {
         "Tags": [
           {
             "Key": "GitRepository",
             "Value": "loka-labs-nvidia-nims-nextflow",
           },
           {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc/publicSubnet3",
+          },
+          {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
             "Value": "loka-labs",
           },
         ],
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
       },
-      "Type": "AWS::ECR::Repository",
-      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::RouteTable",
     },
-    "RegistryRepositoryAf2Nonim32B41C40": {
-      "DeletionPolicy": "Retain",
+    "NetworkVpcpublicSubnet3SubnetB6CE113A": {
       "Properties": {
-        "EmptyOnDelete": false,
-        "ImageScanningConfiguration": {
-          "ScanOnPush": true,
-        },
-        "ImageTagMutability": "MUTABLE",
-        "LifecyclePolicy": {
-          "LifecyclePolicyText": "{"rules":[{"rulePriority":1,"description":"Expire untagged images","selection":{"tagStatus":"untagged","countType":"sinceImagePushed","countNumber":14,"countUnit":"days"},"action":{"type":"expire"}}]}",
-        },
-        "RepositoryName": "protein-design/af2-nonim",
+        "AvailabilityZone": "dummy1c",
+        "CidrBlock": "10.60.2.0/24",
+        "MapPublicIpOnLaunch": false,
         "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "public",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Public",
+          },
           {
             "Key": "GitRepository",
             "Value": "loka-labs-nvidia-nims-nextflow",
           },
           {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc/publicSubnet3",
+          },
+          {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
             "Value": "loka-labs",
           },
         ],
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
       },
-      "Type": "AWS::ECR::Repository",
-      "UpdateReplacePolicy": "Retain",
+      "Type": "AWS::EC2::Subnet",
     },
-    "RegistryRepositoryProteinmpnnNimD7191B37": {
+    "RegistryRepositoryC6C96DCD": {
       "DeletionPolicy": "Retain",
       "Properties": {
         "EmptyOnDelete": false,
@@ -2428,7 +2602,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
         "LifecyclePolicy": {
           "LifecyclePolicyText": "{"rules":[{"rulePriority":1,"description":"Expire untagged images","selection":{"tagStatus":"untagged","countType":"sinceImagePushed","countNumber":14,"countUnit":"days"},"action":{"type":"expire"}}]}",
         },
-        "RepositoryName": "protein-design/proteinmpnn-nim",
+        "RepositoryName": "nvidia-nims",
         "Tags": [
           {
             "Key": "GitRepository",
@@ -2436,67 +2610,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
-          },
-          {
-            "Key": "Team",
-            "Value": "loka-labs",
-          },
-        ],
-      },
-      "Type": "AWS::ECR::Repository",
-      "UpdateReplacePolicy": "Retain",
-    },
-    "RegistryRepositoryProteinmpnnNonim60961694": {
-      "DeletionPolicy": "Retain",
-      "Properties": {
-        "EmptyOnDelete": false,
-        "ImageScanningConfiguration": {
-          "ScanOnPush": true,
-        },
-        "ImageTagMutability": "MUTABLE",
-        "LifecyclePolicy": {
-          "LifecyclePolicyText": "{"rules":[{"rulePriority":1,"description":"Expire untagged images","selection":{"tagStatus":"untagged","countType":"sinceImagePushed","countNumber":14,"countUnit":"days"},"action":{"type":"expire"}}]}",
-        },
-        "RepositoryName": "protein-design/proteinmpnn-nonim",
-        "Tags": [
-          {
-            "Key": "GitRepository",
-            "Value": "loka-labs-nvidia-nims-nextflow",
-          },
-          {
-            "Key": "Project",
-            "Value": "protein-design",
-          },
-          {
-            "Key": "Team",
-            "Value": "loka-labs",
-          },
-        ],
-      },
-      "Type": "AWS::ECR::Repository",
-      "UpdateReplacePolicy": "Retain",
-    },
-    "RegistryRepositoryRfdiffusion7054B873": {
-      "DeletionPolicy": "Retain",
-      "Properties": {
-        "EmptyOnDelete": false,
-        "ImageScanningConfiguration": {
-          "ScanOnPush": true,
-        },
-        "ImageTagMutability": "MUTABLE",
-        "LifecyclePolicy": {
-          "LifecyclePolicyText": "{"rules":[{"rulePriority":1,"description":"Expire untagged images","selection":{"tagStatus":"untagged","countType":"sinceImagePushed","countNumber":14,"countUnit":"days"},"action":{"type":"expire"}}]}",
-        },
-        "RepositoryName": "protein-design/rfdiffusion",
-        "Tags": [
-          {
-            "Key": "GitRepository",
-            "Value": "loka-labs-nvidia-nims-nextflow",
-          },
-          {
-            "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -2519,6 +2633,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
             },
           ],
         },
+        "BucketName": "nvidia-nims-input",
         "LifecycleConfiguration": {
           "Rules": [
             {
@@ -2544,7 +2659,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -2618,6 +2733,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
                     },
                     "arn:aws:iam::123456789012:root",
                     "arn:aws:iam::123456789012:role/cdk-*",
+                    "arn:aws:iam::520168724997:role/aws-reserved/sso.amazonaws.com/*",
                   ],
                 },
               },
@@ -2667,6 +2783,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
             },
           ],
         },
+        "BucketName": "nvidia-nims-output",
         "LifecycleConfiguration": {
           "Rules": [
             {
@@ -2691,7 +2808,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
           },
           {
             "Key": "Project",
-            "Value": "protein-design",
+            "Value": "nvidia-nims",
           },
           {
             "Key": "Team",
@@ -2768,6 +2885,7 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
                     },
                     "arn:aws:iam::123456789012:root",
                     "arn:aws:iam::123456789012:role/cdk-*",
+                    "arn:aws:iam::520168724997:role/aws-reserved/sso.amazonaws.com/*",
                   ],
                 },
               },
@@ -2789,6 +2907,156 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
                       {
                         "Fn::GetAtt": [
                           "StorageOutputBucketCD2EEB3A",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+              "Sid": "DenyEveryPrincipalExceptThePipelineRoles",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::S3::BucketPolicy",
+    },
+    "StorageWorkdirBucketB48E0B6A": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256",
+              },
+            },
+          ],
+        },
+        "BucketName": "nvidia-nims-workdir",
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "AbortIncompleteMultipartUpload": {
+                "DaysAfterInitiation": 7,
+              },
+              "ExpirationInDays": 30,
+              "Id": "expire-workdir",
+              "Status": "Enabled",
+            },
+          ],
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true,
+        },
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "StorageWorkdirBucketPolicyBCA8C0CD": {
+      "Properties": {
+        "Bucket": {
+          "Ref": "StorageWorkdirBucketB48E0B6A",
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "s3:*",
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": "false",
+                },
+              },
+              "Effect": "Deny",
+              "Principal": {
+                "AWS": "*",
+              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "StorageWorkdirBucketB48E0B6A",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "StorageWorkdirBucketB48E0B6A",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": "s3:*",
+              "Condition": {
+                "BoolIfExists": {
+                  "aws:PrincipalIsAWSService": "false",
+                },
+                "StringNotLike": {
+                  "aws:PrincipalArn": [
+                    {
+                      "Fn::GetAtt": [
+                        "BatchJobRole8F5EADCB",
+                        "Arn",
+                      ],
+                    },
+                    {
+                      "Fn::GetAtt": [
+                        "BatchInstanceRole6B185052",
+                        "Arn",
+                      ],
+                    },
+                    "arn:aws:iam::123456789012:root",
+                    "arn:aws:iam::123456789012:role/cdk-*",
+                    "arn:aws:iam::520168724997:role/aws-reserved/sso.amazonaws.com/*",
+                  ],
+                },
+              },
+              "Effect": "Deny",
+              "Principal": {
+                "AWS": "*",
+              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "StorageWorkdirBucketB48E0B6A",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "StorageWorkdirBucketB48E0B6A",
                           "Arn",
                         ],
                       },

@@ -50,7 +50,7 @@ export const config: Config = {
 
   network: {
     cidr: "10.60.0.0/16",
-    maxAzs: 2,
+    maxAzs: 4,
     natGateways: 1,
   },
 
