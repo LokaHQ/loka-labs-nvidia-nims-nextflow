@@ -1,0 +1,8 @@
+{
+  "NetworkVpcpublicSubnet1Subnet00617657": "10.60.0.0/24",
+  "NetworkVpcpublicSubnet2SubnetDCAA7C9A": "10.60.1.0/24",
+  "NetworkVpcpublicSubnet3SubnetB6CE113A": "10.60.2.0/24",
+  "NetworkVpcprivateSubnet1Subnet9EC58498": "10.60.32.0/19",
+  "NetworkVpcprivateSubnet2Subnet6E5E8804": "10.60.64.0/19",
+  "NetworkVpcprivateSubnet3SubnetC252FE86": "10.60.96.0/19"
+}

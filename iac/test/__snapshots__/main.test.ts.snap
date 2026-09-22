@@ -1,0 +1,3078 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`snapshot for NvidiaNimsStack matches previous state 1`] = `
+{
+  "Outputs": {
+    "CpuSmallQueue": {
+      "Description": "params.cpu_small_queue - ProteinMPNN no-NIM",
+      "Value": {
+        "Fn::Select": [
+          1,
+          {
+            "Fn::Split": [
+              "/",
+              {
+                "Fn::Select": [
+                  5,
+                  {
+                    "Fn::Split": [
+                      ":",
+                      {
+                        "Fn::GetAtt": [
+                          "BatchCpuSmallQueue2B48413F",
+                          "JobQueueArn",
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    "EcrRegistry": {
+      "Description": "params.ecr_registry",
+      "Value": "123456789012.dkr.ecr.us-east-1.amazonaws.com",
+    },
+    "EcrRepository": {
+      "Description": "params.ecr_repository - one shared repository, images tagged <tool>-<version>",
+      "Value": {
+        "Ref": "RegistryRepositoryC6C96DCD",
+      },
+    },
+    "GpuHighmemQueue": {
+      "Description": "params.gpu_highmem_queue - AF2 NIM",
+      "Value": {
+        "Fn::Select": [
+          1,
+          {
+            "Fn::Split": [
+              "/",
+              {
+                "Fn::Select": [
+                  5,
+                  {
+                    "Fn::Split": [
+                      ":",
+                      {
+                        "Fn::GetAtt": [
+                          "BatchGpuHighmemQueueED00C9C0",
+                          "JobQueueArn",
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    "GpuStandardQueue": {
+      "Description": "params.gpu_standard_queue - RFdiffusion, ProteinMPNN NIM, AF2 no-NIM",
+      "Value": {
+        "Fn::Select": [
+          1,
+          {
+            "Fn::Split": [
+              "/",
+              {
+                "Fn::Select": [
+                  5,
+                  {
+                    "Fn::Split": [
+                      ":",
+                      {
+                        "Fn::GetAtt": [
+                          "BatchGpuStandardQueue2D2766A4",
+                          "JobQueueArn",
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    "InputBucket": {
+      "Description": "params.input_bucket - task inputs",
+      "Value": {
+        "Ref": "StorageInputBucket0767FBBB",
+      },
+    },
+    "JobRoleArn": {
+      "Description": "aws.batch.jobRole - the identity the bucket policies are scoped to",
+      "Value": {
+        "Fn::GetAtt": [
+          "BatchJobRole8F5EADCB",
+          "Arn",
+        ],
+      },
+    },
+    "OutputBucket": {
+      "Description": "params.output_bucket - publishDir target",
+      "Value": {
+        "Ref": "StorageOutputBucketCD2EEB3A",
+      },
+    },
+    "WorkdirBucket": {
+      "Description": "workDir - the Nextflow work directory",
+      "Value": {
+        "Ref": "StorageWorkdirBucketB48E0B6A",
+      },
+    },
+  },
+  "Resources": {
+    "BatchCpuSmallLaunchTemplate6895731B": {
+      "Properties": {
+        "LaunchTemplateData": {
+          "BlockDeviceMappings": [
+            {
+              "DeviceName": "/dev/xvda",
+              "Ebs": {
+                "DeleteOnTermination": true,
+                "Encrypted": true,
+                "Iops": 3000,
+                "Throughput": 250,
+                "VolumeSize": 100,
+                "VolumeType": "gp3",
+              },
+            },
+          ],
+          "MetadataOptions": {
+            "HttpTokens": "required",
+          },
+          "TagSpecifications": [
+            {
+              "ResourceType": "instance",
+              "Tags": [
+                {
+                  "Key": "GitRepository",
+                  "Value": "loka-labs-nvidia-nims-nextflow",
+                },
+                {
+                  "Key": "Name",
+                  "Value": "MyTestStack/Batch/CpuSmallLaunchTemplate",
+                },
+                {
+                  "Key": "Project",
+                  "Value": "nvidia-nims",
+                },
+                {
+                  "Key": "Team",
+                  "Value": "loka-labs",
+                },
+              ],
+            },
+            {
+              "ResourceType": "volume",
+              "Tags": [
+                {
+                  "Key": "GitRepository",
+                  "Value": "loka-labs-nvidia-nims-nextflow",
+                },
+                {
+                  "Key": "Name",
+                  "Value": "MyTestStack/Batch/CpuSmallLaunchTemplate",
+                },
+                {
+                  "Key": "Project",
+                  "Value": "nvidia-nims",
+                },
+                {
+                  "Key": "Team",
+                  "Value": "loka-labs",
+                },
+              ],
+            },
+          ],
+          "UserData": {
+            "Fn::Base64": {
+              "Fn::Join": [
+                "",
+                [
+                  "Content-Type: multipart/mixed; boundary="+AWS+CDK+User+Data+Separator=="
+MIME-Version: 1.0
+
+--+AWS+CDK+User+Data+Separator==
+Content-Type: text/x-shellscript; charset="utf-8"
+Content-Transfer-Encoding: base64
+
+",
+                  {
+                    "Fn::Base64": "#!/bin/bash
+set -euxo pipefail
+( yum install -y unzip || dnf install -y unzip )
+curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+unzip -q -o /tmp/awscliv2.zip -d /tmp
+/tmp/aws/install --bin-dir /opt/aws-cli/bin --install-dir /opt/aws-cli/aws-cli --update
+rm -rf /tmp/aws /tmp/awscliv2.zip",
+                  },
+                  "
+--+AWS+CDK+User+Data+Separator==--
+",
+                ],
+              ],
+            },
+          },
+        },
+        "LaunchTemplateName": "MyTestStack-cpu-small",
+        "TagSpecifications": [
+          {
+            "ResourceType": "launch-template",
+            "Tags": [
+              {
+                "Key": "GitRepository",
+                "Value": "loka-labs-nvidia-nims-nextflow",
+              },
+              {
+                "Key": "Name",
+                "Value": "MyTestStack/Batch/CpuSmallLaunchTemplate",
+              },
+              {
+                "Key": "Project",
+                "Value": "nvidia-nims",
+              },
+              {
+                "Key": "Team",
+                "Value": "loka-labs",
+              },
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::EC2::LaunchTemplate",
+    },
+    "BatchCpuSmallOnDemandComputeEnvironment8B557E79": {
+      "Properties": {
+        "ComputeResources": {
+          "AllocationStrategy": "BEST_FIT_PROGRESSIVE",
+          "Ec2Configuration": [
+            {
+              "ImageType": "ECS_AL2023",
+            },
+          ],
+          "InstanceRole": {
+            "Fn::GetAtt": [
+              "BatchCpuSmallOnDemandComputeEnvironmentInstanceProfileD1E9D2AF",
+              "Arn",
+            ],
+          },
+          "InstanceTypes": [
+            "m5.large",
+            "m5.xlarge",
+            "m5.2xlarge",
+            "c5.large",
+            "c5.xlarge",
+            "c5.2xlarge",
+          ],
+          "LaunchTemplate": {
+            "LaunchTemplateId": {
+              "Ref": "BatchCpuSmallLaunchTemplate6895731B",
+            },
+          },
+          "MaxvCpus": 32,
+          "MinvCpus": 0,
+          "SecurityGroupIds": [
+            {
+              "Fn::GetAtt": [
+                "NetworkComputeSecurityGroup8F94EBCC",
+                "GroupId",
+              ],
+            },
+          ],
+          "Subnets": [
+            {
+              "Ref": "NetworkVpcprivateSubnet1Subnet9EC58498",
+            },
+            {
+              "Ref": "NetworkVpcprivateSubnet2Subnet6E5E8804",
+            },
+            {
+              "Ref": "NetworkVpcprivateSubnet3SubnetC252FE86",
+            },
+          ],
+          "Tags": {
+            "GitRepository": "loka-labs-nvidia-nims-nextflow",
+            "Project": "nvidia-nims",
+            "Team": "loka-labs",
+          },
+          "Type": "EC2",
+          "UpdateToLatestImageVersion": true,
+        },
+        "ReplaceComputeEnvironment": false,
+        "State": "ENABLED",
+        "Tags": {
+          "GitRepository": "loka-labs-nvidia-nims-nextflow",
+          "Project": "nvidia-nims",
+          "Team": "loka-labs",
+        },
+        "Type": "managed",
+        "UpdatePolicy": {},
+      },
+      "Type": "AWS::Batch::ComputeEnvironment",
+    },
+    "BatchCpuSmallOnDemandComputeEnvironmentInstanceProfileD1E9D2AF": {
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "BatchInstanceRole6B185052",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::InstanceProfile",
+    },
+    "BatchCpuSmallQueue2B48413F": {
+      "Properties": {
+        "ComputeEnvironmentOrder": [
+          {
+            "ComputeEnvironment": {
+              "Fn::GetAtt": [
+                "BatchCpuSmallSpotComputeEnvironment9809CB22",
+                "ComputeEnvironmentArn",
+              ],
+            },
+            "Order": 1,
+          },
+          {
+            "ComputeEnvironment": {
+              "Fn::GetAtt": [
+                "BatchCpuSmallOnDemandComputeEnvironment8B557E79",
+                "ComputeEnvironmentArn",
+              ],
+            },
+            "Order": 2,
+          },
+        ],
+        "JobQueueName": "nvidia-nims-cpu-small",
+        "Priority": 10,
+        "State": "ENABLED",
+        "Tags": {
+          "GitRepository": "loka-labs-nvidia-nims-nextflow",
+          "Project": "nvidia-nims",
+          "Team": "loka-labs",
+        },
+      },
+      "Type": "AWS::Batch::JobQueue",
+    },
+    "BatchCpuSmallSpotComputeEnvironment9809CB22": {
+      "Properties": {
+        "ComputeResources": {
+          "AllocationStrategy": "BEST_FIT_PROGRESSIVE",
+          "Ec2Configuration": [
+            {
+              "ImageType": "ECS_AL2023",
+            },
+          ],
+          "InstanceRole": {
+            "Fn::GetAtt": [
+              "BatchCpuSmallSpotComputeEnvironmentInstanceProfile44507539",
+              "Arn",
+            ],
+          },
+          "InstanceTypes": [
+            "m5.large",
+            "m5.xlarge",
+            "m5.2xlarge",
+            "c5.large",
+            "c5.xlarge",
+            "c5.2xlarge",
+          ],
+          "LaunchTemplate": {
+            "LaunchTemplateId": {
+              "Ref": "BatchCpuSmallLaunchTemplate6895731B",
+            },
+          },
+          "MaxvCpus": 128,
+          "MinvCpus": 0,
+          "SecurityGroupIds": [
+            {
+              "Fn::GetAtt": [
+                "NetworkComputeSecurityGroup8F94EBCC",
+                "GroupId",
+              ],
+            },
+          ],
+          "Subnets": [
+            {
+              "Ref": "NetworkVpcprivateSubnet1Subnet9EC58498",
+            },
+            {
+              "Ref": "NetworkVpcprivateSubnet2Subnet6E5E8804",
+            },
+            {
+              "Ref": "NetworkVpcprivateSubnet3SubnetC252FE86",
+            },
+          ],
+          "Tags": {
+            "GitRepository": "loka-labs-nvidia-nims-nextflow",
+            "Project": "nvidia-nims",
+            "Team": "loka-labs",
+          },
+          "Type": "SPOT",
+          "UpdateToLatestImageVersion": true,
+        },
+        "ReplaceComputeEnvironment": false,
+        "State": "ENABLED",
+        "Tags": {
+          "GitRepository": "loka-labs-nvidia-nims-nextflow",
+          "Project": "nvidia-nims",
+          "Team": "loka-labs",
+        },
+        "Type": "managed",
+        "UpdatePolicy": {},
+      },
+      "Type": "AWS::Batch::ComputeEnvironment",
+    },
+    "BatchCpuSmallSpotComputeEnvironmentInstanceProfile44507539": {
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "BatchInstanceRole6B185052",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::InstanceProfile",
+    },
+    "BatchGpuHighmemLaunchTemplateE42D7E9B": {
+      "Properties": {
+        "LaunchTemplateData": {
+          "BlockDeviceMappings": [
+            {
+              "DeviceName": "/dev/xvda",
+              "Ebs": {
+                "DeleteOnTermination": true,
+                "Encrypted": true,
+                "Iops": 16000,
+                "Throughput": 1000,
+                "VolumeSize": 1400,
+                "VolumeType": "gp3",
+              },
+            },
+          ],
+          "MetadataOptions": {
+            "HttpTokens": "required",
+          },
+          "TagSpecifications": [
+            {
+              "ResourceType": "instance",
+              "Tags": [
+                {
+                  "Key": "GitRepository",
+                  "Value": "loka-labs-nvidia-nims-nextflow",
+                },
+                {
+                  "Key": "Name",
+                  "Value": "MyTestStack/Batch/GpuHighmemLaunchTemplate",
+                },
+                {
+                  "Key": "Project",
+                  "Value": "nvidia-nims",
+                },
+                {
+                  "Key": "Team",
+                  "Value": "loka-labs",
+                },
+              ],
+            },
+            {
+              "ResourceType": "volume",
+              "Tags": [
+                {
+                  "Key": "GitRepository",
+                  "Value": "loka-labs-nvidia-nims-nextflow",
+                },
+                {
+                  "Key": "Name",
+                  "Value": "MyTestStack/Batch/GpuHighmemLaunchTemplate",
+                },
+                {
+                  "Key": "Project",
+                  "Value": "nvidia-nims",
+                },
+                {
+                  "Key": "Team",
+                  "Value": "loka-labs",
+                },
+              ],
+            },
+          ],
+          "UserData": {
+            "Fn::Base64": {
+              "Fn::Join": [
+                "",
+                [
+                  "Content-Type: multipart/mixed; boundary="+AWS+CDK+User+Data+Separator=="
+MIME-Version: 1.0
+
+--+AWS+CDK+User+Data+Separator==
+Content-Type: text/x-shellscript; charset="utf-8"
+Content-Transfer-Encoding: base64
+
+",
+                  {
+                    "Fn::Base64": "#!/bin/bash
+set -euxo pipefail
+( yum install -y unzip || dnf install -y unzip )
+curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+unzip -q -o /tmp/awscliv2.zip -d /tmp
+/tmp/aws/install --bin-dir /opt/aws-cli/bin --install-dir /opt/aws-cli/aws-cli --update
+rm -rf /tmp/aws /tmp/awscliv2.zip",
+                  },
+                  "
+--+AWS+CDK+User+Data+Separator==--
+",
+                ],
+              ],
+            },
+          },
+        },
+        "LaunchTemplateName": "MyTestStack-gpu-highmem",
+        "TagSpecifications": [
+          {
+            "ResourceType": "launch-template",
+            "Tags": [
+              {
+                "Key": "GitRepository",
+                "Value": "loka-labs-nvidia-nims-nextflow",
+              },
+              {
+                "Key": "Name",
+                "Value": "MyTestStack/Batch/GpuHighmemLaunchTemplate",
+              },
+              {
+                "Key": "Project",
+                "Value": "nvidia-nims",
+              },
+              {
+                "Key": "Team",
+                "Value": "loka-labs",
+              },
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::EC2::LaunchTemplate",
+    },
+    "BatchGpuHighmemOnDemandComputeEnvironmentFD53F096": {
+      "Properties": {
+        "ComputeResources": {
+          "AllocationStrategy": "BEST_FIT_PROGRESSIVE",
+          "Ec2Configuration": [
+            {
+              "ImageType": "ECS_AL2023_NVIDIA",
+            },
+          ],
+          "InstanceRole": {
+            "Fn::GetAtt": [
+              "BatchGpuHighmemOnDemandComputeEnvironmentInstanceProfileB7FA21B6",
+              "Arn",
+            ],
+          },
+          "InstanceTypes": [
+            "g6e.12xlarge",
+            "p4d.24xlarge",
+          ],
+          "LaunchTemplate": {
+            "LaunchTemplateId": {
+              "Ref": "BatchGpuHighmemLaunchTemplateE42D7E9B",
+            },
+          },
+          "MaxvCpus": 96,
+          "MinvCpus": 0,
+          "SecurityGroupIds": [
+            {
+              "Fn::GetAtt": [
+                "NetworkComputeSecurityGroup8F94EBCC",
+                "GroupId",
+              ],
+            },
+          ],
+          "Subnets": [
+            {
+              "Ref": "NetworkVpcprivateSubnet1Subnet9EC58498",
+            },
+            {
+              "Ref": "NetworkVpcprivateSubnet2Subnet6E5E8804",
+            },
+            {
+              "Ref": "NetworkVpcprivateSubnet3SubnetC252FE86",
+            },
+          ],
+          "Tags": {
+            "GitRepository": "loka-labs-nvidia-nims-nextflow",
+            "Project": "nvidia-nims",
+            "Team": "loka-labs",
+          },
+          "Type": "EC2",
+          "UpdateToLatestImageVersion": true,
+        },
+        "ReplaceComputeEnvironment": false,
+        "State": "ENABLED",
+        "Tags": {
+          "GitRepository": "loka-labs-nvidia-nims-nextflow",
+          "Project": "nvidia-nims",
+          "Team": "loka-labs",
+        },
+        "Type": "managed",
+        "UpdatePolicy": {},
+      },
+      "Type": "AWS::Batch::ComputeEnvironment",
+    },
+    "BatchGpuHighmemOnDemandComputeEnvironmentInstanceProfileB7FA21B6": {
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "BatchInstanceRole6B185052",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::InstanceProfile",
+    },
+    "BatchGpuHighmemQueueED00C9C0": {
+      "Properties": {
+        "ComputeEnvironmentOrder": [
+          {
+            "ComputeEnvironment": {
+              "Fn::GetAtt": [
+                "BatchGpuHighmemSpotComputeEnvironmentD47857D0",
+                "ComputeEnvironmentArn",
+              ],
+            },
+            "Order": 1,
+          },
+          {
+            "ComputeEnvironment": {
+              "Fn::GetAtt": [
+                "BatchGpuHighmemOnDemandComputeEnvironmentFD53F096",
+                "ComputeEnvironmentArn",
+              ],
+            },
+            "Order": 2,
+          },
+        ],
+        "JobQueueName": "nvidia-nims-gpu-highmem",
+        "Priority": 10,
+        "State": "ENABLED",
+        "Tags": {
+          "GitRepository": "loka-labs-nvidia-nims-nextflow",
+          "Project": "nvidia-nims",
+          "Team": "loka-labs",
+        },
+      },
+      "Type": "AWS::Batch::JobQueue",
+    },
+    "BatchGpuHighmemSpotComputeEnvironmentD47857D0": {
+      "Properties": {
+        "ComputeResources": {
+          "AllocationStrategy": "BEST_FIT_PROGRESSIVE",
+          "Ec2Configuration": [
+            {
+              "ImageType": "ECS_AL2023_NVIDIA",
+            },
+          ],
+          "InstanceRole": {
+            "Fn::GetAtt": [
+              "BatchGpuHighmemSpotComputeEnvironmentInstanceProfile799B0FE3",
+              "Arn",
+            ],
+          },
+          "InstanceTypes": [
+            "g6e.12xlarge",
+            "p4d.24xlarge",
+          ],
+          "LaunchTemplate": {
+            "LaunchTemplateId": {
+              "Ref": "BatchGpuHighmemLaunchTemplateE42D7E9B",
+            },
+          },
+          "MaxvCpus": 192,
+          "MinvCpus": 0,
+          "SecurityGroupIds": [
+            {
+              "Fn::GetAtt": [
+                "NetworkComputeSecurityGroup8F94EBCC",
+                "GroupId",
+              ],
+            },
+          ],
+          "Subnets": [
+            {
+              "Ref": "NetworkVpcprivateSubnet1Subnet9EC58498",
+            },
+            {
+              "Ref": "NetworkVpcprivateSubnet2Subnet6E5E8804",
+            },
+            {
+              "Ref": "NetworkVpcprivateSubnet3SubnetC252FE86",
+            },
+          ],
+          "Tags": {
+            "GitRepository": "loka-labs-nvidia-nims-nextflow",
+            "Project": "nvidia-nims",
+            "Team": "loka-labs",
+          },
+          "Type": "SPOT",
+          "UpdateToLatestImageVersion": true,
+        },
+        "ReplaceComputeEnvironment": false,
+        "State": "ENABLED",
+        "Tags": {
+          "GitRepository": "loka-labs-nvidia-nims-nextflow",
+          "Project": "nvidia-nims",
+          "Team": "loka-labs",
+        },
+        "Type": "managed",
+        "UpdatePolicy": {},
+      },
+      "Type": "AWS::Batch::ComputeEnvironment",
+    },
+    "BatchGpuHighmemSpotComputeEnvironmentInstanceProfile799B0FE3": {
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "BatchInstanceRole6B185052",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::InstanceProfile",
+    },
+    "BatchGpuStandardLaunchTemplate9F852613": {
+      "Properties": {
+        "LaunchTemplateData": {
+          "BlockDeviceMappings": [
+            {
+              "DeviceName": "/dev/xvda",
+              "Ebs": {
+                "DeleteOnTermination": true,
+                "Encrypted": true,
+                "Iops": 6000,
+                "Throughput": 500,
+                "VolumeSize": 200,
+                "VolumeType": "gp3",
+              },
+            },
+          ],
+          "MetadataOptions": {
+            "HttpTokens": "required",
+          },
+          "TagSpecifications": [
+            {
+              "ResourceType": "instance",
+              "Tags": [
+                {
+                  "Key": "GitRepository",
+                  "Value": "loka-labs-nvidia-nims-nextflow",
+                },
+                {
+                  "Key": "Name",
+                  "Value": "MyTestStack/Batch/GpuStandardLaunchTemplate",
+                },
+                {
+                  "Key": "Project",
+                  "Value": "nvidia-nims",
+                },
+                {
+                  "Key": "Team",
+                  "Value": "loka-labs",
+                },
+              ],
+            },
+            {
+              "ResourceType": "volume",
+              "Tags": [
+                {
+                  "Key": "GitRepository",
+                  "Value": "loka-labs-nvidia-nims-nextflow",
+                },
+                {
+                  "Key": "Name",
+                  "Value": "MyTestStack/Batch/GpuStandardLaunchTemplate",
+                },
+                {
+                  "Key": "Project",
+                  "Value": "nvidia-nims",
+                },
+                {
+                  "Key": "Team",
+                  "Value": "loka-labs",
+                },
+              ],
+            },
+          ],
+          "UserData": {
+            "Fn::Base64": {
+              "Fn::Join": [
+                "",
+                [
+                  "Content-Type: multipart/mixed; boundary="+AWS+CDK+User+Data+Separator=="
+MIME-Version: 1.0
+
+--+AWS+CDK+User+Data+Separator==
+Content-Type: text/x-shellscript; charset="utf-8"
+Content-Transfer-Encoding: base64
+
+",
+                  {
+                    "Fn::Base64": "#!/bin/bash
+set -euxo pipefail
+( yum install -y unzip || dnf install -y unzip )
+curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+unzip -q -o /tmp/awscliv2.zip -d /tmp
+/tmp/aws/install --bin-dir /opt/aws-cli/bin --install-dir /opt/aws-cli/aws-cli --update
+rm -rf /tmp/aws /tmp/awscliv2.zip",
+                  },
+                  "
+--+AWS+CDK+User+Data+Separator==--
+",
+                ],
+              ],
+            },
+          },
+        },
+        "LaunchTemplateName": "MyTestStack-gpu-standard",
+        "TagSpecifications": [
+          {
+            "ResourceType": "launch-template",
+            "Tags": [
+              {
+                "Key": "GitRepository",
+                "Value": "loka-labs-nvidia-nims-nextflow",
+              },
+              {
+                "Key": "Name",
+                "Value": "MyTestStack/Batch/GpuStandardLaunchTemplate",
+              },
+              {
+                "Key": "Project",
+                "Value": "nvidia-nims",
+              },
+              {
+                "Key": "Team",
+                "Value": "loka-labs",
+              },
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::EC2::LaunchTemplate",
+    },
+    "BatchGpuStandardOnDemandComputeEnvironment5CA10BB0": {
+      "Properties": {
+        "ComputeResources": {
+          "AllocationStrategy": "BEST_FIT_PROGRESSIVE",
+          "Ec2Configuration": [
+            {
+              "ImageType": "ECS_AL2023_NVIDIA",
+            },
+          ],
+          "InstanceRole": {
+            "Fn::GetAtt": [
+              "BatchGpuStandardOnDemandComputeEnvironmentInstanceProfile4D5116D4",
+              "Arn",
+            ],
+          },
+          "InstanceTypes": [
+            "g6e.2xlarge",
+            "g6e.4xlarge",
+            "g6e.8xlarge",
+          ],
+          "LaunchTemplate": {
+            "LaunchTemplateId": {
+              "Ref": "BatchGpuStandardLaunchTemplate9F852613",
+            },
+          },
+          "MaxvCpus": 32,
+          "MinvCpus": 0,
+          "SecurityGroupIds": [
+            {
+              "Fn::GetAtt": [
+                "NetworkComputeSecurityGroup8F94EBCC",
+                "GroupId",
+              ],
+            },
+          ],
+          "Subnets": [
+            {
+              "Ref": "NetworkVpcprivateSubnet1Subnet9EC58498",
+            },
+            {
+              "Ref": "NetworkVpcprivateSubnet2Subnet6E5E8804",
+            },
+            {
+              "Ref": "NetworkVpcprivateSubnet3SubnetC252FE86",
+            },
+          ],
+          "Tags": {
+            "GitRepository": "loka-labs-nvidia-nims-nextflow",
+            "Project": "nvidia-nims",
+            "Team": "loka-labs",
+          },
+          "Type": "EC2",
+          "UpdateToLatestImageVersion": true,
+        },
+        "ReplaceComputeEnvironment": false,
+        "State": "ENABLED",
+        "Tags": {
+          "GitRepository": "loka-labs-nvidia-nims-nextflow",
+          "Project": "nvidia-nims",
+          "Team": "loka-labs",
+        },
+        "Type": "managed",
+        "UpdatePolicy": {},
+      },
+      "Type": "AWS::Batch::ComputeEnvironment",
+    },
+    "BatchGpuStandardOnDemandComputeEnvironmentInstanceProfile4D5116D4": {
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "BatchInstanceRole6B185052",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::InstanceProfile",
+    },
+    "BatchGpuStandardQueue2D2766A4": {
+      "Properties": {
+        "ComputeEnvironmentOrder": [
+          {
+            "ComputeEnvironment": {
+              "Fn::GetAtt": [
+                "BatchGpuStandardSpotComputeEnvironment3095BE3A",
+                "ComputeEnvironmentArn",
+              ],
+            },
+            "Order": 1,
+          },
+          {
+            "ComputeEnvironment": {
+              "Fn::GetAtt": [
+                "BatchGpuStandardOnDemandComputeEnvironment5CA10BB0",
+                "ComputeEnvironmentArn",
+              ],
+            },
+            "Order": 2,
+          },
+        ],
+        "JobQueueName": "nvidia-nims-gpu-standard",
+        "Priority": 10,
+        "State": "ENABLED",
+        "Tags": {
+          "GitRepository": "loka-labs-nvidia-nims-nextflow",
+          "Project": "nvidia-nims",
+          "Team": "loka-labs",
+        },
+      },
+      "Type": "AWS::Batch::JobQueue",
+    },
+    "BatchGpuStandardSpotComputeEnvironment3095BE3A": {
+      "Properties": {
+        "ComputeResources": {
+          "AllocationStrategy": "BEST_FIT_PROGRESSIVE",
+          "Ec2Configuration": [
+            {
+              "ImageType": "ECS_AL2023_NVIDIA",
+            },
+          ],
+          "InstanceRole": {
+            "Fn::GetAtt": [
+              "BatchGpuStandardSpotComputeEnvironmentInstanceProfileD5D8BEBE",
+              "Arn",
+            ],
+          },
+          "InstanceTypes": [
+            "g6e.2xlarge",
+            "g6e.4xlarge",
+            "g6e.8xlarge",
+          ],
+          "LaunchTemplate": {
+            "LaunchTemplateId": {
+              "Ref": "BatchGpuStandardLaunchTemplate9F852613",
+            },
+          },
+          "MaxvCpus": 128,
+          "MinvCpus": 0,
+          "SecurityGroupIds": [
+            {
+              "Fn::GetAtt": [
+                "NetworkComputeSecurityGroup8F94EBCC",
+                "GroupId",
+              ],
+            },
+          ],
+          "Subnets": [
+            {
+              "Ref": "NetworkVpcprivateSubnet1Subnet9EC58498",
+            },
+            {
+              "Ref": "NetworkVpcprivateSubnet2Subnet6E5E8804",
+            },
+            {
+              "Ref": "NetworkVpcprivateSubnet3SubnetC252FE86",
+            },
+          ],
+          "Tags": {
+            "GitRepository": "loka-labs-nvidia-nims-nextflow",
+            "Project": "nvidia-nims",
+            "Team": "loka-labs",
+          },
+          "Type": "SPOT",
+          "UpdateToLatestImageVersion": true,
+        },
+        "ReplaceComputeEnvironment": false,
+        "State": "ENABLED",
+        "Tags": {
+          "GitRepository": "loka-labs-nvidia-nims-nextflow",
+          "Project": "nvidia-nims",
+          "Team": "loka-labs",
+        },
+        "Type": "managed",
+        "UpdatePolicy": {},
+      },
+      "Type": "AWS::Batch::ComputeEnvironment",
+    },
+    "BatchGpuStandardSpotComputeEnvironmentInstanceProfileD5D8BEBE": {
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "BatchInstanceRole6B185052",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::InstanceProfile",
+    },
+    "BatchInstanceRole6B185052": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ec2.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Description": "Batch container instances for the protein design pipeline",
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role",
+              ],
+            ],
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/CloudWatchAgentServerPolicy",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "BatchInstanceRoleDefaultPolicy6A76824D": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "StorageInputBucket0767FBBB",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "StorageInputBucket0767FBBB",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "StorageWorkdirBucketB48E0B6A",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "StorageWorkdirBucketB48E0B6A",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "StorageOutputBucketCD2EEB3A",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "StorageOutputBucketCD2EEB3A",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "RegistryRepositoryC6C96DCD",
+                  "Arn",
+                ],
+              },
+            },
+            {
+              "Action": "ecr:GetAuthorizationToken",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "BatchInstanceRoleDefaultPolicy6A76824D",
+        "Roles": [
+          {
+            "Ref": "BatchInstanceRole6B185052",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "BatchJobRole8F5EADCB": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Description": "Protein design pipeline tasks - S3 staging identity",
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "BatchJobRoleDefaultPolicyB7C33C96": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "StorageInputBucket0767FBBB",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "StorageInputBucket0767FBBB",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "StorageWorkdirBucketB48E0B6A",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "StorageWorkdirBucketB48E0B6A",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "StorageOutputBucketCD2EEB3A",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "StorageOutputBucketCD2EEB3A",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "BatchJobRoleDefaultPolicyB7C33C96",
+        "Roles": [
+          {
+            "Ref": "BatchJobRole8F5EADCB",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E": {
+      "DependsOn": [
+        "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0",
+      ],
+      "Properties": {
+        "Code": Any<Object>,
+        "Description": "Lambda function for removing all inbound/outbound rules from the VPC default security group",
+        "Handler": "__entrypoint__.handler",
+        "MemorySize": 128,
+        "Role": {
+          "Fn::GetAtt": [
+            "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs24.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Sub": "arn:\${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          },
+        ],
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": [
+                    "ec2:AuthorizeSecurityGroupIngress",
+                    "ec2:AuthorizeSecurityGroupEgress",
+                    "ec2:RevokeSecurityGroupIngress",
+                    "ec2:RevokeSecurityGroupEgress",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": [
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:",
+                          {
+                            "Ref": "AWS::Partition",
+                          },
+                          ":ec2:us-east-1:123456789012:security-group/",
+                          {
+                            "Fn::GetAtt": [
+                              "NetworkVpc7FB7348F",
+                              "DefaultSecurityGroup",
+                            ],
+                          },
+                        ],
+                      ],
+                    },
+                  ],
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "Inline",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "NetworkComputeSecurityGroup8F94EBCC": {
+      "Properties": {
+        "GroupDescription": "Batch container instances running pipeline tasks",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": {
+              "Fn::GetAtt": [
+                "NetworkVpc7FB7348F",
+                "CidrBlock",
+              ],
+            },
+            "Description": "HTTPS within the VPC (VPC endpoints)",
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443,
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "NetworkVpc7FB7348F": {
+      "Properties": {
+        "CidrBlock": "10.60.0.0/16",
+        "EnableDnsHostnames": true,
+        "EnableDnsSupport": true,
+        "InstanceTenancy": "default",
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::VPC",
+    },
+    "NetworkVpcCloudWatchLogsEndpoint3E74EE05": {
+      "Properties": {
+        "PrivateDnsEnabled": true,
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": [
+              "NetworkVpcCloudWatchLogsEndpointSecurityGroupD4DE3443",
+              "GroupId",
+            ],
+          },
+        ],
+        "ServiceName": "com.amazonaws.us-east-1.logs",
+        "SubnetIds": [
+          {
+            "Ref": "NetworkVpcprivateSubnet1Subnet9EC58498",
+          },
+          {
+            "Ref": "NetworkVpcprivateSubnet2Subnet6E5E8804",
+          },
+          {
+            "Ref": "NetworkVpcprivateSubnet3SubnetC252FE86",
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcEndpointType": "Interface",
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::VPCEndpoint",
+    },
+    "NetworkVpcCloudWatchLogsEndpointSecurityGroupD4DE3443": {
+      "Properties": {
+        "GroupDescription": "MyTestStack/Network/Vpc/CloudWatchLogsEndpoint/SecurityGroup",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": {
+              "Fn::GetAtt": [
+                "NetworkVpc7FB7348F",
+                "CidrBlock",
+              ],
+            },
+            "Description": {
+              "Fn::Join": [
+                "",
+                [
+                  "from ",
+                  {
+                    "Fn::GetAtt": [
+                      "NetworkVpc7FB7348F",
+                      "CidrBlock",
+                    ],
+                  },
+                  ":443",
+                ],
+              ],
+            },
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443,
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "NetworkVpcEcrApiEndpointE3D7E09F": {
+      "Properties": {
+        "PrivateDnsEnabled": true,
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": [
+              "NetworkVpcEcrApiEndpointSecurityGroup195EAC16",
+              "GroupId",
+            ],
+          },
+        ],
+        "ServiceName": "com.amazonaws.us-east-1.ecr.api",
+        "SubnetIds": [
+          {
+            "Ref": "NetworkVpcprivateSubnet1Subnet9EC58498",
+          },
+          {
+            "Ref": "NetworkVpcprivateSubnet2Subnet6E5E8804",
+          },
+          {
+            "Ref": "NetworkVpcprivateSubnet3SubnetC252FE86",
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcEndpointType": "Interface",
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::VPCEndpoint",
+    },
+    "NetworkVpcEcrApiEndpointSecurityGroup195EAC16": {
+      "Properties": {
+        "GroupDescription": "MyTestStack/Network/Vpc/EcrApiEndpoint/SecurityGroup",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": {
+              "Fn::GetAtt": [
+                "NetworkVpc7FB7348F",
+                "CidrBlock",
+              ],
+            },
+            "Description": {
+              "Fn::Join": [
+                "",
+                [
+                  "from ",
+                  {
+                    "Fn::GetAtt": [
+                      "NetworkVpc7FB7348F",
+                      "CidrBlock",
+                    ],
+                  },
+                  ":443",
+                ],
+              ],
+            },
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443,
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "NetworkVpcEcrDockerEndpoint18F85AD4": {
+      "Properties": {
+        "PrivateDnsEnabled": true,
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": [
+              "NetworkVpcEcrDockerEndpointSecurityGroup554141CA",
+              "GroupId",
+            ],
+          },
+        ],
+        "ServiceName": "com.amazonaws.us-east-1.ecr.dkr",
+        "SubnetIds": [
+          {
+            "Ref": "NetworkVpcprivateSubnet1Subnet9EC58498",
+          },
+          {
+            "Ref": "NetworkVpcprivateSubnet2Subnet6E5E8804",
+          },
+          {
+            "Ref": "NetworkVpcprivateSubnet3SubnetC252FE86",
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcEndpointType": "Interface",
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::VPCEndpoint",
+    },
+    "NetworkVpcEcrDockerEndpointSecurityGroup554141CA": {
+      "Properties": {
+        "GroupDescription": "MyTestStack/Network/Vpc/EcrDockerEndpoint/SecurityGroup",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": {
+              "Fn::GetAtt": [
+                "NetworkVpc7FB7348F",
+                "CidrBlock",
+              ],
+            },
+            "Description": {
+              "Fn::Join": [
+                "",
+                [
+                  "from ",
+                  {
+                    "Fn::GetAtt": [
+                      "NetworkVpc7FB7348F",
+                      "CidrBlock",
+                    ],
+                  },
+                  ":443",
+                ],
+              ],
+            },
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443,
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "NetworkVpcIGW6BEA7B02": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::InternetGateway",
+    },
+    "NetworkVpcRestrictDefaultSecurityGroupCustomResource491E144D": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Account": "123456789012",
+        "DefaultSecurityGroupId": {
+          "Fn::GetAtt": [
+            "NetworkVpc7FB7348F",
+            "DefaultSecurityGroup",
+          ],
+        },
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::VpcRestrictDefaultSG",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "NetworkVpcS3Endpoint87783328": {
+      "Properties": {
+        "RouteTableIds": [
+          {
+            "Ref": "NetworkVpcprivateSubnet1RouteTableABBAAF01",
+          },
+          {
+            "Ref": "NetworkVpcprivateSubnet2RouteTable53A5479A",
+          },
+          {
+            "Ref": "NetworkVpcprivateSubnet3RouteTable8F14EDD2",
+          },
+          {
+            "Ref": "NetworkVpcpublicSubnet1RouteTableDFE49ED6",
+          },
+          {
+            "Ref": "NetworkVpcpublicSubnet2RouteTable216E89B0",
+          },
+          {
+            "Ref": "NetworkVpcpublicSubnet3RouteTableC81D91ED",
+          },
+        ],
+        "ServiceName": {
+          "Fn::Join": [
+            "",
+            [
+              "com.amazonaws.",
+              {
+                "Ref": "AWS::Region",
+              },
+              ".s3",
+            ],
+          ],
+        },
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcEndpointType": "Gateway",
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::VPCEndpoint",
+    },
+    "NetworkVpcVPCGW8F3799B5": {
+      "Properties": {
+        "InternetGatewayId": {
+          "Ref": "NetworkVpcIGW6BEA7B02",
+        },
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+    },
+    "NetworkVpcprivateSubnet1DefaultRoute026EC3C9": {
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "NetworkVpcpublicSubnet1NATGateway939C8F7E",
+        },
+        "RouteTableId": {
+          "Ref": "NetworkVpcprivateSubnet1RouteTableABBAAF01",
+        },
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "NetworkVpcprivateSubnet1RouteTableABBAAF01": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc/privateSubnet1",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "NetworkVpcprivateSubnet1RouteTableAssociation4A0BC0F2": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "NetworkVpcprivateSubnet1RouteTableABBAAF01",
+        },
+        "SubnetId": {
+          "Ref": "NetworkVpcprivateSubnet1Subnet9EC58498",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "NetworkVpcprivateSubnet1Subnet9EC58498": {
+      "Properties": {
+        "AvailabilityZone": "dummy1a",
+        "CidrBlock": "10.60.32.0/19",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "private",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Private",
+          },
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc/privateSubnet1",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "NetworkVpcprivateSubnet2DefaultRoute85168916": {
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "NetworkVpcpublicSubnet1NATGateway939C8F7E",
+        },
+        "RouteTableId": {
+          "Ref": "NetworkVpcprivateSubnet2RouteTable53A5479A",
+        },
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "NetworkVpcprivateSubnet2RouteTable53A5479A": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc/privateSubnet2",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "NetworkVpcprivateSubnet2RouteTableAssociation22F8344A": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "NetworkVpcprivateSubnet2RouteTable53A5479A",
+        },
+        "SubnetId": {
+          "Ref": "NetworkVpcprivateSubnet2Subnet6E5E8804",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "NetworkVpcprivateSubnet2Subnet6E5E8804": {
+      "Properties": {
+        "AvailabilityZone": "dummy1b",
+        "CidrBlock": "10.60.64.0/19",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "private",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Private",
+          },
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc/privateSubnet2",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "NetworkVpcprivateSubnet3DefaultRouteC9A352FA": {
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "NetworkVpcpublicSubnet1NATGateway939C8F7E",
+        },
+        "RouteTableId": {
+          "Ref": "NetworkVpcprivateSubnet3RouteTable8F14EDD2",
+        },
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "NetworkVpcprivateSubnet3RouteTable8F14EDD2": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc/privateSubnet3",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "NetworkVpcprivateSubnet3RouteTableAssociation20B8B113": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "NetworkVpcprivateSubnet3RouteTable8F14EDD2",
+        },
+        "SubnetId": {
+          "Ref": "NetworkVpcprivateSubnet3SubnetC252FE86",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "NetworkVpcprivateSubnet3SubnetC252FE86": {
+      "Properties": {
+        "AvailabilityZone": "dummy1c",
+        "CidrBlock": "10.60.96.0/19",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "private",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Private",
+          },
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc/privateSubnet3",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "NetworkVpcpublicSubnet1DefaultRoute19622567": {
+      "DependsOn": [
+        "NetworkVpcVPCGW8F3799B5",
+      ],
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "NetworkVpcIGW6BEA7B02",
+        },
+        "RouteTableId": {
+          "Ref": "NetworkVpcpublicSubnet1RouteTableDFE49ED6",
+        },
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "NetworkVpcpublicSubnet1EIPC41EF705": {
+      "Properties": {
+        "Domain": "vpc",
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc/publicSubnet1",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::EIP",
+    },
+    "NetworkVpcpublicSubnet1NATGateway939C8F7E": {
+      "DependsOn": [
+        "NetworkVpcpublicSubnet1DefaultRoute19622567",
+        "NetworkVpcpublicSubnet1RouteTableAssociation203B743E",
+      ],
+      "Properties": {
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "NetworkVpcpublicSubnet1EIPC41EF705",
+            "AllocationId",
+          ],
+        },
+        "SubnetId": {
+          "Ref": "NetworkVpcpublicSubnet1Subnet00617657",
+        },
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc/publicSubnet1",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::NatGateway",
+    },
+    "NetworkVpcpublicSubnet1RouteTableAssociation203B743E": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "NetworkVpcpublicSubnet1RouteTableDFE49ED6",
+        },
+        "SubnetId": {
+          "Ref": "NetworkVpcpublicSubnet1Subnet00617657",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "NetworkVpcpublicSubnet1RouteTableDFE49ED6": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc/publicSubnet1",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "NetworkVpcpublicSubnet1Subnet00617657": {
+      "Properties": {
+        "AvailabilityZone": "dummy1a",
+        "CidrBlock": "10.60.0.0/24",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "public",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Public",
+          },
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc/publicSubnet1",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "NetworkVpcpublicSubnet2DefaultRouteF6C22611": {
+      "DependsOn": [
+        "NetworkVpcVPCGW8F3799B5",
+      ],
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "NetworkVpcIGW6BEA7B02",
+        },
+        "RouteTableId": {
+          "Ref": "NetworkVpcpublicSubnet2RouteTable216E89B0",
+        },
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "NetworkVpcpublicSubnet2RouteTable216E89B0": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc/publicSubnet2",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "NetworkVpcpublicSubnet2RouteTableAssociationA4B52C34": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "NetworkVpcpublicSubnet2RouteTable216E89B0",
+        },
+        "SubnetId": {
+          "Ref": "NetworkVpcpublicSubnet2SubnetDCAA7C9A",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "NetworkVpcpublicSubnet2SubnetDCAA7C9A": {
+      "Properties": {
+        "AvailabilityZone": "dummy1b",
+        "CidrBlock": "10.60.1.0/24",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "public",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Public",
+          },
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc/publicSubnet2",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "NetworkVpcpublicSubnet3DefaultRouteB75369CF": {
+      "DependsOn": [
+        "NetworkVpcVPCGW8F3799B5",
+      ],
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "NetworkVpcIGW6BEA7B02",
+        },
+        "RouteTableId": {
+          "Ref": "NetworkVpcpublicSubnet3RouteTableC81D91ED",
+        },
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "NetworkVpcpublicSubnet3RouteTableAssociation70793AFA": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "NetworkVpcpublicSubnet3RouteTableC81D91ED",
+        },
+        "SubnetId": {
+          "Ref": "NetworkVpcpublicSubnet3SubnetB6CE113A",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "NetworkVpcpublicSubnet3RouteTableC81D91ED": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc/publicSubnet3",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "NetworkVpcpublicSubnet3SubnetB6CE113A": {
+      "Properties": {
+        "AvailabilityZone": "dummy1c",
+        "CidrBlock": "10.60.2.0/24",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "public",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Public",
+          },
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Name",
+            "Value": "MyTestStack/Network/Vpc/publicSubnet3",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "RegistryRepositoryC6C96DCD": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "EmptyOnDelete": false,
+        "ImageScanningConfiguration": {
+          "ScanOnPush": true,
+        },
+        "ImageTagMutability": "MUTABLE",
+        "LifecyclePolicy": {
+          "LifecyclePolicyText": "{"rules":[{"rulePriority":1,"description":"Expire untagged images","selection":{"tagStatus":"untagged","countType":"sinceImagePushed","countNumber":14,"countUnit":"days"},"action":{"type":"expire"}}]}",
+        },
+        "RepositoryName": "nvidia-nims",
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+      },
+      "Type": "AWS::ECR::Repository",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "StorageInputBucket0767FBBB": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256",
+              },
+            },
+          ],
+        },
+        "BucketName": "nvidia-nims-input",
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "AbortIncompleteMultipartUpload": {
+                "DaysAfterInitiation": 7,
+              },
+              "ExpirationInDays": 30,
+              "Id": "expire-inputs",
+              "Status": "Enabled",
+            },
+          ],
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true,
+        },
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "StorageInputBucketPolicy9C20CA15": {
+      "Properties": {
+        "Bucket": {
+          "Ref": "StorageInputBucket0767FBBB",
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "s3:*",
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": "false",
+                },
+              },
+              "Effect": "Deny",
+              "Principal": {
+                "AWS": "*",
+              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "StorageInputBucket0767FBBB",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "StorageInputBucket0767FBBB",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": "s3:*",
+              "Condition": {
+                "BoolIfExists": {
+                  "aws:PrincipalIsAWSService": "false",
+                },
+                "StringNotLike": {
+                  "aws:PrincipalArn": [
+                    {
+                      "Fn::GetAtt": [
+                        "BatchJobRole8F5EADCB",
+                        "Arn",
+                      ],
+                    },
+                    {
+                      "Fn::GetAtt": [
+                        "BatchInstanceRole6B185052",
+                        "Arn",
+                      ],
+                    },
+                    "arn:aws:iam::123456789012:root",
+                    "arn:aws:iam::123456789012:role/cdk-*",
+                    "arn:aws:iam::520168724997:role/aws-reserved/sso.amazonaws.com/*",
+                  ],
+                },
+              },
+              "Effect": "Deny",
+              "Principal": {
+                "AWS": "*",
+              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "StorageInputBucket0767FBBB",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "StorageInputBucket0767FBBB",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+              "Sid": "DenyEveryPrincipalExceptThePipelineRoles",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::S3::BucketPolicy",
+    },
+    "StorageOutputBucketCD2EEB3A": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256",
+              },
+            },
+          ],
+        },
+        "BucketName": "nvidia-nims-output",
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "AbortIncompleteMultipartUpload": {
+                "DaysAfterInitiation": 7,
+              },
+              "Id": "abort-incomplete-uploads",
+              "Status": "Enabled",
+            },
+          ],
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true,
+        },
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VersioningConfiguration": {
+          "Status": "Enabled",
+        },
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "StorageOutputBucketPolicyD4693603": {
+      "Properties": {
+        "Bucket": {
+          "Ref": "StorageOutputBucketCD2EEB3A",
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "s3:*",
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": "false",
+                },
+              },
+              "Effect": "Deny",
+              "Principal": {
+                "AWS": "*",
+              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "StorageOutputBucketCD2EEB3A",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "StorageOutputBucketCD2EEB3A",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": "s3:*",
+              "Condition": {
+                "BoolIfExists": {
+                  "aws:PrincipalIsAWSService": "false",
+                },
+                "StringNotLike": {
+                  "aws:PrincipalArn": [
+                    {
+                      "Fn::GetAtt": [
+                        "BatchJobRole8F5EADCB",
+                        "Arn",
+                      ],
+                    },
+                    {
+                      "Fn::GetAtt": [
+                        "BatchInstanceRole6B185052",
+                        "Arn",
+                      ],
+                    },
+                    "arn:aws:iam::123456789012:root",
+                    "arn:aws:iam::123456789012:role/cdk-*",
+                    "arn:aws:iam::520168724997:role/aws-reserved/sso.amazonaws.com/*",
+                  ],
+                },
+              },
+              "Effect": "Deny",
+              "Principal": {
+                "AWS": "*",
+              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "StorageOutputBucketCD2EEB3A",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "StorageOutputBucketCD2EEB3A",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+              "Sid": "DenyEveryPrincipalExceptThePipelineRoles",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::S3::BucketPolicy",
+    },
+    "StorageWorkdirBucketB48E0B6A": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256",
+              },
+            },
+          ],
+        },
+        "BucketName": "nvidia-nims-workdir",
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "AbortIncompleteMultipartUpload": {
+                "DaysAfterInitiation": 7,
+              },
+              "ExpirationInDays": 30,
+              "Id": "expire-workdir",
+              "Status": "Enabled",
+            },
+          ],
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true,
+        },
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "StorageWorkdirBucketPolicyBCA8C0CD": {
+      "Properties": {
+        "Bucket": {
+          "Ref": "StorageWorkdirBucketB48E0B6A",
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "s3:*",
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": "false",
+                },
+              },
+              "Effect": "Deny",
+              "Principal": {
+                "AWS": "*",
+              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "StorageWorkdirBucketB48E0B6A",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "StorageWorkdirBucketB48E0B6A",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": "s3:*",
+              "Condition": {
+                "BoolIfExists": {
+                  "aws:PrincipalIsAWSService": "false",
+                },
+                "StringNotLike": {
+                  "aws:PrincipalArn": [
+                    {
+                      "Fn::GetAtt": [
+                        "BatchJobRole8F5EADCB",
+                        "Arn",
+                      ],
+                    },
+                    {
+                      "Fn::GetAtt": [
+                        "BatchInstanceRole6B185052",
+                        "Arn",
+                      ],
+                    },
+                    "arn:aws:iam::123456789012:root",
+                    "arn:aws:iam::123456789012:role/cdk-*",
+                    "arn:aws:iam::520168724997:role/aws-reserved/sso.amazonaws.com/*",
+                  ],
+                },
+              },
+              "Effect": "Deny",
+              "Principal": {
+                "AWS": "*",
+              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "StorageWorkdirBucketB48E0B6A",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "StorageWorkdirBucketB48E0B6A",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+              "Sid": "DenyEveryPrincipalExceptThePipelineRoles",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::S3::BucketPolicy",
+    },
+  },
+}
+`;
