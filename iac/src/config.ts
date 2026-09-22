@@ -58,7 +58,7 @@ export const config: Config = {
     inputExpirationDays: 30,
     workdirExpirationDays: 30,
     restrictToJobRole: true,
-    additionalPrincipalArns: [],
+    additionalPrincipalArns: ["arn:aws:iam::520168724997:role/aws-reserved/sso.amazonaws.com/*"],
   },
 
   registry: {
