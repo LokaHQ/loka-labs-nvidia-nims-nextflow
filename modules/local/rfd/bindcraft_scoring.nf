@@ -14,7 +14,12 @@ process BINDCRAFT_SCORING {
 
   script:
   """
-    /opt/conda/envs/BindCraft/bin/python ${projectDir}/bin/bindcraft/bindcraft_scoring.py \
+    # Script moved to top-level bin/ (was bin/bindcraft/) - Nextflow only PATH-exports
+    # the top-level bin/ dir, not nested subdirectories, so a nested script is
+    # invisible to \$(which ...) here otherwise. Resolved via \$(which ...) rather
+    # than a bare name since this needs the BindCraft conda env's python
+    # specifically (its own shebang is a generic #!/usr/bin/env python).
+    /opt/conda/envs/BindCraft/bin/python "\$(which bindcraft_scoring.py)" \
       --format tsv \
       --output ${pdb_file.simpleName}.tsv \
       --binder-chain ${binder_chain} \

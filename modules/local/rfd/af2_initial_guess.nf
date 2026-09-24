@@ -33,6 +33,9 @@ process AF2_INITIAL_GUESS {
         -scorefilename scores/\${PREFIX}.scores.cs
 
     # Combine scores into a single TSV file
-    python ${projectDir}/bin/af2_combine_scores.py scores/ -o af2ig_scores.tsv
+    # Bare name, not \${projectDir}/bin/... - that hardcodes the local pipeline
+    # checkout path into the task script, which doesn't exist on remote executors
+    # like AWS Batch. Nextflow auto-adds the top-level bin/ dir to PATH instead.
+    af2_combine_scores.py scores/ -o af2ig_scores.tsv
     """
 }
