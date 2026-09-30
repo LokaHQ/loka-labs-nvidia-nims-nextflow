@@ -1,7 +1,7 @@
-// Scaffold - CLI flags/output paths not yet verified against a real built
-// container (aqlaboratory/openfold-3). Confirm once that image exists.
+// Co-folds binder+target sequences (extracted from the ProteinMPNN-threaded
+// PDB) with OpenFold3, replacing AF2 initial-guess. See bin/openfold3_predict.py.
 process OPENFOLD3 {
-    container 'ghcr.io/australian-protein-design-initiative/containers/openfold3:latest'
+    container "520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:openfold3-v0.5-pixi"
 
     publishDir "${params.outdir}/rfd/openfold3", pattern: 'pdbs/*.pdb', mode: 'copy'
     publishDir "${params.outdir}/rfd/openfold3", pattern: 'scores/*.tsv', mode: 'copy'
@@ -16,17 +16,16 @@ process OPENFOLD3 {
 
     script:
     """
-    mkdir -p pdbs scores
+    set -euo pipefail
 
-    PREFIX=\$(ls input/*.pdb | head -n1 | xargs basename | sed 's/\\.pdb\$//')
+    setup_openfold --non-interactive
 
-    # TODO: real openfold3 CLI invocation once container exists. Co-folds
-    # target + binder sequence together (see workflow header for why).
-    openfold3_predict.py \
-        --input-dir input/ \
-        --output-dir pdbs/ \
-        --scores-out scores/\${PREFIX}.scores.tsv
+    cat > runner.yml <<'YAML'
+output_writer_settings:
+  structure_format: pdb
+YAML
 
+    openfold3_predict.py input/ pdbs/ scores/ runner.yml
     openfold3_combine_scores.py scores/ -o openfold3_scores.tsv
     """
 }
