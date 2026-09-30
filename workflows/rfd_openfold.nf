@@ -17,14 +17,21 @@ Usage:
 
 params.input_pdb = false
 params.outdir = 'results'
+params.design_name = 'design_ppi'
 params.contigs = ''
 params.hotspot_res = false
 params.rfd_n_designs = 2
+params.rfd_command = 'python /app/RFdiffusion/scripts/run_inference.py'
+params.rfd_model_directory_path = false
+params.rfd_noise_scale = 0
+params.rfd_extra_args = ''
+params.rfd_compress_trajectories = true
 params.pmpnn_seqs_per_struct = 1
 params.pmpnn_relax_cycles = 3
 params.pmpnn_weights = false
 params.pmpnn_temperature = 0.000001
 params.pmpnn_augment_eps = 0
+params.pmpnn_omit_aas = 'CX'
 
 include { UNIQUE_ID } from '../modules/local/common/unique_id'
 include { RFDIFFUSION } from '../modules/local/rfd/rfdiffusion'
