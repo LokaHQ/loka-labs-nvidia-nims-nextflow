@@ -5,7 +5,7 @@ set -euo pipefail
 # NIM smoke test on AWS Batch — the bundled PD-L1 campaign, same input/contigs/
 # hotspot as run-aws-batch.sh, but routed through the NIM path:
 # RFdiffusion NIM -> ProteinMPNN NIM -> thread/relax -> unpaired A/B MSA
-# search -> OpenFold3 NIM -> filters.
+# search -> OpenFold3 NIM -> confidence filters -> BindCraft-derived scoring.
 #
 # Deliberately smaller than the baseline's 4 x 2 = 8 candidates: every NIM task
 # boots its own server and pulls model weights on a cold start, so 2 x 1 = 2

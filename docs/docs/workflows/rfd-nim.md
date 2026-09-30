@@ -1,6 +1,6 @@
 # RFdiffusion NIM Workflow
 
-`--method rfd_nim` runs RFdiffusion NIM, ProteinMPNN NIM, threading and relaxation, independent per-chain MSA search, OpenFold3 NIM co-folding, and confidence filtering. The `aws_batch_nims` profile runs these stages as separate AWS Batch tasks and requires site-specific queues, container images and storage to be configured.
+`--method rfd_nim` runs RFdiffusion NIM, ProteinMPNN NIM, threading and relaxation, independent per-chain MSA search, OpenFold3 NIM co-folding, confidence filtering, and BindCraft-derived interface scoring. The `aws_batch_nims` profile runs these stages as separate AWS Batch tasks and requires site-specific queues, container images and storage to be configured.
 
 The AWS profile reads the NGC API key from the Secrets Manager ID in `params.ngc_api_key_secret`. Each NIM task retrieves the value through the pipeline's Batch task role, which has read access to that one secret and the pipeline S3 buckets. The credential is absent from Nextflow task scripts and S3 work files. Local execution can instead inherit `NGC_API_KEY` from the launch environment. Never pass the key as a Nextflow parameter.
 
@@ -54,6 +54,10 @@ The score is in angstroms and includes both directional off-diagonal blocks over
 
 The baseline container's [published build recipe](https://github.com/Australian-Protein-Design-Initiative/containers/blob/main/dockerfiles/af2_initial_guess/nv-cuda12/Dockerfile) pins `dl_binder_design` commit `cafa385`. The [scoring source at that commit](https://github.com/nrbennet/dl_binder_design/blob/cafa385/af2_initial_guess/predict.py#L168-L207) averages binder residue pLDDTs and both directional interaction PAE means. This provenance was checked against the pinned source; the deployed AF2 container filesystem was not extracted. Matching the score definitions does not make OpenFold3 and AF2 confidence estimates interchangeable.
 
+## BindCraft-derived scoring
+
+After each prediction has been classified as accepted or rejected, the workflow runs the repository's extracted BindCraft scorer on the OpenFold3 PDB. Both accepted and rejected predictions are scored so the confidence filter does not remove interface evidence. The CPU-only process performs its own PyRosetta relaxation and reports metrics such as clashes, interface dG and dSASA, shape complementarity, packstat, hydrogen bonds, buried unsatisfied hydrogen bonds, interface residues and secondary structure. This is the BindCraft scoring code, not the full BindCraft design workflow.
+
 ## Outputs
 
 OpenFold3 outputs are published under `${outdir}/rfd/openfold3_nim/`:
@@ -70,6 +74,7 @@ OpenFold3 outputs are published under `${outdir}/rfd/openfold3_nim/`:
 | `filtered/<design_id>.filtered.tsv` | Original score columns plus `openfold3_pass_filter`, once validation succeeds |
 | `filtered/accepted/<design_id>.pdb` | Prediction passing both required filters |
 | `filtered/rejected/<design_id>.pdb` | Prediction with valid scores that fails either filter |
+| `extra_scores/<design_id>.tsv` | BindCraft-derived PyRosetta and interface metrics for the classified prediction |
 
 The normalised TSV includes `description`, `plddt_binder`, `plddt_target`, `pae_interaction` and `filename`. `description` exactly matches the predicted PDB's filename stem. Native `confidence_score`, `complex_plddt_score`, `complex_pde_score`, `ptm_score` and `iptm_score` fields remain in the table when supplied; all response fields remain in the raw JSON. Unavailable PAE is recorded as a blank cell and causes the required filter to fail explicitly.
 
