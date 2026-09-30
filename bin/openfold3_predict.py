@@ -45,7 +45,12 @@ for pdb_path in sorted(glob.glob(f"{INPUT_DIR}/*.pdb")):
         "chains": [
             {"molecule_type": "protein", "chain_ids": ["A"], "sequence": chain_sequence(pdb_path, "A")},
             {"molecule_type": "protein", "chain_ids": ["B"], "sequence": chain_sequence(pdb_path, "B")},
-        ]
+        ],
+        # Paired-MSA queries hung indefinitely against the ColabFold server in
+        # testing (single-chain MSAs completed in under a minute each). Pairing
+        # isn't meaningful here anyway - the two chains aren't evolutionarily
+        # related (one is a de novo binder). Per-chain MSAs still run.
+        "use_paired_msas": False,
     }
 
 query_json_path = Path("query.json")
