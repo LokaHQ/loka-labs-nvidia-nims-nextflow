@@ -1,11 +1,12 @@
 #!/bin/bash
 
-# Baseline (no NIMs) smoke test on AWS Batch — the bundled PD-L1 campaign, same
-# input/contigs/hotspot as run-local-simple.sh, run via -profile aws_batch instead of
-# -profile local. rfd_n_designs=4 x pmpnn_seqs_per_struct=2 = 8 candidates.
+# Baseline (no NIMs, AF2 scoring) smoke test on AWS Batch — the bundled PD-L1
+# campaign, same input/contigs/hotspot as run-local-simple.sh, run via
+# -profile aws_batch_af2 instead of -profile local.
+# rfd_n_designs=4 x pmpnn_seqs_per_struct=2 = 8 candidates.
 #
-# Requires conf/platforms/aws_batch.config to be pointed at the deployed queue/bucket
-# values — see that file for details.
+# Requires conf/platforms/aws_batch_af2.config to be pointed at the deployed
+# queue/bucket values — see that file for details.
 
 PIPELINE_DIR=../../
 
@@ -23,5 +24,5 @@ nextflow run ${PIPELINE_DIR}/main.nf \
   --hotspot_res "A56" \
   --rfd_n_designs=4 \
   --pmpnn_seqs_per_struct=2 \
-  -profile aws_batch \
+  -profile aws_batch_af2 \
   -resume
