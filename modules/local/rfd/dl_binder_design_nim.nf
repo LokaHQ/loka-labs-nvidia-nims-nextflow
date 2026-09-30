@@ -1,18 +1,18 @@
-// Uses proteinmpnn-nim-updated (ENTRYPOINT cleared, see aws_batch_nims.config).
+// Uses proteinmpnn-nim with its ENTRYPOINT cleared for AWS Batch.
 // Emits sequences only (FASTA), not a threaded PDB - see THREAD_AND_RELAX for
 // the step that builds a real structure from this output.
 process DL_BINDER_DESIGN_PROTEINMPNN_NIM {
     publishDir "${params.outdir}/rfd/proteinmpnn_nim", pattern: 'fasta/*.fasta', mode: 'copy'
 
     input:
-    path backbone_pdb
+    tuple path(backbone_pdb), val(design_index)
     val design_chain
     val sampling_temp
-    val design_index
 
     output:
     path 'fasta/*.fasta', emit: fasta
     path backbone_pdb, emit: backbone
+    tuple path(backbone_pdb), path('fasta/*.fasta'), emit: backbone_with_fasta
 
     script:
     """
@@ -36,7 +36,17 @@ process DL_BINDER_DESIGN_PROTEINMPNN_NIM {
     export PMPNN_DESIGN_CHAIN="${design_chain}"
     export PMPNN_SAMPLING_TEMP="${sampling_temp}"
     export PMPNN_OUTPUT_FASTA="fasta/${backbone_pdb.baseName}_${design_index}.fasta"
-    export NGC_API_KEY="${System.getenv('NGC_API_KEY') ?: ''}"
+    if [ -n "${params.ngc_api_key_secret ?: ''}" ]; then
+        export NGC_API_KEY=\$(/opt/aws-cli/bin/aws secretsmanager get-secret-value \
+            --secret-id "${params.ngc_api_key_secret ?: ''}" \
+            --region "${params.ngc_api_key_region}" \
+            --query SecretString \
+            --output text)
+    fi
+    if [ -z "\${NGC_API_KEY:-}" ]; then
+        echo "NGC_API_KEY is unavailable" >&2
+        exit 1
+    fi
 
     /opt/nim/start_server.sh > nim_server.log 2>&1 &
 

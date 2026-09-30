@@ -3,25 +3,11 @@
 nextflow.enable.dsl = 2
 
 /*
-NIM-accelerated proof-of-concept variant of the RFD workflow (see workflows/rfd.nf
-for the baseline). Only exists to prove Nextflow can drive real NVIDIA NIM
-containers (RFdiffusion NIM, ProteinMPNN NIM, OpenFold3 NIM) as ordinary AWS
-Batch tasks - start container, do one unit of work, exit - same shape as every
-other step in this pipeline, rather than as a separately-managed standing
-service.
-
-Scope: RFDIFFUSION_NIM -> DL_BINDER_DESIGN_PROTEINMPNN_NIM -> THREAD_AND_RELAX
--> OPENFOLD3_NIM.
-
-OPENFOLD3_NIM stands in for the baseline's AF2 initial guess scoring step, but
-it is not equivalent: OpenFold3 folds from sequence and cannot be seeded with
-the design's coordinates, and it has no single-sequence mode, so each chain is
-sent with an MSA containing only itself. Treat its scores as a smoke-test
-signal, not as a substitute for af2ig's pae_interaction.
-
-Usage:
-  nextflow run main.nf --method rfd_nim --input_pdb target.pdb --rfd_n_designs=4 \
-    --pmpnn_seqs_per_struct=2 -profile aws_batch_nims
+NIM binder design on AWS Batch: RFdiffusion -> ProteinMPNN -> thread/relax
+-> unpaired per-chain MSA search -> OpenFold3 co-folding -> confidence filtering.
+Each NIM runs as a batch task.
+The threaded complex supplies binder A and the cropped target B sequences;
+OpenFold3 does not use its coordinates as an initial guess.
 */
 
 params.input_pdb = false
@@ -32,12 +18,15 @@ params.rfd_n_designs = 2
 params.pmpnn_seqs_per_struct = 1
 params.pmpnn_temperature = 0.000001
 params.of3_diffusion_samples = 1
+params.refold_af2ig_filters = 'pae_interaction<=10;plddt_binder>=80'
 
 include { UNIQUE_ID } from '../modules/local/common/unique_id'
 include { RFDIFFUSION_NIM } from '../modules/local/rfd/rfdiffusion_nim'
 include { DL_BINDER_DESIGN_PROTEINMPNN_NIM } from '../modules/local/rfd/dl_binder_design_nim'
 include { THREAD_AND_RELAX } from '../modules/local/rfd/thread_and_relax'
+include { OPENFOLD3_MSA } from '../modules/local/rfd/openfold3_msa'
 include { OPENFOLD3_NIM } from '../modules/local/rfd/openfold3_nim'
+include { OPENFOLD3_SCORE_FILTER } from '../modules/local/rfd/openfold3_score_filter'
 
 workflow RFD_NIM {
 
@@ -50,9 +39,9 @@ workflow RFD_NIM {
         PROTEIN BINDER DESIGN PIPELINE - RFDiffusion NIM proof of concept
         ==================================================================
         Covers RFdiffusion + ProteinMPNN via their NVIDIA NIM containers, threads
-        and relaxes the designed sequence onto the backbone, then refolds and
-        scores the complex with the OpenFold3 NIM in place of AF2 initial guess
-        - see this file's header comment for how the two differ.
+        and relaxes the designed sequence onto the backbone, searches independent
+        binder and target MSAs, then co-folds and scores the complex with the
+        OpenFold3 NIM in place of AF2 initial guess.
 
         Required arguments:
             --input_pdb           Input PDB file for the target
@@ -64,21 +53,32 @@ workflow RFD_NIM {
             --rfd_n_designs       Number of RFdiffusion designs [default: ${params.rfd_n_designs}]
             --pmpnn_seqs_per_struct Number of ProteinMPNN sequences per backbone [default: ${params.pmpnn_seqs_per_struct}]
             --pmpnn_temperature   Sampling temperature for ProteinMPNN [default: ${params.pmpnn_temperature}]
-            --of3_diffusion_samples Structures OpenFold3 generates per design, 1-5 [default: ${params.of3_diffusion_samples}]
+            --of3_diffusion_samples Must be 1 to preserve one structure per design
+            --refold_af2ig_filters Confidence filters [default: ${params.refold_af2ig_filters}]
+                                  Genuine PAE is required for pae_interaction filtering
         """.stripIndent()
         )
         exit(1)
     }
 
-    if (!System.getenv('NGC_API_KEY')) {
-        log.error("NGC_API_KEY is not set in the environment. Both NIM containers download model weights from NVIDIA's NGC API on startup and need this to authenticate - export it locally before running (e.g. `export NGC_API_KEY=...`), not as a --param (params get written to params.json in the output bucket).")
+    if (params.of3_diffusion_samples.toString() != '1') {
+        error('rfd_nim requires --of3_diffusion_samples 1 to preserve one prediction per design')
+    }
+
+    if (!params.ngc_api_key_secret && !System.getenv('NGC_API_KEY')) {
+        log.error("NIM authentication is unavailable. Set NGC_API_KEY in the launch environment or configure --ngc_api_key_secret with an AWS Secrets Manager secret ID.")
         exit(1)
     }
 
     UNIQUE_ID()
-    ch_unique_id = UNIQUE_ID.out.id_file.map { it.text.trim() }
+    ch_unique_id = UNIQUE_ID.out.id_file.map { id_file -> id_file.text.trim() }
 
-    ch_input_pdb = Channel.fromPath(params.input_pdb).first()
+    ch_input_pdb = Channel.fromPath(params.input_pdb, checkIfExists: true).toList().map { pdbs ->
+        if (pdbs.size() != 1) {
+            error('rfd_nim requires exactly one target PDB per run')
+        }
+        pdbs[0]
+    }
 
     def hotspot_res = params.hotspot_res
     if (params.hotspot_res) {
@@ -99,26 +99,39 @@ workflow RFD_NIM {
         | combine(Channel.of(0..(params.pmpnn_seqs_per_struct - 1)))
 
     DL_BINDER_DESIGN_PROTEINMPNN_NIM(
-        ch_pmpnn_inputs.map { pdb, idx -> pdb },
+        ch_pmpnn_inputs,
         'A',
         params.pmpnn_temperature,
-        ch_pmpnn_inputs.map { pdb, idx -> idx },
     )
 
     THREAD_AND_RELAX(
-        DL_BINDER_DESIGN_PROTEINMPNN_NIM.out.backbone,
-        DL_BINDER_DESIGN_PROTEINMPNN_NIM.out.fasta,
+        DL_BINDER_DESIGN_PROTEINMPNN_NIM.out.backbone_with_fasta,
+    )
+
+    OPENFOLD3_MSA(
+        THREAD_AND_RELAX.out.designs,
     )
 
     OPENFOLD3_NIM(
-        THREAD_AND_RELAX.out.pdbs,
-        params.of3_diffusion_samples,
+        OPENFOLD3_MSA.out.designs_with_msas,
+    )
+
+    OPENFOLD3_SCORE_FILTER(
+        OPENFOLD3_NIM.out.predictions.map { id, pdb, scores, _raw -> tuple(id, pdb, scores) },
+        params.refold_af2ig_filters,
     )
 
     emit:
     backbones = RFDIFFUSION_NIM.out.pdbs
     sequences = DL_BINDER_DESIGN_PROTEINMPNN_NIM.out.fasta
     threaded_pdbs = THREAD_AND_RELAX.out.pdbs
+    msa_queries = OPENFOLD3_MSA.out.queries
+    msas = OPENFOLD3_MSA.out.msas
     refolded_pdbs = OPENFOLD3_NIM.out.pdbs
     refold_scores = OPENFOLD3_NIM.out.scores
+    predictions = OPENFOLD3_NIM.out.predictions
+    raw_predictions = OPENFOLD3_NIM.out.raw
+    accepted = OPENFOLD3_SCORE_FILTER.out.accepted
+    rejected = OPENFOLD3_SCORE_FILTER.out.rejected
+    filtered_scores = OPENFOLD3_SCORE_FILTER.out.scores
 }

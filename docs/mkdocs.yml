@@ -9,6 +9,7 @@ nav:
   - Setup: setup.md
   - Workflows:
       - RFdiffusion: workflows/rfdiffusion.md
+      - RFdiffusion NIM: workflows/rfd-nim.md
       - RFdiffusion3: workflows/rfd3.md
       - BindCraft: workflows/bindcraft.md
       - Germinal: workflows/germinal.md

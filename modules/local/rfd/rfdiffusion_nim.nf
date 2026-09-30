@@ -1,4 +1,4 @@
-// Uses rfdiffusion-nim-updated (ENTRYPOINT cleared, see aws_batch_nims.config).
+// Uses rfdiffusion-nim with its ENTRYPOINT cleared for AWS Batch.
 process RFDIFFUSION_NIM {
     publishDir "${params.outdir}/rfd/rfdiffusion", pattern: 'pdbs/*.pdb', mode: 'copy'
 
@@ -34,7 +34,17 @@ process RFDIFFUSION_NIM {
     export RFD_CONTIGS="${contigs}"
     export RFD_HOTSPOT_RES="${hotspot_res}"
     export RFD_OUTPUT_PDB="pdbs/design_ppi_${unique_id}_${design_index}.pdb"
-    export NGC_API_KEY="${System.getenv('NGC_API_KEY') ?: ''}"
+    if [ -n "${params.ngc_api_key_secret ?: ''}" ]; then
+        export NGC_API_KEY=\$(/opt/aws-cli/bin/aws secretsmanager get-secret-value \
+            --secret-id "${params.ngc_api_key_secret ?: ''}" \
+            --region "${params.ngc_api_key_region}" \
+            --query SecretString \
+            --output text)
+    fi
+    if [ -z "\${NGC_API_KEY:-}" ]; then
+        echo "NGC_API_KEY is unavailable" >&2
+        exit 1
+    fi
 
     /opt/nim/start_server.sh > nim_server.log 2>&1 &
 

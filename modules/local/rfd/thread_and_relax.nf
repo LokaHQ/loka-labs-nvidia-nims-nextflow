@@ -5,11 +5,11 @@ process THREAD_AND_RELAX {
     publishDir "${params.outdir}/rfd/proteinmpnn_nim_relaxed", pattern: '*.pdb', mode: 'copy'
 
     input:
-    path backbone_pdb
-    path fasta
+    tuple path(backbone_pdb), path(fasta)
 
     output:
     path "${fasta.baseName}.pdb", emit: pdbs
+    tuple val(fasta.baseName), path("${fasta.baseName}.pdb"), emit: designs
 
     script:
     """

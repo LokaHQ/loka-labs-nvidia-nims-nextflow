@@ -8,11 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- `rfd_nim`: OpenFold3 NIM refold and scoring step (`OPENFOLD3_NIM`), replacing AF2 initial guess in the NIM workflow. Co-folds the designed binder and target as one complex and emits per-design confidence, complex pLDDT, PDE, pTM and ipTM scores. `--of3_diffusion_samples` controls structures generated per design (1-5).
-- `examples/pdl1-rfd/run-aws-batch-nims.sh`: AWS Batch smoke test for the NIM workflow, reading `NGC_API_KEY` from a gitignored `.env`.
+- `rfd_nim`: independent unpaired ColabFold alignments for binder and target chains, OpenFold3 NIM co-folding and confidence filtering, with per-design structures, complete MSA/request/response provenance and separate binder/target pLDDT plus interaction PAE scores. Both `pae_interaction<=10` and `plddt_binder>=80` are applied by default; missing confidence data causes an explicit error.
+- Reproducible OpenFold3 response patch exposing the model's existing PAE matrix and original atom pLDDT, without changing weights or predictions.
+- `examples/pdl1-rfd/run-aws-batch-nims.sh`: AWS Batch smoke test for the complete NIM workflow.
 
 ### Changed
-- OpenFold3 has no single-sequence mode, so each chain is sent an MSA containing only itself. Its scores are not comparable to af2ig `pae_interaction` - it folds from sequence and cannot be seeded with the design's coordinates.
+- OpenFold3 reads binder A and cropped target B sequences from the threaded complex, validates their independently searched A3Ms and requires one diffusion sample per design. It folds from sequence without AF2 initial-guess coordinate seeding; matching score definitions does not make the models' confidence estimates interchangeable.
+- The AWS NIM profile uses the canonical `rfdiffusion-nim` and `proteinmpnn-nim` ECR tags, which now point to the AWS Batch-compatible images with cleared entrypoints.
+- CPU-only stages in the AWS Batch and AWS NIM profiles use the CPU queue instead of provisioning GPU instances.
+
+### Fixed
+- NIM workflow channels keep each backbone, designed sequence, structure and score associated throughout processing.
+- AWS Batch OpenFold3 shared memory uses the integer MiB syntax required by Nextflow 24.04.3's AWS plugin.
+- AWS Batch NIM tasks retrieve the NGC API key from Secrets Manager instead of persisting it in Nextflow work scripts.
+- Pipeline parameter manifests are written through Nextflow's filesystem provider so S3 output paths receive `params.json`.
 
 ## [0.3.1] - 2026-09-09
 

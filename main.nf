@@ -133,9 +133,12 @@ workflow {
 
         def output_file = "${params.outdir}/params.json"
         def json_string = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(params_json))
+        def output_path = file(output_file)
 
-        new File(params.outdir).mkdirs()
-        new File(output_file).text = json_string
+        if (output_path.fileSystem.provider().scheme == 'file') {
+            java.nio.file.Files.createDirectories(output_path.parent)
+        }
+        output_path.text = json_string
 
         log.info("Pipeline parameters saved to: ${output_file}")
     }

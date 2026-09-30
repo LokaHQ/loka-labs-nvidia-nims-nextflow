@@ -32,6 +32,8 @@ Nextflow pipelines for _de novo_ protein binder design.
 
 **Full documentation at:** https://australian-protein-design-initiative.github.io/nf-binder-design/
 
+The experimental [RFdiffusion NIM workflow](docs/docs/workflows/rfd-nim.md) documents independent binder/target MSA search, OpenFold3 confidence filtering and its required PAE response patch.
+
 An [agent skill](.agents/skills/nf-binder-design/SKILL.md) is included for AI-assisted setup, configuration, and execution of the pipeline workflows.
 
 ----
@@ -105,7 +107,7 @@ nextflow run Australian-Protein-Design-Initiative/nf-binder-design \
   --method rfd --help
 ```
 
-Available methods: `rfd`, `rfd3`, `rfd_partial`, `bindcraft`, `germinal`, `boltzgen`, `boltz_pulldown`, `foldseek`
+Available methods: `rfd`, `rfd_nim` (experimental AWS NIM workflow), `rfd3`, `rfd_partial`, `bindcraft`, `germinal`, `boltzgen`, `boltz_pulldown`, `foldseek`
 
 Any `--params` option can alternatively be defined in a `params.json` file and passed with `-params-file params.json`.
 

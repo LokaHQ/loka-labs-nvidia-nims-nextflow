@@ -1,5 +1,6 @@
 import { Construct } from "constructs";
 import { CfnOutput, Stack, StackProps, Tags } from "aws-cdk-lib";
+import { Secret } from "aws-cdk-lib/aws-secretsmanager";
 
 import { Config, config as defaultConfig } from "./config";
 import { PipelineBatch } from "./constructs/batch";
@@ -43,6 +44,9 @@ export class NvidiaNimsStack extends Stack {
     this.storage.grantPipelineAccess(this.batch.instanceRole);
     this.registry.grantPull(this.batch.instanceRole);
     this.storage.restrictAccessTo([this.batch.jobRole, this.batch.instanceRole]);
+
+    const ngcApiKey = Secret.fromSecretNameV2(this, "NgcApiKey", "nvidia-nims/ngc-api-key");
+    ngcApiKey.grantRead(this.batch.jobRole);
 
     this.addOutputs();
 
