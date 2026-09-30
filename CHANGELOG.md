@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `rfd_nim`: OpenFold3 NIM refold and scoring step (`OPENFOLD3_NIM`), replacing AF2 initial guess in the NIM workflow. Co-folds the designed binder and target as one complex and emits per-design confidence, complex pLDDT, PDE, pTM and ipTM scores. `--of3_diffusion_samples` controls structures generated per design (1-5).
+- `examples/pdl1-rfd/run-aws-batch-nims.sh`: AWS Batch smoke test for the NIM workflow, reading `NGC_API_KEY` from a gitignored `.env`.
+
+### Changed
+- OpenFold3 has no single-sequence mode, so each chain is sent an MSA containing only itself. Its scores are not comparable to af2ig `pae_interaction` - it folds from sequence and cannot be seeded with the design's coordinates.
+
 ## [0.3.1] - 2026-09-09
 
 ### Added
