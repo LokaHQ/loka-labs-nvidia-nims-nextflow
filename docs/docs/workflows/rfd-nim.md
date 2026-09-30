@@ -4,6 +4,8 @@
 
 The AWS profile reads the NGC API key from the Secrets Manager ID in `params.ngc_api_key_secret`. Each NIM task retrieves the value through the pipeline's Batch task role, which has read access to that one secret and the pipeline S3 buckets. The credential is absent from Nextflow task scripts and S3 work files. Local execution can instead inherit `NGC_API_KEY` from the launch environment. Never pass the key as a Nextflow parameter.
 
+OpenFold3 receives a 16 GiB shared-memory allocation on AWS Batch. Nextflow 24.04.3 and supported stable runtimes from 24.04.4 onward use incompatible `shm-size` parsers, so the profile selects the correct representation from the running Nextflow version. No launcher-specific override is required.
+
 The stock OpenFold3 NIM HTTP response omits a PAE matrix that its active inference implementation already computes. This integration therefore requires a version-specific response patch to expose genuine PAE and its residue mapping. The patch changes response serialisation only; it does not change model weights, inference or predicted structures. A stock response without PAE still causes the required interaction PAE filter to fail explicitly.
 
 ## OpenFold3 image
@@ -86,6 +88,7 @@ The confidence and filter tests use Python's standard library and require Python
 python3 -m unittest discover -s tests/bin -p 'test_openfold3_nim_call.py' -v
 python3 -m unittest discover -s tests/bin -p 'test_openfold3_msa.py' -v
 python3 -m unittest discover -s tests/bin -p 'test_filter_openfold3_scores.py' -v
+NEXTFLOW_TEST_CMD=nextflow python3 -m unittest tests.bin.test_aws_batch_nims_config -v
 ```
 
-These tests cover MSA chain matching and retention, preservation of chain sequences and target crop, residue-balanced pLDDT, both PAE directions with explicit mapping, complete response retention, matching design identifiers, and errors for missing or invalid confidence values. They require no GPU, credentials or network access. They validate the integration logic; an inference response from the patched image is still required to verify the complete deployment.
+These tests cover MSA chain matching and retention, preservation of chain sequences and target crop, residue-balanced pLDDT, both PAE directions with explicit mapping, complete response retention, matching design identifiers, errors for missing or invalid confidence values, and the AWS shared-memory representation selected by the active Nextflow runtime. They require no GPU or credentials. The first three require no network access; the configuration test uses the installed Nextflow launcher. They validate the integration logic; an inference response from the patched image is still required to verify the complete deployment.

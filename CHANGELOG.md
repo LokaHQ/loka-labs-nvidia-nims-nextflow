@@ -20,7 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - NIM workflow channels keep each backbone, designed sequence, structure and score associated throughout processing.
-- AWS Batch OpenFold3 shared memory uses the integer MiB syntax required by Nextflow 24.04.3's AWS plugin.
+- AWS Batch OpenFold3 shared memory resolves to 16 GiB with both Nextflow 24.04.3's integer-MiB parser and supported stable unit-aware runtimes from 24.04.4 onward.
+- BindCraft interface scoring no longer evaluates an unused ProteinMPNN parameter or warns when that parameter is absent.
 - AWS Batch NIM tasks retrieve the NGC API key from Secrets Manager instead of persisting it in Nextflow work scripts.
 - Pipeline parameter manifests are written through Nextflow's filesystem provider so S3 output paths receive `params.json`.
 
