@@ -32,7 +32,7 @@ Nextflow pipelines for _de novo_ protein binder design.
 
 **Full documentation at:** https://australian-protein-design-initiative.github.io/nf-binder-design/
 
-The experimental [RFdiffusion NIM workflow](docs/docs/workflows/rfd-nim.md) documents independent binder/target MSA search, OpenFold3 confidence filtering and its required PAE response patch, followed by BindCraft-derived interface scoring.
+The experimental [RFdiffusion NIM workflow](docs/docs/workflows/rfd-nim.md) documents independent binder/target MSA search, OpenFold3 confidence reporting with its PAE response patch, followed by BindCraft-derived interface scoring.
 
 An [agent skill](.agents/skills/nf-binder-design/SKILL.md) is included for AI-assisted setup, configuration, and execution of the pipeline workflows.
 

@@ -5,7 +5,7 @@ set -euo pipefail
 # NIM smoke test on AWS Batch — the bundled PD-L1 campaign, same input/contigs/
 # hotspot as run-aws-batch.sh, but routed through the NIM path:
 # RFdiffusion NIM -> ProteinMPNN NIM -> thread/relax -> unpaired A/B MSA
-# search -> OpenFold3 NIM -> confidence filters -> BindCraft-derived scoring.
+# search -> OpenFold3 NIM -> BindCraft-derived scoring.
 #
 # Deliberately smaller than the baseline's 4 x 2 = 8 candidates: every NIM task
 # boots its own server and pulls model weights on a cold start, so 2 x 1 = 2
@@ -37,6 +37,5 @@ nextflow run "${PIPELINE_DIR}/main.nf" \
   --hotspot_res "A56" \
   --rfd_n_designs=2 \
   --pmpnn_seqs_per_struct=1 \
-  --refold_af2ig_filters 'pae_interaction<=10;plddt_binder>=80' \
   -profile aws_batch_nims \
   -resume

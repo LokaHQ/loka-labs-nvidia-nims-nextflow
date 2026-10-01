@@ -8,10 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- `rfd_nim`: independent unpaired ColabFold alignments for binder and target chains, OpenFold3 NIM co-folding and confidence filtering, with per-design structures, complete MSA/request/response provenance and separate binder/target pLDDT plus interaction PAE scores. Both `pae_interaction<=10` and `plddt_binder>=80` are applied by default; missing confidence data causes an explicit error.
+- `rfd_nim`: independent unpaired ColabFold alignments for binder and target chains and OpenFold3 NIM co-folding, with per-design structures, complete MSA/request/response provenance and separate binder/target pLDDT plus interaction PAE scores.
 - Reproducible OpenFold3 response patch exposing the model's existing PAE matrix and original atom pLDDT, without changing weights or predictions.
 - `examples/pdl1-rfd/run-aws-batch-nims.sh`: AWS Batch smoke test for the complete NIM workflow.
-- BindCraft-derived PyRosetta and interface scoring for every classified OpenFold3 NIM prediction, including candidates rejected by the confidence filter.
+- BindCraft-derived PyRosetta and interface scoring for every OpenFold3 NIM prediction.
 
 ### Changed
 - OpenFold3 reads binder A and cropped target B sequences from the threaded complex, validates their independently searched A3Ms and requires one diffusion sample per design. It folds from sequence without AF2 initial-guess coordinate seeding; matching score definitions does not make the models' confidence estimates interchangeable.

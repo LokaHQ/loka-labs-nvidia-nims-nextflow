@@ -1,12 +1,12 @@
 # RFdiffusion NIM Workflow
 
-`--method rfd_nim` runs RFdiffusion NIM, ProteinMPNN NIM, threading and relaxation, independent per-chain MSA search, OpenFold3 NIM co-folding, confidence filtering, and BindCraft-derived interface scoring. The `aws_batch_nims` profile runs these stages as separate AWS Batch tasks and requires site-specific queues, container images and storage to be configured.
+`--method rfd_nim` runs RFdiffusion NIM, ProteinMPNN NIM, threading and relaxation, independent per-chain MSA search, OpenFold3 NIM co-folding, and BindCraft-derived interface scoring. The `aws_batch_nims` profile runs these stages as separate AWS Batch tasks and requires site-specific queues, container images and storage to be configured.
 
 The AWS profile reads the NGC API key from the Secrets Manager ID in `params.ngc_api_key_secret`. Each NIM task retrieves the value through the pipeline's Batch task role, which has read access to that one secret and the pipeline S3 buckets. The credential is absent from Nextflow task scripts and S3 work files. Local execution can instead inherit `NGC_API_KEY` from the launch environment. Never pass the key as a Nextflow parameter.
 
 OpenFold3 receives a 16 GiB shared-memory allocation on AWS Batch. Nextflow 24.04.3 and supported stable runtimes from 24.04.4 onward use incompatible `shm-size` parsers, so the profile selects the correct representation from the running Nextflow version. No launcher-specific override is required.
 
-The stock OpenFold3 NIM HTTP response omits a PAE matrix that its active inference implementation already computes. This integration therefore requires a version-specific response patch to expose genuine PAE and its residue mapping. The patch changes response serialisation only; it does not change model weights, inference or predicted structures. A stock response without PAE still causes the required interaction PAE filter to fail explicitly.
+The stock OpenFold3 NIM HTTP response omits a PAE matrix that its active inference implementation already computes. A version-specific response patch exposes genuine PAE and its residue mapping so the workflow can report interaction PAE. The patch changes response serialisation only; it does not change model weights, inference or predicted structures. A stock response continues through BindCraft scoring with `pae_interaction` left blank.
 
 ## OpenFold3 image
 
@@ -22,21 +22,13 @@ The pipeline sends both sequences in one request to the public ColabFold MMseqs2
 
 MSA tasks run on the CPU queue with `maxForks = 1`, as requested by the public service. They remain separate from GPU inference so `-resume` can reuse a completed search. A novel binder may return only its query or very few hits; a natural target such as PD-L1 can return thousands. These are alignment rows used as model evidence, not additional designs or PDB inputs.
 
-OpenFold3 co-folds these sequences. It does not use the threaded coordinates as an initial guess, so its predictions are not equivalent to the baseline AlphaFold2 initial guess refinement. Returned chain sequences and the response design identifier are checked before a prediction is accepted for scoring.
+OpenFold3 co-folds these sequences. It does not use the threaded coordinates as an initial guess, so its predictions are not equivalent to the baseline AlphaFold2 initial guess refinement. Returned chain sequences and the response design identifier are checked before a prediction is written for scoring.
 
 `--of3_diffusion_samples` must be `1`. Other values are rejected to keep one prediction and one score row per design, without selecting among multiple sampled structures.
 
-## Confidence filtering
+## Confidence metrics
 
-The default filter expression is:
-
-```text
---refold_af2ig_filters 'pae_interaction<=10;plddt_binder>=80'
-```
-
-Both conditions must pass. A design with valid scores that fails either threshold is collected as rejected. Missing, nonnumeric or nonfinite requested scores cause an error before any acceptance or rejection is written. A missing `pae_interaction` produces an explicit message that genuine PAE is unavailable and that the OpenFold3 integration is incomplete. PDE and ipTM are not substitutes for PAE.
-
-Prediction and filtering are separate processes. Completed predictions, normalised score tables and complete request/response JSON files are published independently of the filter, retaining evidence when PAE filtering fails. A blank PAE value indicates unavailable evidence, not a poor interaction score.
+OpenFold3 publishes normalised confidence scores for each prediction without accepting or rejecting designs. Every predicted PDB proceeds directly to BindCraft-derived scoring. A blank `pae_interaction` value indicates unavailable evidence, not a poor interaction score; PDE and ipTM are not substituted for PAE.
 
 ### Chain pLDDT
 
@@ -58,7 +50,7 @@ The baseline container's [published build recipe](https://github.com/Australian-
 
 ## BindCraft-derived scoring
 
-After each prediction has been classified as accepted or rejected, the workflow runs the repository's extracted BindCraft scorer on the OpenFold3 PDB. Both accepted and rejected predictions are scored so the confidence filter does not remove interface evidence. The CPU-only process performs its own PyRosetta relaxation and reports metrics such as clashes, interface dG and dSASA, shape complementarity, packstat, hydrogen bonds, buried unsatisfied hydrogen bonds, interface residues and secondary structure. This is the BindCraft scoring code, not the full BindCraft design workflow.
+The workflow sends every OpenFold3 PDB directly to the repository's extracted BindCraft scorer. The CPU-only process performs its own PyRosetta relaxation and reports metrics such as clashes, interface dG and dSASA, shape complementarity, packstat, hydrogen bonds, buried unsatisfied hydrogen bonds, interface residues and secondary structure. This is the BindCraft scoring code, not the full BindCraft design workflow.
 
 ## Outputs
 
@@ -73,22 +65,18 @@ OpenFold3 outputs are published under `${outdir}/rfd/openfold3_nim/`:
 | `scores/<design_id>.of3_scores.tsv` | One normalised score row for the prediction |
 | `raw/<design_id>.request.json` | Complete request, including both query sequences and alignments |
 | `raw/<design_id>.response.json` | Complete original response bytes, including native confidence fields |
-| `filtered/<design_id>.filtered.tsv` | Original score columns plus `openfold3_pass_filter`, once validation succeeds |
-| `filtered/accepted/<design_id>.pdb` | Prediction passing both required filters |
-| `filtered/rejected/<design_id>.pdb` | Prediction with valid scores that fails either filter |
-| `extra_scores/<design_id>.tsv` | BindCraft-derived PyRosetta and interface metrics for the classified prediction |
+| `extra_scores/<design_id>.tsv` | BindCraft-derived PyRosetta and interface metrics for the prediction |
 
-The normalised TSV includes `description`, `plddt_binder`, `plddt_target`, `pae_interaction` and `filename`. `description` exactly matches the predicted PDB's filename stem. Native `confidence_score`, `complex_plddt_score`, `complex_pde_score`, `ptm_score` and `iptm_score` fields remain in the table when supplied; all response fields remain in the raw JSON. Unavailable PAE is recorded as a blank cell and causes the required filter to fail explicitly.
+The normalised TSV includes `description`, `plddt_binder`, `plddt_target`, `pae_interaction` and `filename`. `description` exactly matches the predicted PDB's filename stem. Native `confidence_score`, `complex_plddt_score`, `complex_pde_score`, `ptm_score` and `iptm_score` fields remain in the table when supplied; all response fields remain in the raw JSON. Unavailable PAE is recorded as a blank cell.
 
 ## CPU verification
 
-The confidence and filter tests use Python's standard library and require Python 3.10 or later. Run from the repository root:
+The confidence tests use Python's standard library and require Python 3.10 or later. Run from the repository root:
 
 ```bash
 python3 -m unittest discover -s tests/bin -p 'test_openfold3_nim_call.py' -v
 python3 -m unittest discover -s tests/bin -p 'test_openfold3_msa.py' -v
-python3 -m unittest discover -s tests/bin -p 'test_filter_openfold3_scores.py' -v
 NEXTFLOW_TEST_CMD=nextflow python3 -m unittest tests.bin.test_aws_batch_nims_config -v
 ```
 
-These tests cover MSA chain matching and retention, preservation of chain sequences and target crop, residue-balanced pLDDT, both PAE directions with explicit mapping, complete response retention, matching design identifiers, errors for missing or invalid confidence values, and the AWS shared-memory representation selected by the active Nextflow runtime. They require no GPU or credentials. The first three require no network access; the configuration test uses the installed Nextflow launcher. They validate the integration logic; an inference response from the patched image is still required to verify the complete deployment.
+These tests cover MSA chain matching and retention, preservation of chain sequences and target crop, residue-balanced pLDDT, both PAE directions with explicit mapping, complete response retention, matching design identifiers, errors for missing or invalid confidence values, and the AWS shared-memory representation selected by the active Nextflow runtime. They require no GPU or credentials. The first two require no network access; the configuration test uses the installed Nextflow launcher. They validate the integration logic; an inference response from the patched image is still required to verify the complete deployment.

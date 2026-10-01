@@ -4,7 +4,7 @@ nextflow.enable.dsl = 2
 
 /*
 NIM binder design on AWS Batch: RFdiffusion -> ProteinMPNN -> thread/relax
--> unpaired per-chain MSA search -> OpenFold3 co-folding -> confidence filtering
+-> unpaired per-chain MSA search -> OpenFold3 co-folding
 -> BindCraft-derived interface scoring.
 Each NIM runs as a batch task.
 The threaded complex supplies binder A and the cropped target B sequences;
@@ -19,7 +19,6 @@ params.rfd_n_designs = 2
 params.pmpnn_seqs_per_struct = 1
 params.pmpnn_temperature = 0.000001
 params.of3_diffusion_samples = 1
-params.refold_af2ig_filters = 'pae_interaction<=10;plddt_binder>=80'
 
 include { UNIQUE_ID } from '../modules/local/common/unique_id'
 include { RFDIFFUSION_NIM } from '../modules/local/rfd/rfdiffusion_nim'
@@ -27,7 +26,6 @@ include { DL_BINDER_DESIGN_PROTEINMPNN_NIM } from '../modules/local/rfd/dl_binde
 include { THREAD_AND_RELAX } from '../modules/local/rfd/thread_and_relax'
 include { OPENFOLD3_MSA } from '../modules/local/rfd/openfold3_msa'
 include { OPENFOLD3_NIM } from '../modules/local/rfd/openfold3_nim'
-include { OPENFOLD3_SCORE_FILTER } from '../modules/local/rfd/openfold3_score_filter'
 include { BINDCRAFT_SCORING as BINDCRAFT_SCORING_OPENFOLD3 } from '../modules/local/rfd/bindcraft_scoring'
 
 workflow RFD_NIM {
@@ -43,8 +41,8 @@ workflow RFD_NIM {
         Covers RFdiffusion + ProteinMPNN via their NVIDIA NIM containers, threads
         and relaxes the designed sequence onto the backbone, searches independent
         binder and target MSAs, then co-folds and scores the complex with the
-        OpenFold3 NIM in place of AF2 initial guess. Every classified OpenFold3
-        prediction then receives BindCraft-derived interface scores.
+        OpenFold3 NIM in place of AF2 initial guess. Every OpenFold3 prediction
+        then receives BindCraft-derived interface scores.
 
         Required arguments:
             --input_pdb           Input PDB file for the target
@@ -57,8 +55,6 @@ workflow RFD_NIM {
             --pmpnn_seqs_per_struct Number of ProteinMPNN sequences per backbone [default: ${params.pmpnn_seqs_per_struct}]
             --pmpnn_temperature   Sampling temperature for ProteinMPNN [default: ${params.pmpnn_temperature}]
             --of3_diffusion_samples Must be 1 to preserve one structure per design
-            --refold_af2ig_filters Confidence filters [default: ${params.refold_af2ig_filters}]
-                                  Genuine PAE is required for pae_interaction filtering
         """.stripIndent()
         )
         exit(1)
@@ -119,17 +115,8 @@ workflow RFD_NIM {
         OPENFOLD3_MSA.out.designs_with_msas,
     )
 
-    OPENFOLD3_SCORE_FILTER(
-        OPENFOLD3_NIM.out.predictions.map { id, pdb, scores, _raw -> tuple(id, pdb, scores) },
-        params.refold_af2ig_filters,
-    )
-
-    ch_classified_pdbs = OPENFOLD3_SCORE_FILTER.out.accepted
-        .mix(OPENFOLD3_SCORE_FILTER.out.rejected)
-        .map { _id, pdb -> pdb }
-
     BINDCRAFT_SCORING_OPENFOLD3(
-        ch_classified_pdbs,
+        OPENFOLD3_NIM.out.pdbs,
         'A',
         'default_4stage_multimer',
         'rfd/openfold3_nim/extra_scores/',
@@ -145,8 +132,5 @@ workflow RFD_NIM {
     refold_scores = OPENFOLD3_NIM.out.scores
     predictions = OPENFOLD3_NIM.out.predictions
     raw_predictions = OPENFOLD3_NIM.out.raw
-    accepted = OPENFOLD3_SCORE_FILTER.out.accepted
-    rejected = OPENFOLD3_SCORE_FILTER.out.rejected
-    filtered_scores = OPENFOLD3_SCORE_FILTER.out.scores
     bindcraft_scores = BINDCRAFT_SCORING_OPENFOLD3.out.scores
 }

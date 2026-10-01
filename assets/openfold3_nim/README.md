@@ -38,7 +38,7 @@ docker push "${OPENFOLD3_ECR_REPOSITORY}:openfold3-nim"
 The local build tag remains `openfold3-nim-pae:1.5`. An explicit image digest can
 be selected with `--openfold3_nim_image <image>`. These commands document the
 publish procedure; a GPU smoke run must confirm the response and pipeline
-filter before treating the deployed integration as validated.
+scores before treating the deployed integration as validated.
 
 ## Response contract
 
@@ -54,7 +54,7 @@ tokens using the inference batch's `atom_to_token_index` and `token_mask`. It
 supports protein complexes with one token per residue. Ambiguous mappings,
 atomised residues, unexpected mask layouts, invalid dimensions, and non-finite
 confidence values fail explicitly. If the model has no PAE tensor, no PAE is
-invented; the client must report it unavailable and reject requested PAE filtering.
+invented; the client reports it as unavailable.
 
 ## Evidence from the pinned image
 

@@ -218,7 +218,7 @@ def save_prediction(result: dict, sequences: dict[str, str], design_id: str,
         writer.writeheader()
         writer.writerow(row)
     if pae is None:
-        logging.warning("Genuine PAE is unavailable; pae_interaction is blank. PAE filtering must fail.")
+        logging.warning("Genuine PAE is unavailable; pae_interaction is blank.")
     return row
 
 
