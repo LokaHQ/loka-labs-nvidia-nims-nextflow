@@ -8,9 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `rfd_openfold`: non-NIM RFdiffusion and ProteinMPNN/Rosetta followed by unpaired per-chain MSA generation, local OpenFold3 co-folding and BindCraft-derived scoring.
 - `rfd_nim`: independent unpaired ColabFold alignments for binder and target chains and OpenFold3 NIM co-folding, with per-design structures, complete MSA/request/response provenance and separate binder/target pLDDT plus interaction PAE scores.
 - Reproducible OpenFold3 response patch exposing the model's existing PAE matrix and original atom pLDDT, without changing weights or predictions.
 - `examples/pdl1-rfd/run-aws-batch-nims.sh`: AWS Batch smoke test for the complete NIM workflow.
+- `examples/pdl1-rfd/run-aws-batch-openfold-comparison.sh`: sequential one-design local versus NIM OpenFold3 comparison.
 - BindCraft-derived PyRosetta and interface scoring for every OpenFold3 NIM prediction.
 
 ### Changed
