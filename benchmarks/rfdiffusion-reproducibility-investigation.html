@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RFdiffusion Reproducibility Investigation: NIM vs OSS</title>
+<style>
+  body { font-family: -apple-system, Segoe UI, Helvetica, Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; line-height: 1.55; color: #1a1a1a; }
+  h1 { font-size: 1.6em; border-bottom: 3px solid #2c5282; padding-bottom: 8px; }
+  h2 { font-size: 1.25em; margin-top: 2em; color: #2c5282; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+  h3 { font-size: 1.05em; margin-top: 1.5em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.92em; }
+  th, td { border: 1px solid #ccc; padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #2c5282; color: white; }
+  tr:nth-child(even) { background: #f7f8fa; }
+  code { background: #eef1f5; padding: 1px 5px; border-radius: 3px; font-size: 0.92em; }
+  pre { background: #1e1e2e; color: #d4d4d4; padding: 14px; border-radius: 6px; overflow-x: auto; font-size: 0.85em; }
+  .worked { color: #15803d; font-weight: 600; }
+  .failed { color: #b91c1c; font-weight: 600; }
+  .partial { color: #b45309; font-weight: 600; }
+  .note { background: #fffbea; border-left: 4px solid #d97706; padding: 10px 14px; margin: 1em 0; }
+  .finding { background: #eff6ff; border-left: 4px solid #2563eb; padding: 10px 14px; margin: 1em 0; }
+  .meta { color: #666; font-size: 0.9em; }
+</style>
+</head>
+<body>
+
+<h1>RFdiffusion Reproducibility Investigation: NIM vs. OSS</h1>
+<p class="meta">Troubleshooting log, not a benchmark result. Target: PD-L1 binder design, 78-residue binder,
+<code>[A18-132/0 78-78]</code> contig, hotspot <code>A56</code>, same input on both sides throughout.
+Companion to the main NIM-vs-no-NIM benchmark doc.</p>
+
+<h2>1. Purpose</h2>
+<p>Can RFdiffusion be made to produce <em>the same design</em> across the NIM and open-source (OSS)
+implementations, given the same seed — and if not, why not, specifically and verifiably rather than by
+assumption? One day was budgeted for this.</p>
+
+<h2>2. Summary — everything tried</h2>
+<table>
+<tr><th>Idea</th><th>Tested?</th><th>Outcome</th></tr>
+<tr><td>Match the seed value directly</td><td>Yes</td><td><span class="failed">Did not work</span> — 18.66&nbsp;&Aring; RMSD on the generated chain</td></tr>
+<tr><td>Check if OSS is just an outdated version</td><td>Yes</td><td><span class="failed">Not applicable</span> — the mechanism doesn't exist in open source at any version</td></tr>
+<tr><td>Force matching numeric precision (fp16/fp32)</td><td>Yes</td><td><span class="failed">Not possible</span> on either side</td></tr>
+<tr><td>Align hyperparameters (noise scale, diffusion steps)</td><td>Yes</td><td><span class="partial">Found one real, fixable gap</span> (<code>noise_scale</code>) — not yet applied to the baseline pipeline</td></tr>
+<tr><td>Use NIM's image directly in place of OSS</td><td>Reasoned through, not run</td><td><span class="failed">Doesn't solve anything</span> — would eliminate the comparison; also not technically feasible</td></tr>
+<tr><td>CUDA determinism flags (<code>torch.use_deterministic_algorithms</code>)</td><td>Yes</td><td><span class="failed">Dead end</span> — doesn't apply to NIM's compiled execution path</td></tr>
+<tr><td>Patch OSS to add NIM's actual seeding mechanism</td><td>Yes — fully built, debugged, and tested</td><td><span class="failed">Confirmed negative</span> — correct, verified patch still gives 18.3&nbsp;&Aring; RMSD</td></tr>
+</table>
+
+<h2>3. Static checks</h2>
+
+<h3>3.1 Precision</h3>
+<p>Checked every profile in both NIM manifests directly, not just the GPU we use:</p>
+<ul>
+<li>RFdiffusion-NIM: 7 profiles (one per GPU — L40S, A100, A10G&times;2, H100, GB200). <strong>Every one is <code>fp16</code></strong>. No fp32 profile exists anywhere.</li>
+<li>OpenFold3-NIM: 19 profiles across the full supported GPU list. Same story — all <code>fp16</code>.</li>
+<li>OSS: checked the actual inference code (<code>run_openfold predict --help</code> equivalent, source inspection). Only precision-related option is <code>--use_tf32</code> (a different thing — toggles Tensor Core matmul mode, not 16-bit precision). No fp16 option anywhere. RFdiffusion's own source explicitly disables autocast (<code>@torch.cuda.amp.autocast(enabled=False)</code>) on at least one module.</li>
+</ul>
+<div class="finding">Matching precision exactly isn't achievable via configuration on either side. Confirmed, not assumed.</div>
+
+<h3>3.2 Version lag</h3>
+<p>Our OSS container is pinned to RosettaCommons/RFdiffusion commit <code>b44206a</code> (Aug 25, 2024, package v1.1.0).
+Compared directly against the live upstream repo: latest commit is from July 2026, 49 commits ahead. None of those
+49 commits touch anything related to rng/seed/determinism. A full code search of the <strong>entire repository's
+history</strong> for the <code>RNGs</code> class NIM's sampler uses returns zero results, at any point, ever.</p>
+<div class="finding">This isn't a version-lag problem. Even the latest open-source RFdiffusion doesn't have NVIDIA's
+injectable-seed mechanism. There is no newer OSS release to upgrade to that would close this gap.</div>
+
+<h3>3.3 NVIDIA's own "matches exactly" claim</h3>
+<p>NVIDIA's RFdiffusion-NIM benchmarking docs state: <em>"when executed on the same architecture, the outputs
+match exactly... when evaluated across different GPU architectures, the mean RMSE... is below 0.64 &Aring;,"</em>
+under "fixed random number conditions." Checked the page specifically for how this is achieved — environment
+variables, CUDA determinism flags, a script reference, anything. <strong>Nothing is disclosed.</strong> The claim
+can't be verified or replicated from the public documentation.</p>
+
+<h3>3.4 CUDA determinism flags</h3>
+<p>Checked whether OSS could be made more reproducible with <code>torch.use_deterministic_algorithms(True)</code>
+or <code>CUBLAS_WORKSPACE_CONFIG</code> (the mechanism NVIDIA's claim might rely on). Confirmed via source search:
+OSS RFdiffusion has <strong>zero</strong> references to either, anywhere in the package. Even if added, this
+wouldn't help close the NIM gap — it's a PyTorch-dispatch-specific concept, and NIM's compiled TensorRT engine
+doesn't go through PyTorch's kernel dispatcher at all.</p>
+<p>Found a directly relevant precedent while investigating this: an open PR in <code>RosettaCommons/foundry</code>
+(for RFD3, a different/newer model, not the one in question here) documenting that "same seed &rarr; different
+designs" there was <strong>not a seeding bug</strong> — the RNG stream was byte-identical between runs. The real
+cause was a GPU reduction operation (<code>scatter_mean</code>/<code>index_reduce_cuda</code>) using non-deterministic
+atomics: repeated calls on byte-identical inputs returned different results depending on which GPU thread
+finished first. Since it ran once per denoising step, tiny differences compounded over the full trajectory into
+a different design. This is the same general class of problem later confirmed to likely explain our own result
+(Section 6).</p>
+
+<h2>4. First seed-matching attempt</h2>
+<p><strong>Why:</strong> RFdiffusion generates from random noise — there's no "feed it an existing structure" shortcut
+the way there was for OpenFold3. Matching seeds was the only available lever to try to isolate precision's effect.</p>
+<p><strong>What we ran:</strong> OSS with <code>inference.deterministic=true</code> (design index 0), NIM with
+<code>random_seed=0</code>, identical target/contigs/hotspot.</p>
+<p><strong>First result: invalid, caught before being reported.</strong> Got 19.4&nbsp;&Aring; RMSD. Before trusting it,
+checked the actual <code>.command.sh</code> sent to the container &mdash; the seed had never actually been sent to NIM.
+Root cause: Groovy treats <code>0</code> as falsy, so <code>${random_seed ? ... : ''}</code> silently skipped exporting
+<code>RFD_RANDOM_SEED</code> whenever the seed was <code>0</code>. Fixed to
+<code>${random_seed != false ? ... : ''}</code> and reran.</p>
+<p><strong>Corrected result:</strong> confirmed <code>RFD_RANDOM_SEED="0"</code> was genuinely present this time.</p>
+<table>
+<tr><th></th><th>RMSD</th></tr>
+<tr><td>Whole complex</td><td>15.678&nbsp;&Aring;</td></tr>
+<tr><td>Chain A (binder — the part RFdiffusion generates)</td><td><strong>18.660&nbsp;&Aring;</strong></td></tr>
+<tr><td>Chain B (target — fixed input, not generated)</td><td>0.026&nbsp;&Aring;</td></tr>
+</table>
+<p>Chain B's near-perfect match isn't evidence the seed worked — it's the unmodified input passing through unchanged
+on both sides, regardless of any seed.</p>
+
+<h2>5. Root cause, and the patch</h2>
+
+<h3>5.1 Finding the actual mechanism</h3>
+<p>Read NIM's own <code>model_utils.py</code> directly: it constructs the sampler as
+<code>model_runners.SelfConditioning(conf, rngs=RNGs(random_seed))</code> — a dedicated, scoped <code>RNGs</code> object
+passed explicitly into the sampler, not the global-state seeding OSS uses. Read <code>rfdiffusion/rng.py</code> itself
+from inside the NIM container (confirmed it's plain, unobfuscated Python): 15 lines, three isolated generator
+instances (<code>random.Random()</code>, <code>np.random.RandomState()</code>, <code>torch.Generator()</code>), each
+seeded independently. Marked NVIDIA-proprietary licensed, but the technique is generic enough to reimplement
+independently without copying it.</p>
+<p>Traced every file that actually consumes this object (not guessed — grepped NIM's entire package, then diffed
+each hit against OSS's version to confirm it's genuinely wired into the call path our pipeline uses):</p>
+<table>
+<tr><th>File</th><th>Role</th></tr>
+<tr><td><code>rfdiffusion/rng.py</code></td><td>New — the <code>RNGs</code> class, independently reimplemented</td></tr>
+<tr><td><code>rfdiffusion/diffusion.py</code></td><td>Two classes gain optional <code>torch_rng</code>/<code>np_rng</code>, used in <code>torch.normal</code>/<code>np.random.*</code> calls</td></tr>
+<tr><td><code>rfdiffusion/inference/utils.py</code></td><td><code>get_next_ca</code> and <code>Denoise</code> gain <code>torch_rng</code>; <code>sampler_selector</code> threads <code>rngs</code> through</td></tr>
+<tr><td><code>rfdiffusion/contigs.py</code></td><td><code>ContigMap</code> gains <code>py_rng</code> (defaults to the <code>random</code> module itself when unset — same method names, no ternaries needed at call sites)</td></tr>
+<tr><td><code>rfdiffusion/inference/model_runners.py</code></td><td><code>Sampler.__init__</code> gains <code>rngs=None</code>, threaded into <code>Diffuser</code>/<code>ContigMap</code>/<code>Denoise</code>/<code>PotentialManager</code> construction</td></tr>
+<tr><td><code>rfdiffusion/potentials/potentials.py</code>, <code>manager.py</code></td><td>Confirmed <em>not</em> dead code on closer inspection — <code>torch_rng</code> is genuinely threaded through 2 call sites in <code>model_runners.py</code>; patched to match</td></tr>
+<tr><td><code>scripts/run_inference.py</code></td><td>Constructs <code>RNGs(seed)</code> from a new, additive <code>inference.rng_seed</code> config field; falls back to today's exact behavior when unset</td></tr>
+</table>
+<p>Confirmed out of scope: <code>BlockAdjacency</code>/<code>ScaffoldedSampler</code> (a different design mode our
+pipeline never uses).</p>
+<div class="note"><strong>Design principle throughout:</strong> fully additive. <code>rngs=None</code> is the default
+everywhere; every patched call site falls back to the exact pre-patch behavior (PyTorch's own
+<code>generator=None</code> semantics are identical to not passing a generator at all) unless the new seed is
+explicitly requested. Nothing changes for any existing caller.</p>
+
+<h3>5.2 Building and verifying the patch</h3>
+<p>All 8 files syntax-checked with <code>py_compile</code> before building. Built a new Docker image layering these
+patches on top of the base RFdiffusion image, with local, interactive import tests confirming the new
+<code>RNGs</code> class and updated function signatures worked correctly.</p>
+
+<h2>6. Two real infrastructure bugs found while testing (and how each was diagnosed)</h2>
+
+<h3>6.1 Bug: <code>ModuleNotFoundError: No module named 'rfdiffusion.rng'</code></h3>
+<p>The patch appeared to work in an interactive sanity check, then failed on the real AWS Batch run. Root cause:
+<code>/app/RFdiffusion</code> is <strong>not actually on <code>sys.path</code></strong> — the interactive test only
+worked because its working directory happened to be <code>/app/RFdiffusion</code>, letting Python's implicit
+cwd-relative import resolve there by coincidence. At real runtime, Nextflow invokes the script by absolute path from
+its own work directory, so that coincidence doesn't hold — Python falls through to a completely separate, unpatched
+copy of the package in <code>dist-packages</code>. Verified all 7 source files were byte-identical between the two
+locations before patching both; rebuilt (v2), confirmed the fix by testing the import from a different working
+directory this time, not the one that gave the false positive.</p>
+
+<h3>6.2 Bug: Batch's own wrapper script passed as a literal CLI argument</h3>
+<p>New failure: <code>run_inference.py: error: argument --cfg/-c: invalid choice: '&lt;the entire Batch task wrapper
+script&gt;'</code>. Root cause: the patch image was built <code>FROM</code> the raw upstream <code>ghcr.io</code> image,
+which still has its <code>ENTRYPOINT</code> set
+(<code>["python3", "/app/RFdiffusion/scripts/run_inference.py"]</code>). Our actual production ECR image has this
+cleared (<code>null</code>) specifically for AWS Batch compatibility. With the entrypoint still set, Docker
+concatenates ENTRYPOINT + Batch's own CMD, so the entire task wrapper script was appended as a literal argument to
+Hydra's CLI parser instead of being executed as a shell script. Verified all 7 source files were byte-identical
+between the raw upstream image and our production ECR image first, then rebuilt <code>FROM</code> the correct base
+(v3), confirmed entrypoint was <code>null</code> this time.</p>
+
+<h3>6.3 Minor: Hydra strict-config rejection</h3>
+<p><code>Could not override 'inference.rng_seed'</code> — Hydra's strict mode rejects setting a key that isn't
+already defined in <code>base.yaml</code> unless prefixed with <code>+</code> (its syntax for adding a new key rather
+than overriding an existing one). Fixed: <code>inference.rng_seed=0</code> &rarr; <code>+inference.rng_seed=0</code>.</p>
+
+<h2>7. Final, verified result</h2>
+<p>Before trusting the result, confirmed both sides genuinely received the seed: OSS's resolved config showed
+<code>rng_seed: 0</code>; NIM's actual <code>.command.sh</code> showed <code>RFD_RANDOM_SEED="0"</code>.</p>
+<table>
+<tr><th></th><th>RMSD</th></tr>
+<tr><td>Whole complex</td><td>12.013&nbsp;&Aring;</td></tr>
+<tr><td>Chain A (binder — generated)</td><td><strong>18.322&nbsp;&Aring;</strong></td></tr>
+<tr><td>Chain B (target — fixed input)</td><td>0.030&nbsp;&Aring;</td></tr>
+</table>
+<div class="finding"><strong>Essentially unchanged from the original, unpatched result (18.66&nbsp;&Aring;).</strong>
+The patch is correctly built and verifiably active on both sides — and it made no meaningful difference.</div>
+
+<h2>8. Conclusion</h2>
+<p>The RNGs-class mismatch was real and is now fixed, but it was <strong>necessary, not sufficient</strong>. The most
+likely remaining explanation, consistent with the unrelated <code>foundry</code> PR found in Section&nbsp;3.4: RFdiffusion
+runs 50 sequential denoising steps, each feeding on the previous step's output. Even with byte-identical random
+draws, small numerical differences between NIM's compiled fp16 TensorRT kernels and OSS's PyTorch eager-mode
+execution would compound step-over-step across all 50 iterations into a completely different final structure.
+That's a fundamentally different problem from seeding, and not fixable by RNG alignment alone — closing this gap
+further would mean reconciling the two implementations' numerical kernels directly, which is a much larger,
+separate undertaking with no guaranteed payoff.</p>
+<p><strong>Recommendation:</strong> close this investigation here. Rely on the unpaired, N&asymp;20-30 design
+statistical comparison (Mann-Whitney U on a locked primary metric) for assessing RFdiffusion specifically — this
+result confirms that approach is a necessity, not just a convenient choice, for this model.</p>
+
+<h2>Appendix</h2>
+<ul>
+<li>Images built: <code>nvidia-nims:rfdiffusion-seed-patch-v1</code> (dual-path bug), <code>-v2</code> (entrypoint
+bug), <code>-v3</code> (working, correct base)</li>
+<li>Test run S3 outputs (same benchmark run timestamp throughout):
+<code>s3://nvidia-nims-output/benchmarks/pdl1-run-20261001T110859Z/seed-check-v3-patch/</code> (v1, invalid, bug 1),
+<code>seed-check-v5-patch/</code> (v3 image, invalid, bug 2), <code>seed-check-v6-patch/</code> (v3 image, corrected
+syntax, final valid result)</li>
+<li>Patch source: local, not yet committed — <code>rfdiffusion_seed_patch/</code> in session scratch, plus
+<code>ad_hoc_seed_patch_test.config</code> in the repo root</li>
+<li>Git: <code>benchmark/openfold-vs-nim</code> branch</li>
+</ul>
+
+</body>
+</html>

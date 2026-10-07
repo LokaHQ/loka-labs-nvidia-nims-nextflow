@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `rfd_openfold`: non-NIM RFdiffusion and ProteinMPNN/Rosetta followed by unpaired per-chain MSA generation, local OpenFold3 co-folding and BindCraft-derived scoring.
+- `rfd_nim`: independent unpaired ColabFold alignments for binder and target chains and OpenFold3 NIM co-folding, with per-design structures, complete MSA/request/response provenance and separate binder/target pLDDT plus interaction PAE scores.
+- Reproducible OpenFold3 response patch exposing the model's existing PAE matrix and original atom pLDDT, without changing weights or predictions.
+- `examples/pdl1-rfd/run-aws-batch-nims.sh`: AWS Batch smoke test for the complete NIM workflow.
+- `examples/pdl1-rfd/run-aws-batch-openfold-comparison.sh`: sequential one-design local versus NIM OpenFold3 comparison.
+- BindCraft-derived PyRosetta and interface scoring for every OpenFold3 NIM prediction.
+
+### Changed
+- OpenFold3 reads binder A and cropped target B sequences from the threaded complex, validates their independently searched A3Ms and requires one diffusion sample per design. It folds from sequence without AF2 initial-guess coordinate seeding; matching score definitions does not make the models' confidence estimates interchangeable.
+- The AWS NIM profile uses the canonical `rfdiffusion-nim` and `proteinmpnn-nim` ECR tags, which now point to the AWS Batch-compatible images with cleared entrypoints.
+- CPU-only stages in the AWS Batch and AWS NIM profiles use the CPU queue instead of provisioning GPU instances.
+
+### Fixed
+- NIM workflow channels keep each backbone, designed sequence, structure and score associated throughout processing.
+- AWS Batch OpenFold3 shared memory resolves to 16 GiB with both Nextflow 24.04.3's integer-MiB parser and supported stable unit-aware runtimes from 24.04.4 onward.
+- BindCraft interface scoring no longer evaluates an unused ProteinMPNN parameter or warns when that parameter is absent.
+- AWS Batch NIM tasks retrieve the NGC API key from Secrets Manager instead of persisting it in Nextflow work scripts.
+- Pipeline parameter manifests are written through Nextflow's filesystem provider so S3 output paths receive `params.json`.
+
 ## [0.3.1] - 2026-09-09
 
 ### Added

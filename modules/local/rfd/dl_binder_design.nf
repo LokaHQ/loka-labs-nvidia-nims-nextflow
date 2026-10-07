@@ -31,8 +31,7 @@ process DL_BINDER_DESIGN_PROTEINMPNN {
     }
 
     """
-    # Ensure we don't use a GPU even if one is available
-    export CUDA_VISIBLE_DEVICES=""
+    ${params.pmpnn_gpu ? '' : '# Ensure we don\'t use a GPU even if one is available\n    export CUDA_VISIBLE_DEVICES=""'}
 
     # Run ProteinMPNN with seqs_per_struct=1
     /app/dl_binder_design/mpnn_fr/dl_interface_design.py \
