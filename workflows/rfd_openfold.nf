@@ -23,11 +23,13 @@ params.hotspot_res = false
 params.rfd_n_designs = 2
 params.rfd_command = 'python /app/RFdiffusion/scripts/run_inference.py'
 params.rfd_model_directory_path = false
-params.rfd_noise_scale = 0
+// 1 matches RFdiffusion's upstream default and NIM's config (was 0 before).
+params.rfd_noise_scale = 1
 params.rfd_extra_args = ''
 params.rfd_compress_trajectories = true
 params.pmpnn_seqs_per_struct = 1
 params.pmpnn_relax_cycles = 3
+params.pmpnn_gpu = false
 params.pmpnn_weights = false
 params.pmpnn_temperature = 0.000001
 params.pmpnn_augment_eps = 0
