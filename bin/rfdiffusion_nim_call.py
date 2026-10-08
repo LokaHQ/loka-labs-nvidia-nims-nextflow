@@ -34,6 +34,10 @@ payload = {
     "hotspot_res": hotspot_list,
 }
 
+random_seed = os.environ.get("RFD_RANDOM_SEED")
+if random_seed:
+    payload["random_seed"] = int(random_seed)
+
 req = urllib.request.Request(
     "http://localhost:8000/biology/ipd/rfdiffusion/generate",
     data=json.dumps(payload).encode("utf-8"),

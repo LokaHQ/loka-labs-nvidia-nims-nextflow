@@ -16,6 +16,7 @@ params.outdir = 'results'
 params.contigs = ''
 params.hotspot_res = false
 params.rfd_n_designs = 2
+params.rfd_random_seed = false
 params.pmpnn_seqs_per_struct = 1
 params.pmpnn_temperature = 0.000001
 params.of3_diffusion_samples = 1
@@ -92,6 +93,7 @@ workflow RFD_NIM {
         hotspot_res,
         ch_design_index,
         ch_unique_id,
+        params.rfd_random_seed,
     )
 
     ch_pmpnn_inputs = RFDIFFUSION_NIM.out.pdbs.flatten()
