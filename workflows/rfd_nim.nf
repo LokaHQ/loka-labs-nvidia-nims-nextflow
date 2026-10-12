@@ -94,6 +94,7 @@ workflow RFD_NIM {
         ch_design_index,
         ch_unique_id,
         params.rfd_random_seed,
+        false,
     )
 
     ch_pmpnn_inputs = RFDIFFUSION_NIM.out.pdbs.flatten()

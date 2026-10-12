@@ -9,6 +9,7 @@ process RFDIFFUSION_NIM {
     val design_index
     val unique_id
     val random_seed
+    val diffusion_steps
 
     output:
     path 'pdbs/*.pdb', emit: pdbs
@@ -36,6 +37,7 @@ process RFDIFFUSION_NIM {
     export RFD_HOTSPOT_RES="${hotspot_res}"
     export RFD_OUTPUT_PDB="pdbs/design_ppi_${unique_id}_${design_index}.pdb"
     ${random_seed != false ? "export RFD_RANDOM_SEED=\"${random_seed}\"" : ''}
+    ${diffusion_steps != false ? "export RFD_DIFFUSION_STEPS=\"${diffusion_steps}\"" : ''}
     if [ -n "${params.ngc_api_key_secret ?: ''}" ]; then
         export NGC_API_KEY=\$(/opt/aws-cli/bin/aws secretsmanager get-secret-value \
             --secret-id "${params.ngc_api_key_secret ?: ''}" \

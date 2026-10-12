@@ -38,6 +38,10 @@ random_seed = os.environ.get("RFD_RANDOM_SEED")
 if random_seed:
     payload["random_seed"] = int(random_seed)
 
+diffusion_steps = os.environ.get("RFD_DIFFUSION_STEPS")
+if diffusion_steps:
+    payload["diffusion_steps"] = int(diffusion_steps)
+
 req = urllib.request.Request(
     "http://localhost:8000/biology/ipd/rfdiffusion/generate",
     data=json.dumps(payload).encode("utf-8"),

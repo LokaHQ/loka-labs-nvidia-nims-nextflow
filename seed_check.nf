@@ -11,7 +11,7 @@ params.contigs = ''
 params.hotspot_res = false
 params.design_name = 'design_ppi'
 params.rfd_command = 'python /app/RFdiffusion/scripts/run_inference.py'
-params.rfd_noise_scale = 0
+params.rfd_noise_scale = 1
 params.rfd_extra_args = ''
 params.rfd_compress_trajectories = true
 
@@ -44,5 +44,6 @@ workflow {
         Channel.value(0),
         Channel.value('seedchknim'),
         Channel.value(0),
+        Channel.value(false),
     )
 }
