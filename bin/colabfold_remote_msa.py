@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # /// script
 # requires-python = ">=3.9"
 # ///
@@ -117,11 +117,15 @@ def run_remote_msa(
     host_url: str = DEFAULT_HOST,
     use_env: bool = True,
     use_filter: bool = True,
+    max_wait_seconds: int = 7200,
 ) -> List[str]:
     """
     Submit sequences to ColabFold MSA API, wait for completion, extract and merge a3m.
     Returns one merged a3m string per input sequence (same order as seqs).
     """
+    if max_wait_seconds <= 0:
+        raise ValueError("max_wait_seconds must be positive")
+    deadline = time.monotonic() + max_wait_seconds
     mode = "env" if (use_filter and use_env) else "all" if use_filter else "env-nofilter" if use_env else "nofilter"
     path = f"{prefix}_{mode}"
     Path(path).mkdir(parents=True, exist_ok=True)
@@ -139,6 +143,8 @@ def run_remote_msa(
         out = submit(seqs_unique, mode, host_url, headers, N)
         while out.get("status") in ("UNKNOWN", "RATELIMIT"):
             sleep_t = 5 + random.randint(0, 5)
+            if time.monotonic() + sleep_t > deadline:
+                raise TimeoutError("Timed out while submitting the ColabFold MSA search")
             log.info("Sleeping %ds (status: %s)", sleep_t, out.get("status"))
             time.sleep(sleep_t)
             out = submit(seqs_unique, mode, host_url, headers, N)
@@ -151,6 +157,8 @@ def run_remote_msa(
         ticket_id = out["id"]
         while out.get("status") in ("UNKNOWN", "RUNNING", "PENDING"):
             t = 5 + random.randint(0, 5)
+            if time.monotonic() + t > deadline:
+                raise TimeoutError(f"Timed out waiting for ColabFold MSA ticket {ticket_id}")
             log.info("Waiting for job (status: %s)...", out.get("status"))
             time.sleep(t)
             out = poll_status(ticket_id, host_url, headers)
@@ -229,6 +237,12 @@ def main() -> int:
         action="store_true",
         help="Disable MSA filtering",
     )
+    parser.add_argument(
+        "--max-wait-seconds",
+        type=int,
+        default=7200,
+        help="Maximum wall time for submission and polling [default: %(default)s]",
+    )
     args = parser.parse_args()
 
     if not args.fasta.exists():
@@ -242,13 +256,18 @@ def main() -> int:
     seqs = [s for _, s in pairs]
     prefix = "colabfold_remote"
 
-    a3m_strings = run_remote_msa(
-        seqs,
-        prefix,
-        host_url=args.host,
-        use_env=not args.no_env,
-        use_filter=not args.no_filter,
-    )
+    try:
+        a3m_strings = run_remote_msa(
+            seqs,
+            prefix,
+            host_url=args.host,
+            use_env=not args.no_env,
+            use_filter=not args.no_filter,
+            max_wait_seconds=args.max_wait_seconds,
+        )
+    except (KeyError, OSError, RuntimeError, TimeoutError, ValueError) as exc:
+        log.error("ColabFold MSA search failed: %s", exc)
+        return 1
 
     # Decide base output path. If a directory is given, name the .a3m after the input FASTA
     # so multiple targets can coexist without clashing (e.g. PDL1_A.fasta -> PDL1_A.a3m).
