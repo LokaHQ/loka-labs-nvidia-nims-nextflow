@@ -92,6 +92,7 @@ workflow RFD_NIM {
         hotspot_res,
         ch_design_index,
         ch_unique_id,
+        false,
     )
 
     ch_pmpnn_inputs = RFDIFFUSION_NIM.out.pdbs.flatten()

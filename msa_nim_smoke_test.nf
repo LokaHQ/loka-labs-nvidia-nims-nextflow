@@ -8,10 +8,10 @@ params.outdir = 'results'
 
 process MSA_NIM_SMOKE_TEST {
     container '520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:msa-search'
-    accelerator = 1
-    cpus = 8
-    memory = '64g'
-    time = 1.hour
+    accelerator 1
+    cpus 8
+    memory '64g'
+    time 1.hour
 
     publishDir "${params.outdir}/msa-nim-smoke-test", mode: 'copy'
 
@@ -33,6 +33,18 @@ process MSA_NIM_SMOKE_TEST {
         done
         exit "\$code"
     ' EXIT
+
+    if [ -n "${params.ngc_api_key_secret ?: ''}" ]; then
+        export NGC_API_KEY=\$(/opt/aws-cli/bin/aws secretsmanager get-secret-value \
+            --secret-id "${params.ngc_api_key_secret ?: ''}" \
+            --region "${params.ngc_api_key_region}" \
+            --query SecretString \
+            --output text)
+    fi
+    if [ -z "\${NGC_API_KEY:-}" ]; then
+        echo "NGC_API_KEY is unavailable" >&2
+        exit 1
+    fi
 
     /opt/nim/start_server.sh > nim_server.log 2>&1 &
 
