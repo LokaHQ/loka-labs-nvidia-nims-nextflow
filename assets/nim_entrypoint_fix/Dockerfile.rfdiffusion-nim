@@ -1,5 +1,10 @@
-# tag: rfdiffusion-nim-updated
-# The NIM ships an ENTRYPOINT that starts its server; Nextflow needs to run its
-# own command in the container, so clear it. Nothing else changes.
-FROM 520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims@sha256:3ecadaa563bd3fe5fd29dd283b2606aa3968075b4aad5d497b59f4abb67f4b91
+# Pushed to ECR as tag: rfdiffusion-nim
+# (ECR digest sha256:acf05a7f…, pushed 2026-09-24)
+#
+# The NIM ships an ENTRYPOINT that starts its own server; Nextflow needs to run
+# its own command in the container, so clear it. Nothing else changes.
+#
+# Base is pulled from NGC (needs an NGC API key), not from ECR — the unmodified
+# NIM was never pushed to ECR under its own tag.
+FROM nvcr.io/nim/ipd/rfdiffusion:2.3.0
 ENTRYPOINT []

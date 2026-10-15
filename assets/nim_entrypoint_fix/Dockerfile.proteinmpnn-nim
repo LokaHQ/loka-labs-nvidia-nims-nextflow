@@ -1,4 +1,7 @@
-# tag: proteinmpnn-nim-updated
-# Same entrypoint fix as the RFdiffusion NIM.
-FROM 520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims@sha256:3a941d3fe78454a1270e7a5e42ce3383347fb55a1000ba2fa5b2df212a7f861e
+# Pushed to ECR as tag: proteinmpnn-nim
+# (ECR digest sha256:2368d886…, pushed 2026-09-24)
+#
+# Same entrypoint fix as the RFdiffusion NIM. Base comes from NGC; the
+# unmodified NIM was never pushed to ECR under its own tag.
+FROM nvcr.io/nim/ipd/proteinmpnn:1.2.0
 ENTRYPOINT []
