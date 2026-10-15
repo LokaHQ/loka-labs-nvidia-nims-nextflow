@@ -27,8 +27,8 @@ Built by us:
 | `rfdiffusion-seed-patch-v3` | `:rfdiffusion` plus scoped RNGs | `rfdiffusion_seed_patch/Dockerfile` | `sha256:871f9618…` | 2026-10-07 |
 | `proteinmpnn-seed-patch-v2` | `:proteinmpnn` plus a `-seed` flag | `proteinmpnn_seed_patch/Dockerfile` | `sha256:045e81d8…` | 2026-10-13 |
 
-Unmodified copies of an upstream image — we never built these, so there is no
-Dockerfile to keep. `iac/README.md` has the pull/tag/push steps.
+Unmodified copies of an upstream image — we never built these. The upstream
+recipes for the two APDI ones are vendored in `upstream/` for reference. `iac/README.md` has the pull/tag/push steps.
 
 | ECR tag | Upstream source | ECR digest | Pushed |
 |---|---|---|---|
