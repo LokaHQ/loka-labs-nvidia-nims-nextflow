@@ -1,0 +1,5 @@
+# tag: rfdiffusion-nim-updated
+# The NIM ships an ENTRYPOINT that starts its server; Nextflow needs to run its
+# own command in the container, so clear it. Nothing else changes.
+FROM 520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims@sha256:3ecadaa563bd3fe5fd29dd283b2606aa3968075b4aad5d497b59f4abb67f4b91
+ENTRYPOINT []

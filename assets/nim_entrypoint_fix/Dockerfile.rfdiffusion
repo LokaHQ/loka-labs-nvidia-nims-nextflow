@@ -1,0 +1,5 @@
+# tag: rfdiffusion  (the open-source baseline arm)
+# Upstream sets ENTRYPOINT to run_inference.py, which blocks Nextflow from
+# running its own command. Clear it; nothing else changes.
+FROM ghcr.io/australian-protein-design-initiative/containers/rfdiffusion:pytorch2407
+ENTRYPOINT []

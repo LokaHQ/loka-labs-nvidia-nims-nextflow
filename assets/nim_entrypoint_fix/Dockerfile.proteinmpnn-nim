@@ -1,0 +1,4 @@
+# tag: proteinmpnn-nim-updated
+# Same entrypoint fix as the RFdiffusion NIM.
+FROM 520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims@sha256:3a941d3fe78454a1270e7a5e42ce3383347fb55a1000ba2fa5b2df212a7f861e
+ENTRYPOINT []
