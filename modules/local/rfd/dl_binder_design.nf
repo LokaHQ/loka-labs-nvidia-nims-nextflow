@@ -39,7 +39,7 @@ process DL_BINDER_DESIGN_PROTEINMPNN {
         -relax_cycles ${relax_cycles} \
         -seqs_per_struct ${seqs_per_struct} \
         -outpdbdir pdbs_tmp/ \
-        ${pmpnn_extra_args}
+        ${pmpnn_extra_args}${(task.ext?.args) ? ' ' + task.ext.args : ''}
 
     # Create output directory
     mkdir -p pdbs/
