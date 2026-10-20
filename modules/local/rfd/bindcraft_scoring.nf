@@ -26,8 +26,5 @@ process BINDCRAFT_SCORING {
       --dalphaball-path /app/BindCraft/functions/DAlphaBall.gcc \
       --dssp-path /app/BindCraft/functions/dssp \
       ${pdb_file}
-
-    # We don't use this, just the default (which is already CX)
-    # --omit-aas ${params.pmpnn_omit_aas}
     """
 }

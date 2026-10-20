@@ -17,6 +17,10 @@ params.outdir = 'results'
 // Conditional includes based on --method parameter
 if (params.method == "rfd") {
     include { RFD } from './workflows/rfd'
+} else if (params.method == "rfd_nim") {
+    include { RFD_NIM } from './workflows/rfd_nim'
+} else if (params.method == "rfd_openfold") {
+    include { RFD_OPENFOLD } from './workflows/rfd_openfold'
 } else if (params.method == "rfd_partial") {
     include { RFD_PARTIAL } from './workflows/rfd_partial'
 } else if (params.method == "bindcraft") {
@@ -67,6 +71,8 @@ workflow {
 
         Available methods:
             rfd             RFDiffusion-based binder design
+            rfd_nim         RFDiffusion+ProteinMPNN NIM proof-of-concept (see workflows/rfd_nim.nf)
+            rfd_openfold    RFDiffusion-based binder design, OpenFold3 scoring
             rfd_partial     RFDiffusion partial diffusion for binder optimization
             rfd3            RFDiffusion3-based binder design
             bindcraft       BindCraft binder design
@@ -88,6 +94,10 @@ workflow {
     // Dispatch to appropriate workflow
     if (params.method == "rfd") {
         RFD()
+    } else if (params.method == "rfd_nim") {
+        RFD_NIM()
+    } else if (params.method == "rfd_openfold") {
+        RFD_OPENFOLD()
     } else if (params.method == "rfd_partial") {
         RFD_PARTIAL()
     } else if (params.method == "bindcraft") {
@@ -104,7 +114,7 @@ workflow {
         FOLDSEEK()
     } else {
         log.error("Unknown method: ${params.method}")
-        log.info("Available methods: rfd, rfd_partial, rfd3, bindcraft, germinal, boltzgen, boltz_pulldown, foldseek")
+        log.info("Available methods: rfd, rfd_nim, rfd_openfold, rfd_partial, rfd3, bindcraft, germinal, boltzgen, boltz_pulldown, foldseek")
         exit(1)
     }
 
@@ -128,9 +138,12 @@ workflow {
 
         def output_file = "${params.outdir}/params.json"
         def json_string = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(params_json))
+        def output_path = file(output_file)
 
-        new File(params.outdir).mkdirs()
-        new File(output_file).text = json_string
+        if (output_path.fileSystem.provider().scheme == 'file') {
+            java.nio.file.Files.createDirectories(output_path.parent)
+        }
+        output_path.text = json_string
 
         log.info("Pipeline parameters saved to: ${output_file}")
     }

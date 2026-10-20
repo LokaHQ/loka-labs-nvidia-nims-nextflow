@@ -1,0 +1,4 @@
+**
+!bin/
+!bin/openfold3_nim_pae.py
+!bin/patch_openfold3_nim.py
