@@ -35,7 +35,7 @@ process RFDIFFUSION_NIM {
     export RFD_CONTIGS="${contigs}"
     export RFD_HOTSPOT_RES="${hotspot_res}"
     export RFD_OUTPUT_PDB="pdbs/design_ppi_${unique_id}_${design_index}.pdb"
-    ${random_seed != false ? "export RFD_RANDOM_SEED=\"${random_seed}\"" : ''}
+    ${random_seed != false ? "export RFD_RANDOM_SEED=\"${(random_seed as int) + (design_index as int)}\"" : ''}
     if [ -n "${params.ngc_api_key_secret ?: ''}" ]; then
         export NGC_API_KEY=\$(/opt/aws-cli/bin/aws secretsmanager get-secret-value \
             --secret-id "${params.ngc_api_key_secret ?: ''}" \

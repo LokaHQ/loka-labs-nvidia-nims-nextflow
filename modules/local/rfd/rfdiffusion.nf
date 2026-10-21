@@ -27,6 +27,17 @@ process RFDIFFUSION {
     def hotspot_res_arg = hotspot_res ? "ppi.hotspot_res='${hotspot_res}'" : ''
     def config_name = rfd_config_name ? "--config-name=${rfd_config_name}" : ''
     def run_inf = params.rfd_command
+    // Upstream RFdiffusion has no random_seed key: deterministic=True seeds from
+    // the design index via make_deterministic(i_des). The stack-matched container
+    // adds random_seed and computes random_seed + i_des - design_startnum, which is
+    // zero-offset here since we run one design per task - so pass base + index to
+    // land on the same seed as upstream. Set rfd_explicit_seed only for containers
+    // that accept the key; Hydra rejects it on upstream builds.
+    def seed_arg = params.rfd_random_seed != false
+        ? (params.rfd_explicit_seed
+            ? "inference.deterministic=True inference.random_seed=${(params.rfd_random_seed as int) + (design_startnum as int)}"
+            : 'inference.deterministic=True')
+        : ''
     def model_dir_arg = params.rfd_model_directory_path
         ? "inference.model_directory_path=${params.rfd_model_directory_path}"
         : ''
@@ -65,6 +76,7 @@ process RFDIFFUSION {
         inference.num_designs=${batch_size} \
         inference.design_startnum=${design_startnum} \
         inference.schedule_directory_path=schedules \
+        ${seed_arg} \
         ${model_dir_arg} \
         ${rfd_model_path_arg} \
         ${params.rfd_extra_args} \

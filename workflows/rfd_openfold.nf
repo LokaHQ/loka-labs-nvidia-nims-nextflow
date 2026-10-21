@@ -26,6 +26,12 @@ params.rfd_model_directory_path = false
 // 1 matches RFdiffusion's upstream default and NIM's config (was 0 before).
 params.rfd_noise_scale = 1
 params.rfd_extra_args = ''
+// false keeps RFdiffusion's own randomness; an integer makes design N use
+// seed N + this value, matching the NIM arm design-for-design.
+params.rfd_random_seed = false
+// Upstream RFdiffusion only has deterministic=True (seed = design index). Set true
+// for containers that also accept inference.random_seed, such as the matched build.
+params.rfd_explicit_seed = false
 params.rfd_compress_trajectories = true
 params.pmpnn_seqs_per_struct = 1
 params.pmpnn_relax_cycles = 3

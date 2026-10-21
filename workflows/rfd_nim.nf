@@ -20,6 +20,7 @@ params.pmpnn_seqs_per_struct = 1
 params.pmpnn_temperature = 0.000001
 params.of3_diffusion_samples = 1
 // Unset keeps the public ColabFold API; set to a NIM base URL to use MSA Search.
+params.rfd_random_seed = false
 params.msa_nim_url = false
 params.msa_nim_databases = 'all'
 params.msa_nim_max_sequences = 500
@@ -96,7 +97,7 @@ workflow RFD_NIM {
         hotspot_res,
         ch_design_index,
         ch_unique_id,
-        false,
+        params.rfd_random_seed,
     )
 
     ch_pmpnn_inputs = RFDIFFUSION_NIM.out.pdbs.flatten()
