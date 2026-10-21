@@ -37,7 +37,7 @@ recipes for the two APDI ones are vendored in `upstream/` for reference. `iac/RE
 | `bindcraft` | `ghcr.io/…/bindcraft:nv-cuda120` | `sha256:1c7a98bf…` | 2026-09-21 |
 | `nf-binder-design-utils` | `ghcr.io/…/nf-binder-design-utils:0.1.6` | `sha256:b00bfa46…` | 2026-09-21 |
 | `openfold3-v0.5-pixi` | `openfoldconsortium/openfold3:0.5-pixi` | `sha256:8764f732…` | 2026-09-30 |
-| `msa-search` | `nvcr.io/nim/colabfold/msa-search:latest` | `sha256:944f3cf8…` | 2026-10-07 |
+| `msa-search` | `nvcr.io/nim/colabfold/msa-search` 2.6.0 | `sha256:944f3cf8…` | 2026-10-07 |
 
 Tags and digests verified against ECR on 2026-10-15. Two things worth knowing:
 
@@ -45,6 +45,9 @@ Tags and digests verified against ECR on 2026-10-15. Two things worth knowing:
   builds, not the stock NIMs — the modified images were pushed over those tags,
   and the unmodified NIMs were never pushed. Rebuilding them needs an NGC key.
 - `rfdiffusion-seed-patch-v3` is in ECR but no config references it.
+- `msa-search` ships no sequence databases. On first start it downloads ~1.4 TB
+  into `NIM_CACHE_PATH` using `NGC_API_KEY`, which takes hours — so it needs a
+  persistent cache, not a per-task Batch volume.
 
 The seed-patch and entrypoint-fix Dockerfiles were reconstructed from `docker history`
 on 2026-10-15, after the originals were lost with a scratch directory. The Python
