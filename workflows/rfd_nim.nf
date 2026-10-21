@@ -19,6 +19,10 @@ params.rfd_n_designs = 2
 params.pmpnn_seqs_per_struct = 1
 params.pmpnn_temperature = 0.000001
 params.of3_diffusion_samples = 1
+// Unset keeps the public ColabFold API; set to a NIM base URL to use MSA Search.
+params.msa_nim_url = false
+params.msa_nim_databases = 'all'
+params.msa_nim_max_sequences = 500
 
 include { UNIQUE_ID } from '../modules/local/common/unique_id'
 include { RFDIFFUSION_NIM } from '../modules/local/rfd/rfdiffusion_nim'

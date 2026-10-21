@@ -8,7 +8,7 @@ Build context for every image we build ourselves and push to ECR
 | `openfold3_nim/` | `openfold3-nim` | OpenFold3 NIM plus PAE output |
 | `rfdiffusion_seed_patch/` | `rfdiffusion-seed-patch-v3` | RFdiffusion with scoped, seedable RNGs |
 | `proteinmpnn_seed_patch/` | `proteinmpnn-seed-patch-v2` | ProteinMPNN with a `-seed` flag |
-| `nim_entrypoint_fix/` | `rfdiffusion`, `rfdiffusion-nim-updated`, `proteinmpnn-nim-updated` | Entrypoint cleared so Nextflow can run its own command |
+| `nim_entrypoint_fix/` | `rfdiffusion`, `rfdiffusion-nim-updated`, `proteinmpnn-nim-updated`, `msa-search-updated` | Entrypoint cleared so Nextflow can run its own command |
 
 ## Provenance of every tag in use
 
@@ -24,6 +24,7 @@ Built by us:
 | `rfdiffusion-nim` | `nvcr.io/nim/ipd/rfdiffusion:2.3.0`, entrypoint cleared | `nim_entrypoint_fix/Dockerfile.rfdiffusion-nim` | `sha256:acf05a7f…` | 2026-09-24 |
 | `proteinmpnn-nim` | `nvcr.io/nim/ipd/proteinmpnn:1.2.0`, entrypoint cleared | `nim_entrypoint_fix/Dockerfile.proteinmpnn-nim` | `sha256:2368d886…` | 2026-09-24 |
 | `openfold3-nim` | `nvcr.io/nim/openfold/openfold3`, PAE output added | `openfold3_nim/Dockerfile` | `sha256:4a3b5acb…` | 2026-09-30 |
+| `msa-search-updated` | `nvcr.io/nim/colabfold/msa-search:2.6.0`, entrypoint cleared | `nim_entrypoint_fix/Dockerfile.msa-search` | `sha256:1adc82dc…` | 2026-10-21 |
 | `rfdiffusion-seed-patch-v3` | `:rfdiffusion` plus scoped RNGs | `rfdiffusion_seed_patch/Dockerfile` | `sha256:871f9618…` | 2026-10-07 |
 | `proteinmpnn-seed-patch-v2` | `:proteinmpnn` plus a `-seed` flag | `proteinmpnn_seed_patch/Dockerfile` | `sha256:045e81d8…` | 2026-10-13 |
 
