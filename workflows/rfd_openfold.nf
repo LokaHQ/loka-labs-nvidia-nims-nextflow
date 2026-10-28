@@ -33,6 +33,14 @@ params.rfd_random_seed = false
 // for containers that also accept inference.random_seed, such as the matched build.
 params.rfd_explicit_seed = false
 params.rfd_compress_trajectories = true
+// Use the rfdiffusion-fixed image's standalone runner, which reproduces the
+// NIM's inference path without its server, instead of Hydra run_inference.py.
+// Emits one PDB and a metadata JSON per design - no trajectories or configs.
+params.rfd_standalone = false
+params.rfd_diffusion_steps = 50
+// Path to a PDB for the standalone runner's NIM warmup. Unset skips it. See
+// the module: may be needed to reproduce the NIM bit-for-bit.
+params.rfd_nim_warmup_pdb = false
 params.pmpnn_seqs_per_struct = 1
 params.pmpnn_relax_cycles = 3
 params.pmpnn_gpu = false
@@ -58,6 +66,7 @@ params.msa_local_search_args = '--db-load-mode 2 --align-eval 0.0001 --max-accep
 
 include { UNIQUE_ID } from '../modules/local/common/unique_id'
 include { RFDIFFUSION } from '../modules/local/rfd/rfdiffusion'
+include { RFDIFFUSION_STANDALONE } from '../modules/local/rfd/rfdiffusion_standalone'
 include { DL_BINDER_DESIGN_PROTEINMPNN } from '../modules/local/rfd/dl_binder_design'
 include { OPENFOLD3 } from '../modules/local/rfd/openfold3'
 include { OPENFOLD3_MSA_LOCAL } from '../modules/local/rfd/openfold3_msa_local'
@@ -102,17 +111,31 @@ workflow RFD_OPENFOLD {
 
     ch_rfd_startnum = Channel.of(0..(params.rfd_n_designs - 1))
 
-    RFDIFFUSION(
-        Channel.value(false),
-        ch_input_pdb,
-        Channel.value(false),
-        params.contigs,
-        hotspot_res,
-        1,
-        ch_rfd_startnum,
-        ch_unique_id,
-    )
-    ch_backbones = RFDIFFUSION.out.pdbs.flatten()
+    if (params.rfd_standalone) {
+        RFDIFFUSION_STANDALONE(
+            ch_input_pdb,
+            params.contigs,
+            hotspot_res,
+            ch_rfd_startnum,
+            ch_unique_id,
+            params.rfd_random_seed,
+        )
+        ch_rfd_pdbs = RFDIFFUSION_STANDALONE.out.pdbs
+    }
+    else {
+        RFDIFFUSION(
+            Channel.value(false),
+            ch_input_pdb,
+            Channel.value(false),
+            params.contigs,
+            hotspot_res,
+            1,
+            ch_rfd_startnum,
+            ch_unique_id,
+        )
+        ch_rfd_pdbs = RFDIFFUSION.out.pdbs
+    }
+    ch_backbones = ch_rfd_pdbs.flatten()
 
     ch_pmpnn_inputs = ch_backbones
         | combine(Channel.of(0..(params.pmpnn_seqs_per_struct - 1)))
@@ -155,7 +178,7 @@ workflow RFD_OPENFOLD {
     )
 
     emit:
-    backbones = RFDIFFUSION.out.pdbs
+    backbones = ch_rfd_pdbs
     openfold3_pdbs = OPENFOLD3.out.pdbs
     scores = BINDCRAFT_SCORING_AF2IG.out.scores
 }
