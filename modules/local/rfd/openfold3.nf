@@ -7,10 +7,12 @@ process OPENFOLD3 {
     publishDir "${params.outdir}/rfd/openfold3", pattern: 'scores/*.tsv', mode: 'copy'
 
     input:
-    path 'input/*'
-    // Per-chain alignments named <query_id>.{A,B}.a3m. Pass an empty list to let
-    // OpenFold3 run its own MSA search instead.
-    path 'msas/*'
+    // One design per task. The alignments are carried in the same tuple rather
+    // than a parallel channel, so a design can never be paired with another
+    // design's MSA if an operator upstream stops preserving order.
+    // Per-chain alignments are named <query_id>.{A,B}.a3m; an empty list leaves
+    // OpenFold3 to run its own MSA search.
+    tuple path('input/*'), path('msas/*')
 
     output:
     tuple path('pdbs/*.pdb'), path('openfold3_scores.tsv'), emit: pdbs_with_scores

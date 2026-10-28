@@ -166,16 +166,18 @@ workflow RFD_OPENFOLD {
         OPENFOLD3_MSA_LOCAL(
             ch_threaded_pdbs.flatten().map { pdb -> tuple(pdb.baseName, pdb) }
         )
-        ch_msas = OPENFOLD3_MSA_LOCAL.out.msas.collect()
+        // Per design, not collected: folding each design as soon as its own MSA
+        // lands, the way the NIM arm does. Collecting would hold every fold
+        // until the last search finished, which would show up as this arm being
+        // slower when it is only this plumbing being slower.
+        ch_of3_input = OPENFOLD3_MSA_LOCAL.out.designs_with_msas
+            .map { design_id, pdb, msa_a, msa_b -> tuple(pdb, [msa_a, msa_b]) }
     }
     else {
-        ch_msas = Channel.value([])
+        ch_of3_input = ch_threaded_pdbs.flatten().map { pdb -> tuple(pdb, []) }
     }
 
-    OPENFOLD3(
-        ch_threaded_pdbs,
-        ch_msas,
-    )
+    OPENFOLD3(ch_of3_input)
 
     BINDCRAFT_SCORING_AF2IG(
         OPENFOLD3.out.pdbs,

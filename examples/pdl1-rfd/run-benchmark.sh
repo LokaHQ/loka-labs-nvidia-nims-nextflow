@@ -1,0 +1,83 @@
+#!/bin/bash
+#
+# NIM vs no-NIM benchmark, both arms, whole pipeline.
+#
+#   ./run-benchmark.sh 3      # the 3-seed shakedown
+#   ./run-benchmark.sh 100    # the full run - needs explicit sign-off first
+#
+# The two arms differ ONLY in which implementation runs each step. Everything
+# that could otherwise explain a difference is pinned here rather than left to
+# a default, so the run is reproducible from this file alone.
+set -euo pipefail
+
+N_DESIGNS="${1:?usage: run-benchmark.sh <n_designs>}"
+RUN_TAG="${RUN_TAG:-$(date -u +%Y%m%dT%H%M%SZ)}"
+
+PIPELINE_DIR=../../
+export AWS_PROFILE="${AWS_PROFILE:-lokalabs-nims}"
+export NXF_SYNTAX_PARSER=v1
+
+# --- shared design space -----------------------------------------------------
+# A range rather than a fixed 78: published PD-L1 minibinders are 50-80
+# residues, so a fixed 78 sits at the top of the band and removes the length
+# variation RFdiffusion is normally allowed to explore.
+CONTIGS="[A18-132/0 55-100]"
+# Five hotspots spread across the interface rather than A56 alone, as published
+# PD-L1 campaigns do. R113 in particular forms a salt bridge with PD-1 Glu136.
+HOTSPOTS="A56,A63,A113,A123,A124"
+INPUT_PDB='input/PDL1.pdb'
+
+# --- matching between the arms -----------------------------------------------
+# Design N uses seed N on both sides.
+SEED=0
+# Both arms search the same databases on the FSx mount. Without this the
+# baseline falls back to OpenFold3's internal ColabFold API call and the NIM arm
+# to colabfold_remote_msa.py - silently, and the comparison is then meaningless.
+MSA_DB_DIR=/fsx/msa
+# One MPNN pass and one relax on both sides. The baseline defaults to 3, which
+# is the MPNN-FastRelax protocol: design and relax alternate, so the sequence
+# comes from ~4 MPNN passes against the NIM arm's one. Leaving it at 3 would
+# confound every quality comparison with a protocol difference, and bill the
+# extra relax cycles to a GPU instance on one arm only.
+RELAX_CYCLES=1
+# The NIM reports seed=102 and checkpoint v_48_002 in its own FASTA header;
+# the seed-patch image is the only baseline build that accepts -seed.
+PMPNN_SEED=102
+PMPNN_CONTAINER=proteinmpnn-seed-patch-v2
+
+# The arms run strictly sequentially. They share one GPU Spot pool, so running
+# them together would mean the "faster" arm is whichever got scheduled.
+
+echo "=== baseline arm: N=${N_DESIGNS}, tag ${RUN_TAG} ==="
+nextflow run "${PIPELINE_DIR}/main.nf" \
+  --method rfd_openfold \
+  --input_pdb "${INPUT_PDB}" \
+  --outdir "s3://nvidia-nims-output/benchmark-${RUN_TAG}/baseline" \
+  --contigs "${CONTIGS}" \
+  --hotspot_res "${HOTSPOTS}" \
+  --rfd_n_designs="${N_DESIGNS}" \
+  --rfd_random_seed="${SEED}" \
+  --rfd_standalone true \
+  --pmpnn_seqs_per_struct=1 \
+  --pmpnn_relax_cycles="${RELAX_CYCLES}" \
+  --pmpnn_gpu true \
+  --pmpnn_container_tag "${PMPNN_CONTAINER}" \
+  --pmpnn_seed="${PMPNN_SEED}" \
+  --msa_db_dir "${MSA_DB_DIR}" \
+  -profile aws_batch_openfold
+
+echo "=== NIM arm: N=${N_DESIGNS}, tag ${RUN_TAG} ==="
+nextflow run "${PIPELINE_DIR}/main.nf" \
+  --method rfd_nim \
+  --input_pdb "${INPUT_PDB}" \
+  --outdir "s3://nvidia-nims-output/benchmark-${RUN_TAG}/nim" \
+  --contigs "${CONTIGS}" \
+  --hotspot_res "${HOTSPOTS}" \
+  --rfd_n_designs="${N_DESIGNS}" \
+  --rfd_random_seed="${SEED}" \
+  --pmpnn_seqs_per_struct=1 \
+  --of3_diffusion_samples=1 \
+  --msa_db_dir "${MSA_DB_DIR}" \
+  -profile aws_batch_nims
+
+echo "=== done: s3://nvidia-nims-output/benchmark-${RUN_TAG}/ ==="

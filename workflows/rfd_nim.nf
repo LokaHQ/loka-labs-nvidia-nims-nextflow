@@ -24,12 +24,21 @@ params.rfd_random_seed = false
 params.msa_nim_url = false
 params.msa_nim_databases = 'all'
 params.msa_nim_max_sequences = 500
+// Set to the databases on the FSx mount to run the MSA Search NIM in-task
+// against the same files the baseline arm's colabfold_search reads. Unset
+// leaves this arm on the public ColabFold API, which is NOT comparable with a
+// self-hosted baseline - see the guard in the workflow body.
+params.msa_db_dir = false
+// The NIM loads the databases into GPU memory on start; this is the ceiling on
+// 10s intervals before the task gives up.
+params.msa_nim_ready_checks = 120
 
 include { UNIQUE_ID } from '../modules/local/common/unique_id'
 include { RFDIFFUSION_NIM } from '../modules/local/rfd/rfdiffusion_nim'
 include { DL_BINDER_DESIGN_PROTEINMPNN_NIM } from '../modules/local/rfd/dl_binder_design_nim'
 include { THREAD_AND_RELAX } from '../modules/local/rfd/thread_and_relax'
 include { OPENFOLD3_MSA } from '../modules/local/rfd/openfold3_msa'
+include { OPENFOLD3_MSA_NIM } from '../modules/local/rfd/openfold3_msa_nim'
 include { OPENFOLD3_NIM } from '../modules/local/rfd/openfold3_nim'
 include { BINDCRAFT_SCORING as BINDCRAFT_SCORING_OPENFOLD3 } from '../modules/local/rfd/bindcraft_scoring'
 
@@ -113,13 +122,23 @@ workflow RFD_NIM {
         DL_BINDER_DESIGN_PROTEINMPNN_NIM.out.backbone_with_fasta,
     )
 
-    OPENFOLD3_MSA(
-        THREAD_AND_RELAX.out.designs,
-    )
+    // Self-hosted when msa_db_dir is set, matching the baseline arm. Otherwise
+    // the public ColabFold API, which is only appropriate when the baseline is
+    // on it too.
+    if (params.msa_db_dir) {
+        OPENFOLD3_MSA_NIM(THREAD_AND_RELAX.out.designs)
+        ch_designs_with_msas = OPENFOLD3_MSA_NIM.out.designs_with_msas
+        ch_msas = OPENFOLD3_MSA_NIM.out.msas
+        ch_msa_queries = OPENFOLD3_MSA_NIM.out.queries
+    }
+    else {
+        OPENFOLD3_MSA(THREAD_AND_RELAX.out.designs)
+        ch_designs_with_msas = OPENFOLD3_MSA.out.designs_with_msas
+        ch_msas = OPENFOLD3_MSA.out.msas
+        ch_msa_queries = OPENFOLD3_MSA.out.queries
+    }
 
-    OPENFOLD3_NIM(
-        OPENFOLD3_MSA.out.designs_with_msas,
-    )
+    OPENFOLD3_NIM(ch_designs_with_msas)
 
     BINDCRAFT_SCORING_OPENFOLD3(
         OPENFOLD3_NIM.out.pdbs,
@@ -132,8 +151,8 @@ workflow RFD_NIM {
     backbones = RFDIFFUSION_NIM.out.pdbs
     sequences = DL_BINDER_DESIGN_PROTEINMPNN_NIM.out.fasta
     threaded_pdbs = THREAD_AND_RELAX.out.pdbs
-    msa_queries = OPENFOLD3_MSA.out.queries
-    msas = OPENFOLD3_MSA.out.msas
+    msa_queries = ch_msa_queries
+    msas = ch_msas
     refolded_pdbs = OPENFOLD3_NIM.out.pdbs
     refold_scores = OPENFOLD3_NIM.out.scores
     predictions = OPENFOLD3_NIM.out.predictions
