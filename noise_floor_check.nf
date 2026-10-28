@@ -14,7 +14,7 @@ include { OPENFOLD3_NIM } from './modules/local/rfd/openfold3_nim'
 
 workflow {
     ch_oss_input = Channel.fromPath(params.input_pdb)
-    OPENFOLD3(ch_oss_input.collect())
+    OPENFOLD3(ch_oss_input.collect(), Channel.value([]))
 
     ch_nim_input = Channel.of('noise_floor_3ERYdgB')
         .combine(Channel.fromPath(params.input_pdb))

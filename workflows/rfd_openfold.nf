@@ -41,10 +41,20 @@ params.pmpnn_temperature = 0.000001
 params.pmpnn_augment_eps = 0
 params.pmpnn_omit_aas = 'CX'
 
+// Unset leaves MSA search to OpenFold3 itself (public ColabFold API). Set to a
+// container-visible database directory to search locally instead, so this arm
+// is hardware-comparable with the MSA Search NIM.
+params.msa_db_dir = false
+// mmap the index rather than loading it into RAM. colabfold_search's default
+// (auto) wants the whole index resident - ~128 GB batched, far more for the
+// single-query searches this pipeline does - which no queue here can supply.
+params.msa_local_search_args = '--db-load-mode 2'
+
 include { UNIQUE_ID } from '../modules/local/common/unique_id'
 include { RFDIFFUSION } from '../modules/local/rfd/rfdiffusion'
 include { DL_BINDER_DESIGN_PROTEINMPNN } from '../modules/local/rfd/dl_binder_design'
 include { OPENFOLD3 } from '../modules/local/rfd/openfold3'
+include { OPENFOLD3_MSA_LOCAL } from '../modules/local/rfd/openfold3_msa_local'
 include { BINDCRAFT_SCORING as BINDCRAFT_SCORING_AF2IG } from '../modules/local/rfd/bindcraft_scoring'
 
 workflow RFD_OPENFOLD {
@@ -111,8 +121,24 @@ workflow RFD_OPENFOLD {
         ch_pmpnn_inputs.map { pdb, idx -> idx },
     )
 
+    // With msa_db_dir set, MSAs are searched here against locally-hosted
+    // databases and handed to OpenFold3, instead of OpenFold3 calling the
+    // public ColabFold API itself. Keeps this arm comparable to the NIM arm,
+    // which searches its own MSAs in OPENFOLD3_MSA.
+    ch_threaded_pdbs = DL_BINDER_DESIGN_PROTEINMPNN.out.pdbs
+    if (params.msa_db_dir) {
+        OPENFOLD3_MSA_LOCAL(
+            ch_threaded_pdbs.flatten().map { pdb -> tuple(pdb.baseName, pdb) }
+        )
+        ch_msas = OPENFOLD3_MSA_LOCAL.out.msas.collect()
+    }
+    else {
+        ch_msas = Channel.value([])
+    }
+
     OPENFOLD3(
-        DL_BINDER_DESIGN_PROTEINMPNN.out.pdbs
+        ch_threaded_pdbs,
+        ch_msas,
     )
 
     BINDCRAFT_SCORING_AF2IG(

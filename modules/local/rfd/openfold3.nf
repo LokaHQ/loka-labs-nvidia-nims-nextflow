@@ -8,6 +8,9 @@ process OPENFOLD3 {
 
     input:
     path 'input/*'
+    // Per-chain alignments named <query_id>.{A,B}.a3m. Pass an empty list to let
+    // OpenFold3 run its own MSA search instead.
+    path 'msas/*'
 
     output:
     tuple path('pdbs/*.pdb'), path('openfold3_scores.tsv'), emit: pdbs_with_scores
@@ -25,7 +28,12 @@ output_writer_settings:
   structure_format: pdb
 YAML
 
-    openfold3_predict.py input/ pdbs/ scores/ runner.yml
+    msa_arg=""
+    if ls msas/*.a3m >/dev/null 2>&1; then
+        msa_arg="msas/"
+    fi
+
+    openfold3_predict.py input/ pdbs/ scores/ runner.yml \${msa_arg}
     openfold3_combine_scores.py scores/ -o openfold3_scores.tsv
     """
 }
