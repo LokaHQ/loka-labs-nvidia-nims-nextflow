@@ -32,6 +32,10 @@ params.rfd_random_seed = false
 // Upstream RFdiffusion only has deterministic=True (seed = design index). Set true
 // for containers that also accept inference.random_seed, such as the matched build.
 params.rfd_explicit_seed = false
+// Explicit per-design seeds, e.g. '0,5,34'. Overrides rfd_random_seed, which
+// can only produce consecutive seeds (base + design index). Both pipelines must
+// use the same list or designs cannot be paired.
+params.rfd_seeds = false
 params.rfd_compress_trajectories = true
 // Use the rfdiffusion-fixed image's standalone runner, which reproduces the
 // NIM's inference path without its server, instead of Hydra run_inference.py.
@@ -116,16 +120,27 @@ workflow RFD_OPENFOLD {
         hotspot_res = "[${params.hotspot_res.trim().replaceAll(/^\[+/, '').replaceAll(/\]+\$/, '')}]"
     }
 
-    ch_rfd_startnum = Channel.of(0..(params.rfd_n_designs - 1))
+    // One task per seed. The seed travels with the design index so the two
+    // pipelines pair design-for-design even with non-consecutive seeds.
+    def seed_list = params.rfd_seeds
+        ? params.rfd_seeds.toString().tokenize(',').collect { it.trim() as int }
+        : null
+    if (seed_list && seed_list.size() != params.rfd_n_designs) {
+        error("--rfd_seeds has ${seed_list.size()} seed(s) but --rfd_n_designs is ${params.rfd_n_designs}")
+    }
+    ch_design_seed = seed_list
+        ? Channel.of(0..(params.rfd_n_designs - 1)).map { i -> tuple(i, seed_list[i]) }
+        : Channel.of(0..(params.rfd_n_designs - 1)).map { i ->
+            tuple(i, params.rfd_random_seed != false ? (params.rfd_random_seed as int) + i : false)
+        }
 
     if (params.rfd_standalone) {
         RFDIFFUSION_STANDALONE(
             ch_input_pdb,
             params.contigs,
             hotspot_res,
-            ch_rfd_startnum,
+            ch_design_seed,
             ch_unique_id,
-            params.rfd_random_seed,
         )
         ch_rfd_pdbs = RFDIFFUSION_STANDALONE.out.pdbs
     }
@@ -137,7 +152,7 @@ workflow RFD_OPENFOLD {
             params.contigs,
             hotspot_res,
             1,
-            ch_rfd_startnum,
+            ch_design_seed.map { index, seed -> index },
             ch_unique_id,
         )
         ch_rfd_pdbs = RFDIFFUSION.out.pdbs

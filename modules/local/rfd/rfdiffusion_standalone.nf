@@ -21,9 +21,8 @@ process RFDIFFUSION_STANDALONE {
     path input_pdb
     val contigs
     val hotspot_res
-    val design_startnum
+    tuple val(design_startnum), val(random_seed)
     val unique_id
-    val random_seed
 
     output:
     path 'pdbs/*.pdb', emit: pdbs
@@ -32,11 +31,9 @@ process RFDIFFUSION_STANDALONE {
     script:
     def design_id = "${params.design_name}_${unique_id}_${design_startnum}"
     def hotspot_arg = hotspot_res ? "--hotspot-res '${hotspot_res}'" : ''
-    // Design N uses seed N, matching RFDIFFUSION and RFDIFFUSION_NIM. One
-    // design per task, so the offset is just the start number.
-    def seed_arg = random_seed != false
-        ? "--seed ${(random_seed as int) + (design_startnum as int)}"
-        : ''
+    // The caller passes the actual seed, not a base to offset, so a run can
+    // use arbitrary seeds (0,5,34) rather than only consecutive ones.
+    def seed_arg = random_seed != false ? "--seed ${random_seed as int}" : ''
     // Matching the NIM needs its startup warmup here too: the reference 15-seed
     // parity run carried one (350 residues, 15 steps, seed 1234, ~53 s) against
     // the PDB baked into the NIM image. Every task is a fresh container, so this

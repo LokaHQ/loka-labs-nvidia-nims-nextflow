@@ -63,18 +63,16 @@ workflow {
         ch_input_pdb,
         params.contigs,
         hotspot_res,
-        Channel.value(0),
+        Channel.value(tuple(0, params.rfd_random_seed)),
         Channel.value('standalone'),
-        params.rfd_random_seed,
     )
 
     RFDIFFUSION_NIM(
         ch_input_pdb,
         params.contigs,
         hotspot_res,
-        Channel.value(0),
+        Channel.value(tuple(0, params.rfd_random_seed)),
         Channel.value('nim'),
-        params.rfd_random_seed,
     )
 
     COMPARE_BACKBONES(

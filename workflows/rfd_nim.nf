@@ -21,6 +21,10 @@ params.pmpnn_temperature = 0.000001
 params.of3_diffusion_samples = 1
 // Unset keeps the public ColabFold API; set to a NIM base URL to use MSA Search.
 params.rfd_random_seed = false
+// Explicit per-design seeds, e.g. '0,5,34'. Overrides rfd_random_seed, which
+// can only produce consecutive seeds (base + design index). Both pipelines must
+// use the same list or designs cannot be paired.
+params.rfd_seeds = false
 params.msa_nim_url = false
 params.msa_nim_databases = 'all'
 params.msa_nim_max_sequences = 500
@@ -98,15 +102,26 @@ workflow RFD_NIM {
         hotspot_res = "[${params.hotspot_res.trim().replaceAll(/^\[+/, '').replaceAll(/\]+\$/, '')}]"
     }
 
-    ch_design_index = Channel.of(0..(params.rfd_n_designs - 1))
+    // One task per seed. The seed travels with the design index so the two
+    // pipelines pair design-for-design even with non-consecutive seeds.
+    def seed_list = params.rfd_seeds
+        ? params.rfd_seeds.toString().tokenize(',').collect { it.trim() as int }
+        : null
+    if (seed_list && seed_list.size() != params.rfd_n_designs) {
+        error("--rfd_seeds has ${seed_list.size()} seed(s) but --rfd_n_designs is ${params.rfd_n_designs}")
+    }
+    ch_design_seed = seed_list
+        ? Channel.of(0..(params.rfd_n_designs - 1)).map { i -> tuple(i, seed_list[i]) }
+        : Channel.of(0..(params.rfd_n_designs - 1)).map { i ->
+            tuple(i, params.rfd_random_seed != false ? (params.rfd_random_seed as int) + i : false)
+        }
 
     RFDIFFUSION_NIM(
         ch_input_pdb,
         params.contigs,
         hotspot_res,
-        ch_design_index,
+        ch_design_seed,
         ch_unique_id,
-        params.rfd_random_seed,
     )
 
     ch_pmpnn_inputs = RFDIFFUSION_NIM.out.pdbs.flatten()

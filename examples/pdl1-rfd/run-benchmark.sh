@@ -2,8 +2,11 @@
 #
 # NIM vs no-NIM benchmark, both arms, whole pipeline.
 #
-#   ./run-benchmark.sh 3      # the 3-seed shakedown
-#   ./run-benchmark.sh 100    # the full run - needs explicit sign-off first
+#   ./run-benchmark.sh 3                      # the 3-seed shakedown
+#   SEEDS=1,15,30 ./run-benchmark.sh 3        # a different seed set
+#   ./run-benchmark.sh 100                    # needs explicit sign-off first
+#
+# N_DESIGNS must equal the number of seeds.
 #
 # The two arms differ ONLY in which implementation runs each step. Everything
 # that could otherwise explain a difference is pinned here rather than left to
@@ -28,8 +31,16 @@ HOTSPOTS="A56,A63,A113,A123,A124"
 INPUT_PDB='input/PDL1.pdb'
 
 # --- matching between the arms -----------------------------------------------
-# Design N uses seed N on both sides.
-SEED=0
+# Explicit seeds rather than consecutive ones, so this run is continuous with
+# the 2026-10-22 NIM-vs-no-NIM comparison, which used these three. Both
+# pipelines get the same list, so designs pair up one for one.
+SEEDS="${SEEDS:-0,5,34}"
+N_SEEDS=$(awk -F, '{print NF}' <<<"${SEEDS}")
+if [ "${N_DESIGNS}" != "${N_SEEDS}" ]; then
+    echo "N_DESIGNS=${N_DESIGNS} but SEEDS has ${N_SEEDS} entries (${SEEDS})" >&2
+    echo "Pass SEEDS= with one seed per design, e.g. SEEDS=0,5,34 ./run-benchmark.sh 3" >&2
+    exit 1
+fi
 # Both arms search the same databases on the FSx mount. Without this the
 # baseline falls back to OpenFold3's internal ColabFold API call and the NIM arm
 # to colabfold_remote_msa.py - silently, and the comparison is then meaningless.
@@ -56,7 +67,7 @@ nextflow run "${PIPELINE_DIR}/main.nf" \
   --contigs "${CONTIGS}" \
   --hotspot_res "${HOTSPOTS}" \
   --rfd_n_designs="${N_DESIGNS}" \
-  --rfd_random_seed="${SEED}" \
+  --rfd_seeds="${SEEDS}" \
   --rfd_standalone true \
   --pmpnn_seqs_per_struct=1 \
   --pmpnn_relax_cycles="${RELAX_CYCLES}" \
@@ -74,7 +85,7 @@ nextflow run "${PIPELINE_DIR}/main.nf" \
   --contigs "${CONTIGS}" \
   --hotspot_res "${HOTSPOTS}" \
   --rfd_n_designs="${N_DESIGNS}" \
-  --rfd_random_seed="${SEED}" \
+  --rfd_seeds="${SEEDS}" \
   --pmpnn_seqs_per_struct=1 \
   --of3_diffusion_samples=1 \
   --msa_db_dir "${MSA_DB_DIR}" \
