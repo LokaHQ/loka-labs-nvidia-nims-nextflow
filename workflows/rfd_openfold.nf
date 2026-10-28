@@ -38,9 +38,13 @@ params.rfd_compress_trajectories = true
 // Emits one PDB and a metadata JSON per design - no trajectories or configs.
 params.rfd_standalone = false
 params.rfd_diffusion_steps = 50
-// Path to a PDB for the standalone runner's NIM warmup. Unset skips it. See
-// the module: may be needed to reproduce the NIM bit-for-bit.
-params.rfd_nim_warmup_pdb = false
+// The NIM's own startup warmup, which the reference parity run carried and
+// which the standalone runner reproduces. Baked into the NIM image. Costs ~53 s
+// per design here, since each task is a fresh container. Set false to skip it,
+// but then the arms are no longer matched.
+params.rfd_nim_warmup_pdb = '/opt/nim/5TPN.pdb'
+// NIM model version whose weights the standalone runner loads.
+params.rfd_nim_model_version = '2.3.0'
 params.pmpnn_seqs_per_struct = 1
 params.pmpnn_relax_cycles = 3
 params.pmpnn_gpu = false

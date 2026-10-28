@@ -10,6 +10,9 @@
 // Note the comparison this enables is of the serving layer - HTTP and container
 // overhead - not of two independent implementations. Both sides run NVIDIA's
 // code on NVIDIA's prebuilt TensorRT engines.
+//
+// The engines are built for SM89, so this only runs on L40S (g6e). Anything
+// else will not find usable engines.
 process RFDIFFUSION_STANDALONE {
     publishDir path: "${params.outdir}/rfd/rfdiffusion", pattern: 'pdbs/*.pdb', mode: 'copy'
     publishDir path: "${params.outdir}/rfd/rfdiffusion", pattern: 'metadata/*.json', mode: 'copy'
@@ -34,13 +37,10 @@ process RFDIFFUSION_STANDALONE {
     def seed_arg = random_seed != false
         ? "--seed ${(random_seed as int) + (design_startnum as int)}"
         : ''
-    def model_dir_arg = params.rfd_model_directory_path
-        ? "--model-directory ${params.rfd_model_directory_path}"
-        : ''
-    // The NIM server runs a 350-residue warmup at startup; the runner calls its
-    // own copy of it a "reproducibility warmup". If GPU state from that warmup
-    // affects later results, matching the NIM needs it here too - and every task
-    // is a fresh container, so it would be paid per design, not per server.
+    // Matching the NIM needs its startup warmup here too: the reference 15-seed
+    // parity run carried one (350 residues, 15 steps, seed 1234, ~53 s) against
+    // the PDB baked into the NIM image. Every task is a fresh container, so this
+    // is paid per design, not once per server.
     def warmup_arg = params.rfd_nim_warmup_pdb
         ? "--nim-warmup-pdb ${params.rfd_nim_warmup_pdb}"
         : ''
@@ -48,14 +48,32 @@ process RFDIFFUSION_STANDALONE {
     set -euo pipefail
     mkdir -p pdbs metadata
 
-    # Built on the NIM image, so the runner resolves weights through the NIM's
-    # own helper and may need a key to reach them.
+    export NIM_CACHE_PATH="\$PWD/nim-cache"
+    mkdir -p "\${NIM_CACHE_PATH}"
+
+    # The image ships no weights - the NIM normally fetches them when its server
+    # starts, which nothing does here. Pull them with the NIM's own downloader,
+    # then drop the key so inference cannot reach NGC and quietly differ from a
+    # run without one.
     if [ -n "${params.ngc_api_key_secret ?: ''}" ]; then
         export NGC_API_KEY=\$(/opt/aws-cli/bin/aws secretsmanager get-secret-value \\
             --secret-id "${params.ngc_api_key_secret ?: ''}" \\
             --region "${params.ngc_api_key_region}" \\
             --query SecretString \\
             --output text)
+    fi
+    if [ -z "\${NGC_API_KEY:-}" ]; then
+        echo "NGC_API_KEY is unavailable; the model download needs it" >&2
+        exit 1
+    fi
+
+    ( cd /opt/nim && env PYTHONPATH=/opt/nim python3 -c \\
+        'from nimlib import nimutils; nimutils.download_models(nimutils.get_model_manifest())' )
+    unset NGC_API_KEY NVIDIA_API_KEY
+
+    MODEL_DIR="${params.rfd_model_directory_path ?: ''}"
+    if [ -z "\${MODEL_DIR}" ]; then
+        MODEL_DIR="\${NIM_CACHE_PATH}/ngc/hub/models--nim--ipd--rfdiffusion/snapshots/${params.rfd_nim_model_version}"
     fi
 
     rfdiffusion_2_standalone.py \\
@@ -66,7 +84,7 @@ process RFDIFFUSION_STANDALONE {
         ${hotspot_arg} \\
         --diffusion-steps ${params.rfd_diffusion_steps ?: 50} \\
         ${seed_arg} \\
-        ${model_dir_arg} \\
+        --model-directory "\${MODEL_DIR}" \\
         ${warmup_arg}
     """
 }
