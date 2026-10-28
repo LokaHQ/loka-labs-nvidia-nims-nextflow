@@ -29,6 +29,12 @@ process DL_BINDER_DESIGN_PROTEINMPNN {
     if (params.pmpnn_omit_aas) {
         pmpnn_extra_args += " -omit_AAs ${params.pmpnn_omit_aas}"
     }
+    // Only the seed-patch image accepts -seed; the stock one errors on it.
+    // Test against null/false, not falsiness - seed 0 is a valid seed, and
+    // ad-hoc entrypoints that never declare the param leave it null.
+    if (params.pmpnn_seed != null && params.pmpnn_seed != false) {
+        pmpnn_extra_args += " -seed ${params.pmpnn_seed}"
+    }
 
     """
     ${params.pmpnn_gpu ? '' : '# Ensure we don\'t use a GPU even if one is available\n    export CUDA_VISIBLE_DEVICES=""'}

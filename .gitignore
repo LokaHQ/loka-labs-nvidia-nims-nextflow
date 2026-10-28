@@ -29,3 +29,5 @@ tmp
 *.orig
 *.tar.gz
 *.zip
+
+*.local.md

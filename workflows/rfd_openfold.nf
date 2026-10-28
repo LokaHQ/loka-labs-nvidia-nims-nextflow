@@ -52,6 +52,9 @@ params.pmpnn_weights = false
 params.pmpnn_temperature = 0.000001
 params.pmpnn_augment_eps = 0
 params.pmpnn_omit_aas = 'CX'
+// Match the ProteinMPNN NIM, which reports model_name=v_48_002 and seed=102 in
+// its own FASTA header. Needs the seed-patch container for -seed.
+params.pmpnn_seed = false
 
 // Unset leaves MSA search to OpenFold3 itself (public ColabFold API). Set to a
 // container-visible database directory to search locally instead, so this arm

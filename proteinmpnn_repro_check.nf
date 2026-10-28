@@ -21,6 +21,7 @@ params.rfd_compress_trajectories = true
 params.pmpnn_temperature = 0.000001
 params.pmpnn_augment_eps = 0
 params.pmpnn_omit_aas = 'CX'
+params.pmpnn_seed = false
 
 include { RFDIFFUSION } from './modules/local/rfd/rfdiffusion'
 include { RFDIFFUSION_NIM } from './modules/local/rfd/rfdiffusion_nim'

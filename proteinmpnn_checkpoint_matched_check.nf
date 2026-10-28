@@ -18,6 +18,7 @@ params.backbone_pdb = false
 params.pmpnn_temperature = 0.000001
 params.pmpnn_augment_eps = 0
 params.pmpnn_omit_aas = 'CX'
+params.pmpnn_seed = false
 params.nim_checkpoint = '/app/dl_binder_design/mpnn_fr/ProteinMPNN/vanilla_model_weights/v_48_002.pt'
 
 include { DL_BINDER_DESIGN_PROTEINMPNN as MPNN_OSS_CKPT002_SEED0 } from './modules/local/rfd/dl_binder_design'

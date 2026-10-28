@@ -14,6 +14,7 @@ params.nim_backbone = false
 params.pmpnn_temperature = 0.000001
 params.pmpnn_augment_eps = 0
 params.pmpnn_omit_aas = 'CX'
+params.pmpnn_seed = false
 
 include { DL_BINDER_DESIGN_PROTEINMPNN as MPNN_OSS_PATCHED_ON_OSS_BACKBONE } from './modules/local/rfd/dl_binder_design'
 include { DL_BINDER_DESIGN_PROTEINMPNN as MPNN_OSS_PATCHED_ON_NIM_BACKBONE } from './modules/local/rfd/dl_binder_design'
