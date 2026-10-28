@@ -45,10 +45,16 @@ params.pmpnn_omit_aas = 'CX'
 // container-visible database directory to search locally instead, so this arm
 // is hardware-comparable with the MSA Search NIM.
 params.msa_db_dir = false
-// mmap the index rather than loading it into RAM. colabfold_search's default
-// (auto) wants the whole index resident - ~128 GB batched, far more for the
-// single-query searches this pipeline does - which no queue here can supply.
-params.msa_local_search_args = '--db-load-mode 2'
+// --db-load-mode 2 mmaps the index rather than loading it into RAM;
+// colabfold_search's default wants the whole index resident (~128 GB batched,
+// far more for the single-query searches done here), which no queue can supply.
+//
+// --align-eval and --max-accept are set to the MSA Search NIM's own defaults
+// (e_value 0.0001, 100 accepted targets) rather than colabfold_search's much
+// looser 10 and 1000000, so neither arm is handed a deeper alignment than the
+// other by configuration alone. The two tools filter at different stages, so
+// this is an approximation - compare the resulting depths on the pilot.
+params.msa_local_search_args = '--db-load-mode 2 --align-eval 0.0001 --max-accept 100'
 
 include { UNIQUE_ID } from '../modules/local/common/unique_id'
 include { RFDIFFUSION } from '../modules/local/rfd/rfdiffusion'
