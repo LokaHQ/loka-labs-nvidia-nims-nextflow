@@ -19,6 +19,8 @@ params.msa_db_dir = '/fsx/msa'
 // 'all' is uniref30 + colabfold_envdb + the PDB sets, matching what the public
 // ColabFold API searched in every run so far. ~1.2 TB.
 params.msa_nim_profile = 'all'
+// nvs:1000 in the NIM images.
+params.msa_db_uid = 1000
 params.outdir = 'results'
 
 process DOWNLOAD_NIM_DATABASES {
@@ -44,6 +46,10 @@ process DOWNLOAD_NIM_DATABASES {
         http://169.254.169.254/latest/api/token)" \
         http://169.254.169.254/latest/meta-data/placement/availability-zone || echo unknown)
     mkdir -p "${params.msa_db_dir}"
+    # The NIM images run as nvs:1000 and need to read these, and may need to
+    # write locks or manifests into their own cache directory. NVIDIA's docs
+    # warn that NGC downloads land owner-only.
+    chown -R ${params.msa_db_uid}:${params.msa_db_uid} "${params.msa_db_dir}"
 
     export NIM_CACHE_PATH="${params.msa_db_dir}"
     export NGC_API_KEY=\$(/opt/aws-cli/bin/aws secretsmanager get-secret-value \\
@@ -59,6 +65,8 @@ process DOWNLOAD_NIM_DATABASES {
         'from nimlib import nimutils; nimutils.download_models(nimutils.get_model_manifest())' )
     finished=\$(date +%s)
     unset NGC_API_KEY NVIDIA_API_KEY
+    chown -R ${params.msa_db_uid}:${params.msa_db_uid} "${params.msa_db_dir}"
+    chmod -R a+rX "${params.msa_db_dir}"
 
     {
         echo "profile: ${params.msa_nim_profile}"
