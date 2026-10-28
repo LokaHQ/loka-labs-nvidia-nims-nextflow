@@ -262,3 +262,33 @@ test("existing subnets are not replaced (CIDR blocks unchanged)", () => {
     console.log(`✓ Updated: ${snapshotPath}`);
   }
 });
+
+test("the MSA cache creates nothing while disabled", () => {
+  // It bills per GB-month from creation, so an accidental deploy is expensive.
+  expect(config.msaCache.enabled).toBe(false);
+  expect(Object.keys(synth().findResources("AWS::FSx::FileSystem"))).toHaveLength(0);
+});
+
+test("enabling the MSA cache creates one SCRATCH_2 filesystem, mounted on every queue", () => {
+  const app = new cdk.App();
+  const stack = new NvidiaNimsStack(app, "MsaCacheEnabledStack", {
+    env,
+    config: { ...config, msaCache: { ...config.msaCache, enabled: true } },
+  });
+  const template = Template.fromStack(stack);
+
+  const filesystems = Object.values(template.findResources("AWS::FSx::FileSystem"));
+  expect(filesystems).toHaveLength(1);
+  expect(filesystems[0].Properties?.FileSystemType).toBe("LUSTRE");
+  expect(filesystems[0].Properties?.StorageCapacity).toBe(config.msaCache.storageCapacityGb);
+  // PERSISTENT would add replication nobody needs for re-downloadable databases.
+  expect(filesystems[0].Properties?.LustreConfiguration?.DeploymentType).toBe("SCRATCH_2");
+
+  const launchTemplates = Object.values(template.findResources("AWS::EC2::LaunchTemplate"));
+  expect(launchTemplates).toHaveLength(3);
+  launchTemplates.forEach((lt) => {
+    const userData = JSON.stringify(lt.Properties?.LaunchTemplateData?.UserData);
+    expect(userData).toContain("lustre-client");
+    expect(userData).toContain(config.msaCache.mountPath);
+  });
+});

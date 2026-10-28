@@ -3,6 +3,7 @@ import { CfnOutput, Stack, StackProps, Tags } from "aws-cdk-lib";
 
 import { Config, config as defaultConfig } from "./config";
 import { PipelineBatch } from "./constructs/batch";
+import { MsaCache } from "./constructs/msa-cache";
 import { PipelineNetwork } from "./constructs/network";
 import { ContainerRegistry } from "./constructs/registry";
 import { PipelineStorage } from "./constructs/storage";
@@ -15,6 +16,7 @@ export class NvidiaNimsStack extends Stack {
   public readonly network: PipelineNetwork;
   public readonly storage: PipelineStorage;
   public readonly registry: ContainerRegistry;
+  public readonly msaCache: MsaCache;
   public readonly batch: PipelineBatch;
 
   constructor(scope: Construct, id: string, props?: NvidiaNimsStackProps) {
@@ -31,12 +33,22 @@ export class NvidiaNimsStack extends Stack {
       namespace: config.project,
     });
 
+    this.msaCache = new MsaCache(this, "MsaCache", {
+      config: config.msaCache,
+      vpc: this.network.vpc,
+      subnets: this.network.computeSubnets,
+      computeSecurityGroup: this.network.securityGroup,
+    });
+
     this.batch = new PipelineBatch(this, "Batch", {
       config: config.batch,
       vpc: this.network.vpc,
       subnets: this.network.computeSubnets,
       securityGroup: this.network.securityGroup,
       namePrefix: config.project,
+      msaCache: this.msaCache.fileSystem
+        ? { fileSystem: this.msaCache.fileSystem, mountPath: config.msaCache.mountPath }
+        : undefined,
     });
 
     this.storage.grantPipelineAccess(this.batch.jobRole);
@@ -52,6 +64,13 @@ export class NvidiaNimsStack extends Stack {
   }
 
   private addOutputs(): void {
+    if (this.msaCache.fileSystem) {
+      new CfnOutput(this, "MsaCacheFileSystemId", {
+        value: this.msaCache.fileSystem.fileSystemId,
+        description: "FSx for Lustre holding the MSA databases - delete once the run is done",
+      });
+    }
+
     new CfnOutput(this, "InputBucket", {
       value: this.storage.inputBucket.bucketName,
       description: "params.input_bucket - task inputs",

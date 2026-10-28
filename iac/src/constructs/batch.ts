@@ -18,6 +18,7 @@ import {
   UserData,
   Vpc,
 } from "aws-cdk-lib/aws-ec2";
+import { LustreFileSystem } from "aws-cdk-lib/aws-fsx";
 import { ManagedPolicy, Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 
 import { BatchConfig, QueueConfig } from "../config";
@@ -28,6 +29,8 @@ export interface PipelineBatchProps {
   readonly subnets: SelectedSubnets;
   readonly securityGroup: SecurityGroup;
   readonly namePrefix: string;
+  /** Mounted on every instance when the MSA cache is enabled. */
+  readonly msaCache?: { readonly fileSystem: LustreFileSystem; readonly mountPath: string };
 }
 
 export class PipelineBatch extends Construct {
@@ -66,7 +69,7 @@ export class PipelineBatch extends Construct {
 
   /** Spot compute environment + On-Demand fallback, fronted by one queue. */
   private createQueue(id: string, queueConfig: QueueConfig, props: PipelineBatchProps): JobQueue {
-    const launchTemplate = this.createLaunchTemplate(id, queueConfig);
+    const launchTemplate = this.createLaunchTemplate(id, queueConfig, props.msaCache);
 
     const spot = this.createComputeEnvironment(`${id}SpotComputeEnvironment`, queueConfig, props, launchTemplate, {
       spot: true,
@@ -91,7 +94,11 @@ export class PipelineBatch extends Construct {
     });
   }
 
-  private createLaunchTemplate(id: string, queueConfig: QueueConfig): LaunchTemplate {
+  private createLaunchTemplate(
+    id: string,
+    queueConfig: QueueConfig,
+    msaCache?: PipelineBatchProps["msaCache"],
+  ): LaunchTemplate {
     const commands = UserData.forLinux();
     commands.addCommands(
       "set -euxo pipefail",
@@ -101,6 +108,16 @@ export class PipelineBatch extends Construct {
       "/tmp/aws/install --bin-dir /opt/aws-cli/bin --install-dir /opt/aws-cli/aws-cli --update",
       "rm -rf /tmp/aws /tmp/awscliv2.zip",
     );
+
+    if (msaCache) {
+      const { fileSystem, mountPath } = msaCache;
+      commands.addCommands(
+        "( yum install -y lustre-client || dnf install -y lustre-client )",
+        `mkdir -p ${mountPath}`,
+        // mountName is per-filesystem and not derivable from the DNS name.
+        `mount -t lustre -o relatime,flock ${fileSystem.dnsName}@tcp:/${fileSystem.mountName} ${mountPath}`,
+      );
+    }
 
     const userData = new MultipartUserData();
     userData.addUserDataPart(commands, MultipartBody.SHELL_SCRIPT, true);

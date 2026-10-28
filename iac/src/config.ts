@@ -33,6 +33,22 @@ export interface BatchConfig {
   readonly gpuHighmem: QueueConfig;
 }
 
+/**
+ * Shared MSA database cache. Both benchmark arms read the same ~1.4 TB of
+ * ColabFold databases from here, so the MSA step compares the Search NIM
+ * against colabfold_search rather than against a public API.
+ *
+ * Billed per GB-month from creation whether or not a job uses it, so it stays
+ * disabled until a run needs it and is deleted again afterwards.
+ */
+export interface MsaCacheConfig {
+  readonly enabled: boolean;
+  /** FSx for Lustre bills in 1,200 GB steps. */
+  readonly storageCapacityGb: number;
+  /** Host path the filesystem is mounted on, which jobs then bind-mount. */
+  readonly mountPath: string;
+}
+
 export interface Config {
   readonly project: string;
   readonly team: string;
@@ -41,6 +57,7 @@ export interface Config {
   readonly storage: StorageConfig;
   readonly registry: RegistryConfig;
   readonly batch: BatchConfig;
+  readonly msaCache: MsaCacheConfig;
 }
 
 export const config: Config = {
@@ -96,5 +113,15 @@ export const config: Config = {
       volumeThroughputMibps: 1000,
       volumeIops: 16000,
     },
+  },
+
+  // Off by default: ~$11/day from creation. Turn on, deploy, load the
+  // databases, run, then turn off and deploy again.
+  msaCache: {
+    enabled: false,
+    // ColabFold's two databases are ~0.8-1 TB, the NIM's `all` profile ~1.2 TB.
+    // 2,400 GB holds both layouts if one copy cannot serve both arms.
+    storageCapacityGb: 2400,
+    mountPath: "/fsx",
   },
 };
