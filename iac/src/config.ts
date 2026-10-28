@@ -118,7 +118,7 @@ export const config: Config = {
   // Off by default: ~$11/day from creation. Turn on, deploy, load the
   // databases, run, then turn off and deploy again.
   msaCache: {
-    enabled: false,
+    enabled: true,
     // ColabFold's two databases are ~0.8-1 TB, the NIM's `all` profile ~1.2 TB.
     // 2,400 GB holds both layouts if one copy cannot serve both arms.
     storageCapacityGb: 2400,

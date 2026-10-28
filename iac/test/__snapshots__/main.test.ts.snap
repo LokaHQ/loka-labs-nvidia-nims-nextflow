@@ -115,6 +115,12 @@ exports[`snapshot for NvidiaNimsStack matches previous state 1`] = `
         ],
       },
     },
+    "MsaCacheFileSystemId": {
+      "Description": "FSx for Lustre holding the MSA databases - delete once the run is done",
+      "Value": {
+        "Ref": "MsaCacheFileSystem013C3121",
+      },
+    },
     "OutputBucket": {
       "Description": "params.output_bucket - publishDir target",
       "Value": {
@@ -206,13 +212,38 @@ Content-Transfer-Encoding: base64
 
 ",
                   {
-                    "Fn::Base64": "#!/bin/bash
+                    "Fn::Base64": {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "#!/bin/bash
 set -euxo pipefail
 ( yum install -y unzip || dnf install -y unzip )
 curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
 unzip -q -o /tmp/awscliv2.zip -d /tmp
 /tmp/aws/install --bin-dir /opt/aws-cli/bin --install-dir /opt/aws-cli/aws-cli --update
-rm -rf /tmp/aws /tmp/awscliv2.zip",
+rm -rf /tmp/aws /tmp/awscliv2.zip
+( yum install -y lustre-client || dnf install -y lustre-client )
+mkdir -p /fsx
+mount -t lustre -o relatime,flock ",
+                          {
+                            "Ref": "MsaCacheFileSystem013C3121",
+                          },
+                          ".fsx.us-east-1.",
+                          {
+                            "Ref": "AWS::URLSuffix",
+                          },
+                          "@tcp:/",
+                          {
+                            "Fn::GetAtt": [
+                              "MsaCacheFileSystem013C3121",
+                              "LustreMountName",
+                            ],
+                          },
+                          " /fsx",
+                        ],
+                      ],
+                    },
                   },
                   "
 --+AWS+CDK+User+Data+Separator==--
@@ -517,13 +548,38 @@ Content-Transfer-Encoding: base64
 
 ",
                   {
-                    "Fn::Base64": "#!/bin/bash
+                    "Fn::Base64": {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "#!/bin/bash
 set -euxo pipefail
 ( yum install -y unzip || dnf install -y unzip )
 curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
 unzip -q -o /tmp/awscliv2.zip -d /tmp
 /tmp/aws/install --bin-dir /opt/aws-cli/bin --install-dir /opt/aws-cli/aws-cli --update
-rm -rf /tmp/aws /tmp/awscliv2.zip",
+rm -rf /tmp/aws /tmp/awscliv2.zip
+( yum install -y lustre-client || dnf install -y lustre-client )
+mkdir -p /fsx
+mount -t lustre -o relatime,flock ",
+                          {
+                            "Ref": "MsaCacheFileSystem013C3121",
+                          },
+                          ".fsx.us-east-1.",
+                          {
+                            "Ref": "AWS::URLSuffix",
+                          },
+                          "@tcp:/",
+                          {
+                            "Fn::GetAtt": [
+                              "MsaCacheFileSystem013C3121",
+                              "LustreMountName",
+                            ],
+                          },
+                          " /fsx",
+                        ],
+                      ],
+                    },
                   },
                   "
 --+AWS+CDK+User+Data+Separator==--
@@ -820,13 +876,38 @@ Content-Transfer-Encoding: base64
 
 ",
                   {
-                    "Fn::Base64": "#!/bin/bash
+                    "Fn::Base64": {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "#!/bin/bash
 set -euxo pipefail
 ( yum install -y unzip || dnf install -y unzip )
 curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
 unzip -q -o /tmp/awscliv2.zip -d /tmp
 /tmp/aws/install --bin-dir /opt/aws-cli/bin --install-dir /opt/aws-cli/aws-cli --update
-rm -rf /tmp/aws /tmp/awscliv2.zip",
+rm -rf /tmp/aws /tmp/awscliv2.zip
+( yum install -y lustre-client || dnf install -y lustre-client )
+mkdir -p /fsx
+mount -t lustre -o relatime,flock ",
+                          {
+                            "Ref": "MsaCacheFileSystem013C3121",
+                          },
+                          ".fsx.us-east-1.",
+                          {
+                            "Ref": "AWS::URLSuffix",
+                          },
+                          "@tcp:/",
+                          {
+                            "Fn::GetAtt": [
+                              "MsaCacheFileSystem013C3121",
+                              "LustreMountName",
+                            ],
+                          },
+                          " /fsx",
+                        ],
+                      ],
+                    },
                   },
                   "
 --+AWS+CDK+User+Data+Separator==--
@@ -1508,6 +1589,138 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
       },
       "Type": "AWS::IAM::Role",
     },
+    "MsaCacheFileSystem013C3121": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "FileSystemType": "LUSTRE",
+        "LustreConfiguration": {
+          "DeploymentType": "SCRATCH_2",
+        },
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": [
+              "MsaCacheSecurityGroup7C8D333D",
+              "GroupId",
+            ],
+          },
+        ],
+        "StorageCapacity": 2400,
+        "SubnetIds": [
+          {
+            "Ref": "NetworkVpcprivateSubnet1Subnet9EC58498",
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+      },
+      "Type": "AWS::FSx::FileSystem",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "MsaCacheSecurityGroup7C8D333D": {
+      "Properties": {
+        "GroupDescription": "FSx for Lustre holding the MSA databases",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "GitRepository",
+            "Value": "loka-labs-nvidia-nims-nextflow",
+          },
+          {
+            "Key": "Project",
+            "Value": "nvidia-nims",
+          },
+          {
+            "Key": "Team",
+            "Value": "loka-labs",
+          },
+        ],
+        "VpcId": {
+          "Ref": "NetworkVpc7FB7348F",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "MsaCacheSecurityGroupfromMyTestStackMsaCacheSecurityGroup87674FA59881023F03AFE30": {
+      "Properties": {
+        "Description": "from MyTestStackMsaCacheSecurityGroup87674FA5:988-1023",
+        "FromPort": 988,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "MsaCacheSecurityGroup7C8D333D",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "MsaCacheSecurityGroup7C8D333D",
+            "GroupId",
+          ],
+        },
+        "ToPort": 1023,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "MsaCacheSecurityGroupfromMyTestStackNetworkComputeSecurityGroup87C7AA0A1018102381A6BABD": {
+      "Properties": {
+        "Description": "Lustre from Batch instances",
+        "FromPort": 1018,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "MsaCacheSecurityGroup7C8D333D",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "NetworkComputeSecurityGroup8F94EBCC",
+            "GroupId",
+          ],
+        },
+        "ToPort": 1023,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "MsaCacheSecurityGroupfromMyTestStackNetworkComputeSecurityGroup87C7AA0A9885A005F6D": {
+      "Properties": {
+        "Description": "Lustre from Batch instances",
+        "FromPort": 988,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "MsaCacheSecurityGroup7C8D333D",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "NetworkComputeSecurityGroup8F94EBCC",
+            "GroupId",
+          ],
+        },
+        "ToPort": 988,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
     "NetworkComputeSecurityGroup8F94EBCC": {
       "Properties": {
         "GroupDescription": "Batch container instances running pipeline tasks",
@@ -1551,6 +1764,48 @@ rm -rf /tmp/aws /tmp/awscliv2.zip",
         },
       },
       "Type": "AWS::EC2::SecurityGroup",
+    },
+    "NetworkComputeSecurityGroupfromMyTestStackMsaCacheSecurityGroup87674FA510181023ABEAA414": {
+      "Properties": {
+        "Description": "Lustre from the FSx filesystem",
+        "FromPort": 1018,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "NetworkComputeSecurityGroup8F94EBCC",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "MsaCacheSecurityGroup7C8D333D",
+            "GroupId",
+          ],
+        },
+        "ToPort": 1023,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "NetworkComputeSecurityGroupfromMyTestStackMsaCacheSecurityGroup87674FA5988BA1D5CAE": {
+      "Properties": {
+        "Description": "Lustre from the FSx filesystem",
+        "FromPort": 988,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "NetworkComputeSecurityGroup8F94EBCC",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "MsaCacheSecurityGroup7C8D333D",
+            "GroupId",
+          ],
+        },
+        "ToPort": 988,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
     },
     "NetworkVpc7FB7348F": {
       "Properties": {

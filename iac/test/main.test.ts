@@ -264,9 +264,19 @@ test("existing subnets are not replaced (CIDR blocks unchanged)", () => {
 });
 
 test("the MSA cache creates nothing while disabled", () => {
-  // It bills per GB-month from creation, so an accidental deploy is expensive.
-  expect(config.msaCache.enabled).toBe(false);
-  expect(Object.keys(synth().findResources("AWS::FSx::FileSystem"))).toHaveLength(0);
+  // It bills per GB-month from creation whether or not a job reads it, so
+  // disabling it has to actually remove the filesystem, not just unmount it.
+  const app = new cdk.App();
+  const stack = new NvidiaNimsStack(app, "MsaCacheDisabledStack", {
+    env,
+    config: { ...config, msaCache: { ...config.msaCache, enabled: false } },
+  });
+  const template = Template.fromStack(stack);
+
+  expect(Object.keys(template.findResources("AWS::FSx::FileSystem"))).toHaveLength(0);
+  Object.values(template.findResources("AWS::EC2::LaunchTemplate")).forEach((lt) => {
+    expect(JSON.stringify(lt.Properties?.LaunchTemplateData?.UserData)).not.toContain("lustre");
+  });
 });
 
 test("enabling the MSA cache creates one SCRATCH_2 filesystem, mounted on every queue", () => {
