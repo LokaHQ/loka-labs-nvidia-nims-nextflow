@@ -37,7 +37,9 @@ THREE_TO_ONE = {
     "TYR": "Y", "VAL": "V",
 }
 
-BASELINE_ID = re.compile(r"_(?P<design>\d+)_dldesign_\d+_mpnn(?P<replicate>\d+)$")
+# dl_binder_design inserts _cycleN when relax cycles are enabled, so the
+# replicate marker is not always directly after _dldesign_N.
+BASELINE_ID = re.compile(r"_(?P<design>\d+)_dldesign_\d+(?:_cycle\d+)?_mpnn(?P<replicate>\d+)$")
 NIM_ID = re.compile(r"_(?P<design>\d+)_(?P<replicate>\d+)$")
 
 
