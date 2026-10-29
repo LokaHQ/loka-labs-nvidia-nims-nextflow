@@ -44,7 +44,14 @@ for attempt in $(seq 1 "${MAX_ATTEMPTS}"); do
 
     # Only a credential expiry is worth retrying blindly. Anything else is a
     # real failure and repeating it just burns GPU time.
-    if ! tail -40 "${LOG_FILE}" | grep -q "Signature expired\|ExpiredToken\|security token included in the request is "; then
+    #
+    # Look in .nextflow.log, not just stdout: an expiry surfaces there as
+    # "Session aborted -- Cause: ... token ... expired", while stdout shows
+    # only the downstream symptom (a failed S3 write in the onComplete
+    # handler). Grepping stdout alone misreads an expiry as a real failure.
+    credential_error="Signature expired|ExpiredToken|security token included in the request is|Token has expired"
+    if ! { tail -40 "${LOG_FILE}"; tail -200 .nextflow.log 2>/dev/null; } \
+            | grep -qE "${credential_error}"; then
         echo "=== attempt ${attempt} failed for a reason other than credentials - stopping" | tee -a "${LOG_FILE}"
         exit "${status}"
     fi

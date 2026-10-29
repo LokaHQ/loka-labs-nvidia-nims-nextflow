@@ -27,7 +27,10 @@ process DOWNLOAD_COLABFOLD_DATABASES {
     script:
     """
     set -eu
-    exec 3>&1 1>colabfold_db_report.txt 2>&1
+    # tee rather than redirect: a plain redirect sends everything to a file
+    # Nextflow only publishes on success, so a failure leaves .command.err
+    # empty and the reason is lost with the task directory.
+    exec > >(tee colabfold_db_report.txt) 2>&1
 
     if [ ! -d "${params.msa_mount}" ]; then
         echo "FSx not mounted at ${params.msa_mount}" >&2
@@ -51,8 +54,13 @@ process DOWNLOAD_COLABFOLD_DATABASES {
             continue
         fi
         echo "## fetching \$name"
-        # -C - resumes a partial download rather than restarting ~100 GB.
-        curl -fL -C - -o "\$name" "\$url"
+        # Only ask to resume when there is something to resume. These URLs 302
+        # to another host, and curl aborts a range request it cannot satisfy
+        # across the redirect with "server doesn't seem to support byte
+        # ranges" - six seconds in, which looks nothing like a network fault.
+        resume=""
+        [ -f "\$name" ] && resume="-C -"
+        curl -fL --retry 5 --retry-delay 10 \$resume -o "\$name" "\$url"
         echo "## unpacking \$name"
         tar xzf "\$name"
         rm -f "\$name"
@@ -77,7 +85,6 @@ process DOWNLOAD_COLABFOLD_DATABASES {
     chown -R 1000:1000 "${params.colabfold_db_dir}" || true
     chmod -R a+rX "${params.colabfold_db_dir}" || true
 
-    cat colabfold_db_report.txt >&3
     """
 }
 
