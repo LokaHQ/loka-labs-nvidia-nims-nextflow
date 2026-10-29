@@ -26,7 +26,29 @@ params.rfd_model_directory_path = false
 // 1 matches RFdiffusion's upstream default and NIM's config (was 0 before).
 params.rfd_noise_scale = 1
 params.rfd_extra_args = ''
+// false keeps RFdiffusion's own randomness; an integer makes design N use
+// seed N + this value, matching the NIM arm design-for-design.
+params.rfd_random_seed = false
+// Upstream RFdiffusion only has deterministic=True (seed = design index). Set true
+// for containers that also accept inference.random_seed, such as the matched build.
+params.rfd_explicit_seed = false
+// Explicit per-design seeds, e.g. '0,5,34'. Overrides rfd_random_seed, which
+// can only produce consecutive seeds (base + design index). Both pipelines must
+// use the same list or designs cannot be paired.
+params.rfd_seeds = false
 params.rfd_compress_trajectories = true
+// Use the rfdiffusion-fixed image's standalone runner, which reproduces the
+// NIM's inference path without its server, instead of Hydra run_inference.py.
+// Emits one PDB and a metadata JSON per design - no trajectories or configs.
+params.rfd_standalone = false
+params.rfd_diffusion_steps = 50
+// The NIM's own startup warmup, which the reference parity run carried and
+// which the standalone runner reproduces. Baked into the NIM image. Costs ~53 s
+// per design here, since each task is a fresh container. Set false to skip it,
+// but then the arms are no longer matched.
+params.rfd_nim_warmup_pdb = '/opt/nim/5TPN.pdb'
+// NIM model version whose weights the standalone runner loads.
+params.rfd_nim_model_version = '2.3.0'
 params.pmpnn_seqs_per_struct = 1
 params.pmpnn_relax_cycles = 3
 params.pmpnn_gpu = false
@@ -34,11 +56,38 @@ params.pmpnn_weights = false
 params.pmpnn_temperature = 0.000001
 params.pmpnn_augment_eps = 0
 params.pmpnn_omit_aas = 'CX'
+// Match the ProteinMPNN NIM, which reports model_name=v_48_002 and seed=102 in
+// its own FASTA header. Needs the seed-patch container for -seed.
+params.pmpnn_seed = false
+
+// Unset leaves MSA search to OpenFold3 itself (public ColabFold API). Set to a
+// container-visible database directory to search locally instead, so this arm
+// is hardware-comparable with the MSA Search NIM.
+params.msa_db_dir = false
+// Route this pipeline's MSA through the same module the NIM pipeline uses, so
+// both reach the public ColabFold API by an identical code path. Without it
+// the baseline searches inside OpenFold3's own runner while the NIM pipeline
+// calls colabfold_remote_msa.py - same service, different request, which is a
+// small asymmetry in a step meant to contribute nothing to the comparison.
+params.msa_shared_remote = false
+// --db-load-mode 2 mmaps the index rather than loading it into RAM;
+// colabfold_search's default wants the whole index resident (~128 GB batched,
+// far more for the single-query searches done here), which no queue can supply.
+//
+// --align-eval and --max-accept are set to the MSA Search NIM's own defaults
+// (e_value 0.0001, 100 accepted targets) rather than colabfold_search's much
+// looser 10 and 1000000, so neither arm is handed a deeper alignment than the
+// other by configuration alone. The two tools filter at different stages, so
+// this is an approximation - compare the resulting depths on the pilot.
+params.msa_local_search_args = '--db-load-mode 2 --align-eval 0.0001 --max-accept 100'
 
 include { UNIQUE_ID } from '../modules/local/common/unique_id'
 include { RFDIFFUSION } from '../modules/local/rfd/rfdiffusion'
+include { RFDIFFUSION_STANDALONE } from '../modules/local/rfd/rfdiffusion_standalone'
 include { DL_BINDER_DESIGN_PROTEINMPNN } from '../modules/local/rfd/dl_binder_design'
 include { OPENFOLD3 } from '../modules/local/rfd/openfold3'
+include { OPENFOLD3_MSA_LOCAL } from '../modules/local/rfd/openfold3_msa_local'
+include { OPENFOLD3_MSA } from '../modules/local/rfd/openfold3_msa'
 include { BINDCRAFT_SCORING as BINDCRAFT_SCORING_AF2IG } from '../modules/local/rfd/bindcraft_scoring'
 
 workflow RFD_OPENFOLD {
@@ -78,19 +127,44 @@ workflow RFD_OPENFOLD {
         hotspot_res = "[${params.hotspot_res.trim().replaceAll(/^\[+/, '').replaceAll(/\]+\$/, '')}]"
     }
 
-    ch_rfd_startnum = Channel.of(0..(params.rfd_n_designs - 1))
+    // One task per seed. The seed travels with the design index so the two
+    // pipelines pair design-for-design even with non-consecutive seeds.
+    def seed_list = params.rfd_seeds
+        ? params.rfd_seeds.toString().tokenize(',').collect { it.trim() as int }
+        : null
+    if (seed_list && seed_list.size() != params.rfd_n_designs) {
+        error("--rfd_seeds has ${seed_list.size()} seed(s) but --rfd_n_designs is ${params.rfd_n_designs}")
+    }
+    ch_design_seed = seed_list
+        ? Channel.of(0..(params.rfd_n_designs - 1)).map { i -> tuple(i, seed_list[i]) }
+        : Channel.of(0..(params.rfd_n_designs - 1)).map { i ->
+            tuple(i, params.rfd_random_seed != false ? (params.rfd_random_seed as int) + i : false)
+        }
 
-    RFDIFFUSION(
-        Channel.value(false),
-        ch_input_pdb,
-        Channel.value(false),
-        params.contigs,
-        hotspot_res,
-        1,
-        ch_rfd_startnum,
-        ch_unique_id,
-    )
-    ch_backbones = RFDIFFUSION.out.pdbs.flatten()
+    if (params.rfd_standalone) {
+        RFDIFFUSION_STANDALONE(
+            ch_input_pdb,
+            params.contigs,
+            hotspot_res,
+            ch_design_seed,
+            ch_unique_id,
+        )
+        ch_rfd_pdbs = RFDIFFUSION_STANDALONE.out.pdbs
+    }
+    else {
+        RFDIFFUSION(
+            Channel.value(false),
+            ch_input_pdb,
+            Channel.value(false),
+            params.contigs,
+            hotspot_res,
+            1,
+            ch_design_seed.map { index, seed -> index },
+            ch_unique_id,
+        )
+        ch_rfd_pdbs = RFDIFFUSION.out.pdbs
+    }
+    ch_backbones = ch_rfd_pdbs.flatten()
 
     ch_pmpnn_inputs = ch_backbones
         | combine(Channel.of(0..(params.pmpnn_seqs_per_struct - 1)))
@@ -105,9 +179,34 @@ workflow RFD_OPENFOLD {
         ch_pmpnn_inputs.map { pdb, idx -> idx },
     )
 
-    OPENFOLD3(
-        DL_BINDER_DESIGN_PROTEINMPNN.out.pdbs
-    )
+    // With msa_db_dir set, MSAs are searched here against locally-hosted
+    // databases and handed to OpenFold3, instead of OpenFold3 calling the
+    // public ColabFold API itself. Keeps this arm comparable to the NIM arm,
+    // which searches its own MSAs in OPENFOLD3_MSA.
+    ch_threaded_pdbs = DL_BINDER_DESIGN_PROTEINMPNN.out.pdbs
+    if (params.msa_shared_remote) {
+        OPENFOLD3_MSA(
+            ch_threaded_pdbs.flatten().map { pdb -> tuple(pdb.baseName, pdb) }
+        )
+        ch_of3_input = OPENFOLD3_MSA.out.designs_with_msas
+            .map { design_id, pdb, msa_a, msa_b -> tuple(pdb, [msa_a, msa_b]) }
+    }
+    else if (params.msa_db_dir) {
+        OPENFOLD3_MSA_LOCAL(
+            ch_threaded_pdbs.flatten().map { pdb -> tuple(pdb.baseName, pdb) }
+        )
+        // Per design, not collected: folding each design as soon as its own MSA
+        // lands, the way the NIM arm does. Collecting would hold every fold
+        // until the last search finished, which would show up as this arm being
+        // slower when it is only this plumbing being slower.
+        ch_of3_input = OPENFOLD3_MSA_LOCAL.out.designs_with_msas
+            .map { design_id, pdb, msa_a, msa_b -> tuple(pdb, [msa_a, msa_b]) }
+    }
+    else {
+        ch_of3_input = ch_threaded_pdbs.flatten().map { pdb -> tuple(pdb, []) }
+    }
+
+    OPENFOLD3(ch_of3_input)
 
     BINDCRAFT_SCORING_AF2IG(
         OPENFOLD3.out.pdbs,
@@ -117,7 +216,7 @@ workflow RFD_OPENFOLD {
     )
 
     emit:
-    backbones = RFDIFFUSION.out.pdbs
+    backbones = ch_rfd_pdbs
     openfold3_pdbs = OPENFOLD3.out.pdbs
     scores = BINDCRAFT_SCORING_AF2IG.out.scores
 }

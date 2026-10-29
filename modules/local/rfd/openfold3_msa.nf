@@ -1,5 +1,6 @@
-// Search binder A and target B together through the unpaired ColabFold API.
-// The process is kept separate from GPU inference so its results can be resumed.
+// Search binder A and target B independently, either through the public ColabFold
+// API or an MSA Search NIM when params.msa_nim_url is set. The process is kept
+// separate from GPU inference so its results can be resumed.
 process OPENFOLD3_MSA {
     tag "${design_id}"
     publishDir "${params.outdir}/rfd/openfold3_nim", pattern: 'msas/*.a3m', mode: 'copy'
@@ -23,10 +24,15 @@ process OPENFOLD3_MSA {
         --design-id "${design_id}" \\
         --output "queries/${design_id}.fasta"
 
-    colabfold_remote_msa.py \\
+    ${params.msa_nim_url ? """msa_search_nim.py \\
         --fasta "queries/${design_id}.fasta" \\
         --output search/ \\
-        --max-wait-seconds 6900
+        --host "${params.msa_nim_url}" \\
+        --databases "${params.msa_nim_databases}" \\
+        --max-msa-sequences ${params.msa_nim_max_sequences}""" : """colabfold_remote_msa.py \\
+        --fasta "queries/${design_id}.fasta" \\
+        --output search/ \\
+        --max-wait-seconds 6900"""}
 
     openfold3_msa.py finalise \\
         --input-pdb "${design_pdb}" \\

@@ -1,0 +1,7 @@
+# Pushed to ECR as tag: proteinmpnn-nim
+# (ECR digest sha256:2368d886…, pushed 2026-09-24)
+#
+# Same entrypoint fix as the RFdiffusion NIM. Base comes from NGC; the
+# unmodified NIM was never pushed to ECR under its own tag.
+FROM nvcr.io/nim/ipd/proteinmpnn:1.2.0
+ENTRYPOINT []

@@ -12,6 +12,7 @@ params.backbone_pdb = false
 params.pmpnn_temperature = 0.000001
 params.pmpnn_augment_eps = 0
 params.pmpnn_omit_aas = 'CX'
+params.pmpnn_seed = false
 
 params.run_nim = true
 

@@ -7,7 +7,12 @@ process OPENFOLD3 {
     publishDir "${params.outdir}/rfd/openfold3", pattern: 'scores/*.tsv', mode: 'copy'
 
     input:
-    path 'input/*'
+    // One design per task. The alignments are carried in the same tuple rather
+    // than a parallel channel, so a design can never be paired with another
+    // design's MSA if an operator upstream stops preserving order.
+    // Per-chain alignments are named <query_id>.{A,B}.a3m; an empty list leaves
+    // OpenFold3 to run its own MSA search.
+    tuple path('input/*'), path('msas/*')
 
     output:
     tuple path('pdbs/*.pdb'), path('openfold3_scores.tsv'), emit: pdbs_with_scores
@@ -25,7 +30,12 @@ output_writer_settings:
   structure_format: pdb
 YAML
 
-    openfold3_predict.py input/ pdbs/ scores/ runner.yml
+    msa_arg=""
+    if ls msas/*.a3m >/dev/null 2>&1; then
+        msa_arg="msas/"
+    fi
+
+    openfold3_predict.py input/ pdbs/ scores/ runner.yml \${msa_arg}
     openfold3_combine_scores.py scores/ -o openfold3_scores.tsv
     """
 }
