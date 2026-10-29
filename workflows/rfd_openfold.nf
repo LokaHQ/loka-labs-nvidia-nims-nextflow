@@ -64,6 +64,12 @@ params.pmpnn_seed = false
 // container-visible database directory to search locally instead, so this arm
 // is hardware-comparable with the MSA Search NIM.
 params.msa_db_dir = false
+// Route this pipeline's MSA through the same module the NIM pipeline uses, so
+// both reach the public ColabFold API by an identical code path. Without it
+// the baseline searches inside OpenFold3's own runner while the NIM pipeline
+// calls colabfold_remote_msa.py - same service, different request, which is a
+// small asymmetry in a step meant to contribute nothing to the comparison.
+params.msa_shared_remote = false
 // --db-load-mode 2 mmaps the index rather than loading it into RAM;
 // colabfold_search's default wants the whole index resident (~128 GB batched,
 // far more for the single-query searches done here), which no queue can supply.
@@ -81,6 +87,7 @@ include { RFDIFFUSION_STANDALONE } from '../modules/local/rfd/rfdiffusion_standa
 include { DL_BINDER_DESIGN_PROTEINMPNN } from '../modules/local/rfd/dl_binder_design'
 include { OPENFOLD3 } from '../modules/local/rfd/openfold3'
 include { OPENFOLD3_MSA_LOCAL } from '../modules/local/rfd/openfold3_msa_local'
+include { OPENFOLD3_MSA } from '../modules/local/rfd/openfold3_msa'
 include { BINDCRAFT_SCORING as BINDCRAFT_SCORING_AF2IG } from '../modules/local/rfd/bindcraft_scoring'
 
 workflow RFD_OPENFOLD {
@@ -177,7 +184,14 @@ workflow RFD_OPENFOLD {
     // public ColabFold API itself. Keeps this arm comparable to the NIM arm,
     // which searches its own MSAs in OPENFOLD3_MSA.
     ch_threaded_pdbs = DL_BINDER_DESIGN_PROTEINMPNN.out.pdbs
-    if (params.msa_db_dir) {
+    if (params.msa_shared_remote) {
+        OPENFOLD3_MSA(
+            ch_threaded_pdbs.flatten().map { pdb -> tuple(pdb.baseName, pdb) }
+        )
+        ch_of3_input = OPENFOLD3_MSA.out.designs_with_msas
+            .map { design_id, pdb, msa_a, msa_b -> tuple(pdb, [msa_a, msa_b]) }
+    }
+    else if (params.msa_db_dir) {
         OPENFOLD3_MSA_LOCAL(
             ch_threaded_pdbs.flatten().map { pdb -> tuple(pdb.baseName, pdb) }
         )

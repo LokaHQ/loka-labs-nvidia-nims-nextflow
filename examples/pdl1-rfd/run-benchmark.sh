@@ -41,9 +41,12 @@ if [ "${N_DESIGNS}" != "${N_SEEDS}" ]; then
     echo "Pass SEEDS= with one seed per design, e.g. SEEDS=0,5,34 ./run-benchmark.sh 3" >&2
     exit 1
 fi
-# Both arms search the same databases on the FSx mount. Without this the
-# baseline falls back to OpenFold3's internal ColabFold API call and the NIM arm
-# to colabfold_remote_msa.py - silently, and the comparison is then meaningless.
+# MSA mode. "remote" sends both pipelines through the same module to the public
+# ColabFold API; "local" searches self-hosted databases on the FSx mount. Either
+# way both sides do the identical thing, so the MSA step contributes nothing to
+# the comparison - which is the honest position while the MSA Search NIM cannot
+# get hardware. See benchmarks/results-3seed.md section 6.
+MSA_MODE="${MSA_MODE:-remote}"
 MSA_DB_DIR=/fsx/msa
 # One MPNN pass and one relax on both sides. The baseline defaults to 3, which
 # is the MPNN-FastRelax protocol: design and relax alternate, so the sequence
@@ -74,7 +77,7 @@ nextflow run "${PIPELINE_DIR}/main.nf" \
   --pmpnn_gpu true \
   --pmpnn_container_tag "${PMPNN_CONTAINER}" \
   --pmpnn_seed="${PMPNN_SEED}" \
-  --msa_db_dir "${MSA_DB_DIR}" \
+  $([ "${MSA_MODE}" = local ] && echo "--msa_db_dir ${MSA_DB_DIR}" || echo "--msa_shared_remote true") \
   -profile aws_batch_openfold
 
 echo "=== NIM arm: N=${N_DESIGNS}, tag ${RUN_TAG} ==="
@@ -88,7 +91,7 @@ nextflow run "${PIPELINE_DIR}/main.nf" \
   --rfd_seeds="${SEEDS}" \
   --pmpnn_seqs_per_struct=1 \
   --of3_diffusion_samples=1 \
-  --msa_db_dir "${MSA_DB_DIR}" \
+  $([ "${MSA_MODE}" = local ] && echo "--msa_db_dir ${MSA_DB_DIR} --msa_use_nim false" || true) \
   -profile aws_batch_nims
 
 echo "=== done: s3://nvidia-nims-output/benchmark-${RUN_TAG}/ ==="
