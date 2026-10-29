@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `examples/pdl1-rfd/run-aws-batch-nims.sh`: AWS Batch smoke test for the complete NIM workflow.
 - `examples/pdl1-rfd/run-aws-batch-openfold-comparison.sh`: sequential one-design local versus NIM OpenFold3 comparison.
 - BindCraft-derived PyRosetta and interface scoring for every OpenFold3 NIM prediction.
+- `--pmpnn_external_relax`: relax after a single ProteinMPNN pass rather than inside MPNN-FastRelax, so the baseline arm can match the NIM arm's design protocol. Requires `--pmpnn_relax_cycles 0`.
 
 ### Changed
 - OpenFold3 reads binder A and cropped target B sequences from the threaded complex, validates their independently searched A3Ms and requires one diffusion sample per design. It folds from sequence without AF2 initial-guess coordinate seeding; matching score definitions does not make the models' confidence estimates interchangeable.
@@ -26,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - BindCraft interface scoring no longer evaluates an unused ProteinMPNN parameter or warns when that parameter is absent.
 - AWS Batch NIM tasks retrieve the NGC API key from Secrets Manager instead of persisting it in Nextflow work scripts.
 - Pipeline parameter manifests are written through Nextflow's filesystem provider so S3 output paths receive `params.json`.
+- `--msa_local_search_args` is declared in both `rfd_nim` and `rfd_openfold`. It was only in `rfd_openfold`, so the NIM arm silently fell back to `colabfold_search`'s own defaults - an unmatched MSA step, and a hard failure since the default `--use-env 1` needs a database that is not hosted.
+- Local MSA search defaults now work against a UniRef30-only database: `--use-env 0 --use-templates 0` instead of aborting on the missing environmental and template databases, and no `--align-eval 0.0001`, which this `colabfold_search` parses as an integer and rejects.
 
 ## [0.3.1] - 2026-09-09
 

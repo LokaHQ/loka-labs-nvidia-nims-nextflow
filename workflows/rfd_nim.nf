@@ -41,6 +41,12 @@ params.msa_nim_ready_checks = 120
 // comparison rather than being an unfair half of it. Needed while the NIM's
 // g6e multi-GPU instances have no capacity.
 params.msa_use_nim = true
+// Must match rfd_openfold.nf exactly: both arms run OPENFOLD3_MSA_LOCAL, and
+// undeclared here this resolves to null, leaving colabfold_search on its own
+// defaults on this arm only - a silent asymmetry in the step that is supposed
+// to contribute nothing, and a hard failure besides, since the default
+// --use-env 1 needs an environmental database that is not hosted.
+params.msa_local_search_args = '--db-load-mode 2 --use-env 0 --use-templates 0'
 
 include { UNIQUE_ID } from '../modules/local/common/unique_id'
 include { RFDIFFUSION_NIM } from '../modules/local/rfd/rfdiffusion_nim'

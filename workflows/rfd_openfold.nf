@@ -51,6 +51,11 @@ params.rfd_nim_warmup_pdb = '/opt/nim/5TPN.pdb'
 params.rfd_nim_model_version = '2.3.0'
 params.pmpnn_seqs_per_struct = 1
 params.pmpnn_relax_cycles = 3
+// dl_binder_design's MPNN-FastRelax does relax_cycles+1 MPNN passes and designs
+// its final sequence against an already-relaxed backbone. The NIM arm does one
+// pass against the raw backbone and relaxes afterwards. Set this with
+// --pmpnn_relax_cycles 0 to match that shape for a like-for-like comparison.
+params.pmpnn_external_relax = false
 params.pmpnn_gpu = false
 params.pmpnn_weights = false
 params.pmpnn_temperature = 0.000001
@@ -74,12 +79,16 @@ params.msa_shared_remote = false
 // colabfold_search's default wants the whole index resident (~128 GB batched,
 // far more for the single-query searches done here), which no queue can supply.
 //
-// --align-eval and --max-accept are set to the MSA Search NIM's own defaults
-// (e_value 0.0001, 100 accepted targets) rather than colabfold_search's much
-// looser 10 and 1000000, so neither arm is handed a deeper alignment than the
-// other by configuration alone. The two tools filter at different stages, so
-// this is an approximation - compare the resulting depths on the pilot.
-params.msa_local_search_args = '--db-load-mode 2 --align-eval 0.0001 --max-accept 100'
+// --use-env 0 because only UniRef30 is hosted; colabfold_search defaults to
+// --use-env 1 and aborts with "Database colabfold_envdb_202108_db does not
+// exist". --use-templates 0 for the same reason, no PDB70 is hosted.
+//
+// NOT --align-eval 0.0001: this colabfold_search parses --align-eval as an int
+// and rejects a float outright, so that value failed before any search began.
+// Left at the tool's own defaults instead - both arms run this same module with
+// these same args, so the filtering is matched either way, which is what the
+// comparison needs.
+params.msa_local_search_args = '--db-load-mode 2 --use-env 0 --use-templates 0'
 
 include { UNIQUE_ID } from '../modules/local/common/unique_id'
 include { RFDIFFUSION } from '../modules/local/rfd/rfdiffusion'
@@ -88,6 +97,7 @@ include { DL_BINDER_DESIGN_PROTEINMPNN } from '../modules/local/rfd/dl_binder_de
 include { OPENFOLD3 } from '../modules/local/rfd/openfold3'
 include { OPENFOLD3_MSA_LOCAL } from '../modules/local/rfd/openfold3_msa_local'
 include { OPENFOLD3_MSA } from '../modules/local/rfd/openfold3_msa'
+include { RELAX_ONLY } from '../modules/local/rfd/relax_only'
 include { BINDCRAFT_SCORING as BINDCRAFT_SCORING_AF2IG } from '../modules/local/rfd/bindcraft_scoring'
 
 workflow RFD_OPENFOLD {
@@ -112,6 +122,8 @@ workflow RFD_OPENFOLD {
             --rfd_n_designs       Number of RFdiffusion designs [default: ${params.rfd_n_designs}]
             --pmpnn_seqs_per_struct Number of ProteinMPNN sequences per backbone [default: ${params.pmpnn_seqs_per_struct}]
             --pmpnn_temperature   Sampling temperature for ProteinMPNN [default: ${params.pmpnn_temperature}]
+            --pmpnn_weights       Path to ProteinMPNN weights file (leave unset to use default weights) [default: ${params.pmpnn_weights}]
+            --pmpnn_external_relax Relax after a single MPNN pass instead of inside MPNN-FastRelax; needs --pmpnn_relax_cycles 0 [default: ${params.pmpnn_external_relax}]
         """.stripIndent()
         )
         exit(1)
@@ -125,6 +137,10 @@ workflow RFD_OPENFOLD {
     def hotspot_res = params.hotspot_res
     if (params.hotspot_res) {
         hotspot_res = "[${params.hotspot_res.trim().replaceAll(/^\[+/, '').replaceAll(/\]+\$/, '')}]"
+    }
+
+    if (params.pmpnn_external_relax && params.pmpnn_relax_cycles.toString() != '0') {
+        error('--pmpnn_external_relax needs --pmpnn_relax_cycles 0, or the design is relaxed twice')
     }
 
     // One task per seed. The seed travels with the design index so the two
@@ -183,7 +199,13 @@ workflow RFD_OPENFOLD {
     // databases and handed to OpenFold3, instead of OpenFold3 calling the
     // public ColabFold API itself. Keeps this arm comparable to the NIM arm,
     // which searches its own MSAs in OPENFOLD3_MSA.
-    ch_threaded_pdbs = DL_BINDER_DESIGN_PROTEINMPNN.out.pdbs
+    if (params.pmpnn_external_relax) {
+        RELAX_ONLY(DL_BINDER_DESIGN_PROTEINMPNN.out.pdbs.flatten())
+        ch_threaded_pdbs = RELAX_ONLY.out.pdbs
+    }
+    else {
+        ch_threaded_pdbs = DL_BINDER_DESIGN_PROTEINMPNN.out.pdbs
+    }
     if (params.msa_shared_remote) {
         OPENFOLD3_MSA(
             ch_threaded_pdbs.flatten().map { pdb -> tuple(pdb.baseName, pdb) }
