@@ -66,6 +66,27 @@ process DOWNLOAD_COLABFOLD_DATABASES {
         rm -f "\$name"
         touch "\$marker"
     done
+
+    # The tarballs hold TSVs, not searchable databases. setup_databases.sh
+    # converts them with tsv2exprofiledb and that step was missing here, so an
+    # earlier run reported success having produced nothing colabfold_search
+    # can read.
+    #
+    # No `mmseqs createindex`: the index is exactly what pushed the search to
+    # an estimated 81 GB against this queue's 27 GB.
+    for db in uniref30_2302 colabfold_envdb_202108; do
+        if [ -e "\${db}_db" ]; then
+            echo "## \${db}_db already built, skipping"
+            continue
+        fi
+        echo "## building \${db}_db from TSVs"
+        mmseqs tsv2exprofiledb "\${db}" "\${db}_db"
+        # Reclaim the TSVs immediately. Both database sets plus the NIM's own
+        # 1.2 TB do not fit on a 2.4 TB filesystem otherwise.
+        echo "## removing \${db} TSVs"
+        rm -f "\${db}".tsv "\${db}"_*.tsv
+        df -h "${params.msa_mount}" | tail -1
+    done
     finished=\$(date +%s)
 
     echo
