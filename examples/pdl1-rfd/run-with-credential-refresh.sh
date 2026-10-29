@@ -49,13 +49,15 @@ for attempt in $(seq 1 "${MAX_ATTEMPTS}"); do
     # "Session aborted -- Cause: ... token ... expired", while stdout shows
     # only the downstream symptom (a failed S3 write in the onComplete
     # handler). Grepping stdout alone misreads an expiry as a real failure.
-    credential_error="Signature expired|ExpiredToken|security token included in the request is|Token has expired"
+    # Network drops abort a session exactly like an expiry does, and resuming
+    # is right for both: the work is cached, nothing is repeated.
+    credential_error="Signature expired|ExpiredToken|security token included in the request is|Token has expired|UnknownHostException|Unable to execute HTTP request|Connection reset|connect timed out"
     if ! { tail -40 "${LOG_FILE}"; tail -200 .nextflow.log 2>/dev/null; } \
             | grep -qE "${credential_error}"; then
-        echo "=== attempt ${attempt} failed for a reason other than credentials - stopping" | tee -a "${LOG_FILE}"
+        echo "=== attempt ${attempt} failed for a reason other than credentials or network - stopping" | tee -a "${LOG_FILE}"
         exit "${status}"
     fi
-    echo "=== attempt ${attempt} died on expired credentials, refreshing and resuming" | tee -a "${LOG_FILE}"
+    echo "=== attempt ${attempt} died on credentials or network, refreshing and resuming" | tee -a "${LOG_FILE}"
 done
 
 echo "=== gave up after ${MAX_ATTEMPTS} attempts" | tee -a "${LOG_FILE}"

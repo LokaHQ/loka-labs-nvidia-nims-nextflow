@@ -79,6 +79,13 @@ process DOWNLOAD_COLABFOLD_DATABASES {
             echo "## \${db}_db already built, skipping"
             continue
         fi
+        # A conversion killed partway leaves _db.0.._db.N behind without the
+        # bare _db file this check looks for. mmseqs will not overwrite them,
+        # so clear them before retrying.
+        if ls "\${db}_db".* >/dev/null 2>&1; then
+            echo "## clearing a partial \${db}_db from an interrupted run"
+            rm -f "\${db}_db".* "\${db}_db"_*
+        fi
         echo "## building \${db}_db from TSVs"
         mmseqs tsv2exprofiledb "\${db}" "\${db}_db"
         # Reclaim the TSVs immediately. Both database sets plus the NIM's own
