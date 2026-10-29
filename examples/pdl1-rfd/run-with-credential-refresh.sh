@@ -52,7 +52,10 @@ for attempt in $(seq 1 "${MAX_ATTEMPTS}"); do
     # Network drops abort a session exactly like an expiry does, and resuming
     # is right for both: the work is cached, nothing is repeated.
     credential_error="Signature expired|ExpiredToken|security token included in the request is|Token has expired|UnknownHostException|Unable to execute HTTP request|Connection reset|connect timed out"
-    if ! { tail -40 "${LOG_FILE}"; tail -200 .nextflow.log 2>/dev/null; } \
+    # Search the whole .nextflow.log, not its tail: the abort line is followed
+    # by however much shutdown logging the run produces, so a fixed tail can
+    # miss it and a transient fault then looks like a real failure.
+    if ! { tail -40 "${LOG_FILE}"; cat .nextflow.log 2>/dev/null; } \
             | grep -qE "${credential_error}"; then
         echo "=== attempt ${attempt} failed for a reason other than credentials or network - stopping" | tee -a "${LOG_FILE}"
         exit "${status}"
