@@ -28,6 +28,11 @@ for attempt in $(seq 1 "${MAX_ATTEMPTS}"); do
         exit 2
     fi
     eval "${credentials}"
+    # Nextflow's SDK prefers AWS_PROFILE over these static credentials, walks
+    # the SSO chain, and on an expired token falls back to ANONYMOUS access
+    # rather than failing loudly - surfacing only as "Cannot create work-dir".
+    # The credentials above are already exported, so the profile is not needed.
+    unset AWS_PROFILE
 
     # -resume only from the second attempt: the first may be a fresh run.
     resume_flag=""
