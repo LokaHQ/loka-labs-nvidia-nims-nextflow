@@ -73,7 +73,9 @@ for pdb_path in sorted(glob.glob(f"{INPUT_DIR}/*.pdb")):
     ]
     if MSA_DIR:
         for chain in chains:
-            chain["main_msa_file_paths"] = msa_dir(query_id, chain["chain_ids"][0])
+            # A list, not a bare string: parse_msas takes [0] of this to sniff
+            # the kind of path, and indexing a string yields one character.
+            chain["main_msa_file_paths"] = [msa_dir(query_id, chain["chain_ids"][0])]
     queries[query_id] = {
         "chains": chains,
         # Paired-MSA queries hung indefinitely against the ColabFold server in
