@@ -44,11 +44,15 @@ process OPENFOLD3_MSA_LOCAL {
         search/
 
     # colabfold_search names unpacked A3Ms from the query header or its index,
-    # depending on version. Accept either and fail loudly rather than guessing.
+    # depending on version. openfold3_msa.py writes ">\${design_id}.A binder",
+    # and this colabfold_search turns the space into an underscore, so the
+    # first candidate below is the one that actually lands.
     for chain_index in 0 1; do
         chain_id=\$([ "\${chain_index}" = "0" ] && echo A || echo B)
+        chain_label=\$([ "\${chain_index}" = "0" ] && echo binder || echo target)
         target="search/${design_id}_\${chain_index}.a3m"
         for candidate in \\
+            "search/${design_id}.\${chain_id}_\${chain_label}.a3m" \\
             "search/${design_id}.\${chain_id}.a3m" \\
             "search/\${chain_index}.a3m" \\
             "search/${design_id}_\${chain_index}.a3m"; do
