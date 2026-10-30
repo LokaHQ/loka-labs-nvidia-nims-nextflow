@@ -51,7 +51,11 @@ for attempt in $(seq 1 "${MAX_ATTEMPTS}"); do
     # handler). Grepping stdout alone misreads an expiry as a real failure.
     # Network drops abort a session exactly like an expiry does, and resuming
     # is right for both: the work is cached, nothing is repeated.
-    credential_error="Signature expired|ExpiredToken|security token included in the request is|Token has expired|UnknownHostException|Unable to execute HTTP request|Connection reset|connect timed out"
+    # "Cannot create work-dir" is the same class: Nextflow reports it when the
+# very first S3 call fails, whether from a stale token or a momentary DNS
+# drop. It stopped two runs on 2026-10-30 whose credentials were fine a
+# second later.
+credential_error="Signature expired|ExpiredToken|security token included in the request is|Token has expired|UnknownHostException|Unable to execute HTTP request|Connection reset|connect timed out|Cannot create work-dir|Could not resolve host"
     # grep the files directly rather than piping them in. Under `set -o
     # pipefail`, `grep -q` exits on its first match and SIGPIPEs whatever is
     # feeding it, so the pipeline reports failure even when the pattern
