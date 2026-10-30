@@ -90,6 +90,7 @@ process OPENFOLD3_MSA_NIM {
         --output search/ \\
         --host "http://localhost:8000" \\
         --databases "${params.msa_nim_databases}" \\
+        --e-value ${params.msa_nim_e_value} \\
         --max-msa-sequences ${params.msa_nim_max_sequences}
 
     openfold3_msa.py finalise \\

@@ -1,0 +1,143 @@
+=== attempt 1 at 23:12:28Z 
+[33mNextflow 26.10.4 is available - Please consider updating your version to it(B[m
+Uploading local `bin` scripts folder to s3://nvidia-nims-workdir/work/tmp/f8/95e5abdc243f63ac39d14954577d26/bin[PIPELINE] nf-binder-design 0.3.1 | profile=aws_batch_openfold
+[WORKDIR] s3://nvidia-nims-workdir/work
+[PROCESS 70/694c1f] RFD_OPENFOLD:UNIQUE_ID
+[PROCESS 76/1fc1cd] RFD_OPENFOLD:RFDIFFUSION_STANDALONE (4)
+[PROCESS 4c/830ac8] RFD_OPENFOLD:RFDIFFUSION_STANDALONE (3)
+[PROCESS d9/73e0c4] RFD_OPENFOLD:RFDIFFUSION_STANDALONE (2)
+[PROCESS a6/d30a9e] RFD_OPENFOLD:RFDIFFUSION_STANDALONE (1)
+[PROCESS 70/e417e2] RFD_OPENFOLD:RFDIFFUSION_STANDALONE (5)
+[PROCESS 85/513fc7] RFD_OPENFOLD:DL_BINDER_DESIGN_PROTEINMPNN (1)
+[PROCESS 18/0d874d] RFD_OPENFOLD:DL_BINDER_DESIGN_PROTEINMPNN (3)
+[PROCESS 72/1336e0] RFD_OPENFOLD:DL_BINDER_DESIGN_PROTEINMPNN (2)
+[PROCESS 61/59f0fc] RFD_OPENFOLD:DL_BINDER_DESIGN_PROTEINMPNN (5)
+[PROCESS 90/eecd55] RFD_OPENFOLD:DL_BINDER_DESIGN_PROTEINMPNN (4)
+[PROCESS 9f/ab1eff] RFD_OPENFOLD:RELAX_ONLY (1)
+[PROCESS dc/0dfb5e] RFD_OPENFOLD:RELAX_ONLY (2)
+[PROCESS 4f/916bfc] RFD_OPENFOLD:RELAX_ONLY (3)
+[PROCESS ab/a60180] RFD_OPENFOLD:RELAX_ONLY (4)
+[PROCESS 5d/cfa0b8] RFD_OPENFOLD:RELAX_ONLY (5)
+[PROCESS 2f/52a531] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_1_dldesign_0_mpnn0)
+[PROCESS 64/2535ed] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_0_dldesign_0_mpnn0)
+[PROCESS 00/794e01] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_3_dldesign_0_mpnn0)
+[PROCESS ac/041050] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_2_dldesign_0_mpnn0)
+[PROCESS af/277811] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_4_dldesign_0_mpnn0)
+[ERROR] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_1_dldesign_0_mpnn0)
+exit: 1
+cmd: set -euo pipefail mkdir -p queries search msas if [ ! -d "/fsx/colabfold-db" ]; then echo "MSA database directory not found: /fsx/colabfold-db" >&2 exit 1 fi openfold...
+stderr: INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/uniref.a3m | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/res | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb_h | colabfold_search produced no alignment for chain A | total 796 | drwxr-xr-x. 2 root root    122 Oct 30 01:14 . | drwx------. 5 root root  16384 Oct 29 23:54 .. | -rw-r--r--. 1 root root    100 Oct 30 01:14 design_ppi_rYqqfV9_1_dldesign_0_mpnn0.A_binder.a3m | -rw-r--r--. 1 root root 791095 Oct 30 01:14 design_ppi_rYqqfV9_1_dldesign_0_mpnn0.B_target.a3m
+workdir: s3://nvidia-nims-workdir/work/2f/52a531411049806e759498a24b91a2
+[ERROR] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_2_dldesign_0_mpnn0)
+exit: 1
+cmd: set -euo pipefail mkdir -p queries search msas if [ ! -d "/fsx/colabfold-db" ]; then echo "MSA database directory not found: /fsx/colabfold-db" >&2 exit 1 fi openfold...
+stderr: INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/uniref.a3m | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/res | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb_h | colabfold_search produced no alignment for chain A | total 796 | drwxr-xr-x. 2 root root    122 Oct 30 01:14 . | drwx------. 5 root root  16384 Oct 29 23:54 .. | -rw-r--r--. 1 root root     94 Oct 30 01:14 design_ppi_rYqqfV9_2_dldesign_0_mpnn0.A_binder.a3m | -rw-r--r--. 1 root root 791095 Oct 30 01:14 design_ppi_rYqqfV9_2_dldesign_0_mpnn0.B_target.a3m
+[PROCESS ba/c18aec] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_1_dldesign_0_mpnn0)
+workdir: s3://nvidia-nims-workdir/work/ac/0410509fcb5e3b7d94efc4d7f8bba3
+[PROCESS 56/02e235] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_2_dldesign_0_mpnn0)
+[ERROR] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_0_dldesign_0_mpnn0)
+exit: 1
+cmd: set -euo pipefail mkdir -p queries search msas if [ ! -d "/fsx/colabfold-db" ]; then echo "MSA database directory not found: /fsx/colabfold-db" >&2 exit 1 fi openfold...
+stderr: INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/uniref.a3m | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/res | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb_h | colabfold_search produced no alignment for chain A | total 796 | drwxr-xr-x. 2 root root    122 Oct 30 01:26 . | drwx------. 5 root root  16384 Oct 29 23:54 .. | -rw-r--r--. 1 root root     85 Oct 30 01:26 design_ppi_rYqqfV9_0_dldesign_0_mpnn0.A_binder.a3m | -rw-r--r--. 1 root root 791095 Oct 30 01:26 design_ppi_rYqqfV9_0_dldesign_0_mpnn0.B_target.a3m
+workdir: s3://nvidia-nims-workdir/work/64/2535ed58d1802f209866b86642ae05
+[ERROR] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_3_dldesign_0_mpnn0)
+exit: 1
+cmd: set -euo pipefail mkdir -p queries search msas if [ ! -d "/fsx/colabfold-db" ]; then echo "MSA database directory not found: /fsx/colabfold-db" >&2 exit 1 fi openfold...
+[PROCESS 3d/55090e] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_0_dldesign_0_mpnn0)
+stderr: INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/uniref.a3m | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/res | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb_h | colabfold_search produced no alignment for chain A | total 796 | drwxr-xr-x. 2 root root    122 Oct 30 01:26 . | drwx------. 5 root root  16384 Oct 29 23:54 .. | -rw-r--r--. 1 root root    101 Oct 30 01:26 design_ppi_rYqqfV9_3_dldesign_0_mpnn0.A_binder.a3m | -rw-r--r--. 1 root root 791095 Oct 30 01:26 design_ppi_rYqqfV9_3_dldesign_0_mpnn0.B_target.a3m
+[ERROR] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_4_dldesign_0_mpnn0)
+exit: 1
+cmd: set -euo pipefail mkdir -p queries search msas if [ ! -d "/fsx/colabfold-db" ]; then echo "MSA database directory not found: /fsx/colabfold-db" >&2 exit 1 fi openfold...
+workdir: s3://nvidia-nims-workdir/work/00/794e015694d19ea0393f8fa990f995
+stderr: INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/uniref.a3m | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/res | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb_h | colabfold_search produced no alignment for chain A | total 796 | drwxr-xr-x. 2 root root    122 Oct 30 01:28 . | drwx------. 5 root root  16384 Oct 29 23:54 .. | -rw-r--r--. 1 root root     77 Oct 30 01:28 design_ppi_rYqqfV9_4_dldesign_0_mpnn0.A_binder.a3m | -rw-r--r--. 1 root root 791095 Oct 30 01:28 design_ppi_rYqqfV9_4_dldesign_0_mpnn0.B_target.a3m
+[PROCESS f8/041025] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_3_dldesign_0_mpnn0)
+workdir: s3://nvidia-nims-workdir/work/af/2778111e31cbf7049da1274e4cf882
+[PROCESS a9/878bcc] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_4_dldesign_0_mpnn0)
+[ERROR] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_1_dldesign_0_mpnn0)
+exit: 1
+cmd: set -euo pipefail mkdir -p queries search msas if [ ! -d "/fsx/colabfold-db" ]; then echo "MSA database directory not found: /fsx/colabfold-db" >&2 exit 1 fi openfold...
+stderr: INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/uniref.a3m | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/res | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb_h | colabfold_search produced no alignment for chain A | total 796 | drwxr-xr-x. 2 root root    122 Oct 30 02:43 . | drwx------. 5 root root  16384 Oct 30 01:28 .. | -rw-r--r--. 1 root root    100 Oct 30 02:43 design_ppi_rYqqfV9_1_dldesign_0_mpnn0.A_binder.a3m | -rw-r--r--. 1 root root 791095 Oct 30 02:43 design_ppi_rYqqfV9_1_dldesign_0_mpnn0.B_target.a3m
+workdir: s3://nvidia-nims-workdir/work/ba/c18aec0c8742bf157d837ea656d47c
+[ERROR] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_2_dldesign_0_mpnn0)
+exit: 1
+cmd: set -euo pipefail mkdir -p queries search msas if [ ! -d "/fsx/colabfold-db" ]; then echo "MSA database directory not found: /fsx/colabfold-db" >&2 exit 1 fi openfold...
+[PROCESS 42/91387e] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_1_dldesign_0_mpnn0)
+stderr: INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/uniref.a3m | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/res | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb_h | colabfold_search produced no alignment for chain A | total 796 | drwxr-xr-x. 2 root root    122 Oct 30 02:43 . | drwx------. 5 root root  16384 Oct 30 01:28 .. | -rw-r--r--. 1 root root     94 Oct 30 02:43 design_ppi_rYqqfV9_2_dldesign_0_mpnn0.A_binder.a3m | -rw-r--r--. 1 root root 791095 Oct 30 02:43 design_ppi_rYqqfV9_2_dldesign_0_mpnn0.B_target.a3m
+workdir: s3://nvidia-nims-workdir/work/56/02e235e241cdd96ba320cea77b934f
+[PROCESS 18/c78b28] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_2_dldesign_0_mpnn0)
+[ERROR] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_0_dldesign_0_mpnn0)
+exit: 1
+cmd: set -euo pipefail mkdir -p queries search msas if [ ! -d "/fsx/colabfold-db" ]; then echo "MSA database directory not found: /fsx/colabfold-db" >&2 exit 1 fi openfold...
+stderr: INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/uniref.a3m | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/res | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb_h | colabfold_search produced no alignment for chain A | total 796 | drwxr-xr-x. 2 root root    122 Oct 30 03:07 . | drwx------. 5 root root  16384 Oct 30 01:41 .. | -rw-r--r--. 1 root root     85 Oct 30 03:07 design_ppi_rYqqfV9_0_dldesign_0_mpnn0.A_binder.a3m | -rw-r--r--. 1 root root 791095 Oct 30 03:07 design_ppi_rYqqfV9_0_dldesign_0_mpnn0.B_target.a3m
+workdir: s3://nvidia-nims-workdir/work/3d/55090e0dc8065468abb7f074fa7ae4
+[PROCESS b3/a8c68a] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_0_dldesign_0_mpnn0)
+[ERROR] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_3_dldesign_0_mpnn0)
+exit: 1
+cmd: set -euo pipefail mkdir -p queries search msas if [ ! -d "/fsx/colabfold-db" ]; then echo "MSA database directory not found: /fsx/colabfold-db" >&2 exit 1 fi openfold...
+[ERROR] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_4_dldesign_0_mpnn0)
+exit: 1
+cmd: set -euo pipefail mkdir -p queries search msas if [ ! -d "/fsx/colabfold-db" ]; then echo "MSA database directory not found: /fsx/colabfold-db" >&2 exit 1 fi openfold...
+stderr: INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/uniref.a3m | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/res | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb_h | colabfold_search produced no alignment for chain A | total 796 | drwxr-xr-x. 2 root root    122 Oct 30 03:01 . | drwx------. 5 root root  16384 Oct 30 01:41 .. | -rw-r--r--. 1 root root    101 Oct 30 03:01 design_ppi_rYqqfV9_3_dldesign_0_mpnn0.A_binder.a3m | -rw-r--r--. 1 root root 791095 Oct 30 03:01 design_ppi_rYqqfV9_3_dldesign_0_mpnn0.B_target.a3m
+stderr: INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/uniref.a3m | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/res | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb_h | colabfold_search produced no alignment for chain A | total 796 | drwxr-xr-x. 2 root root    122 Oct 30 03:05 . | drwx------. 5 root root  16384 Oct 30 01:41 .. | -rw-r--r--. 1 root root     77 Oct 30 03:05 design_ppi_rYqqfV9_4_dldesign_0_mpnn0.A_binder.a3m | -rw-r--r--. 1 root root 791095 Oct 30 03:05 design_ppi_rYqqfV9_4_dldesign_0_mpnn0.B_target.a3m
+workdir: s3://nvidia-nims-workdir/work/a9/878bcca155d9689dc1c7a6ef595610
+workdir: s3://nvidia-nims-workdir/work/f8/0410253f3a0226e1ae23f2969f64cb
+[PROCESS f2/337b9f] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_3_dldesign_0_mpnn0)
+[PROCESS e5/90087e] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_4_dldesign_0_mpnn0)
+[ERROR] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_1_dldesign_0_mpnn0)
+exit: 1
+cmd: set -euo pipefail mkdir -p queries search msas if [ ! -d "/fsx/colabfold-db" ]; then echo "MSA database directory not found: /fsx/colabfold-db" >&2 exit 1 fi openfold...
+stderr: INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/uniref.a3m | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/res | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb_h | colabfold_search produced no alignment for chain A | total 796 | drwxr-xr-x. 2 root root    122 Oct 30 04:15 . | drwx------. 5 root root  16384 Oct 30 02:59 .. | -rw-r--r--. 1 root root    100 Oct 30 04:15 design_ppi_rYqqfV9_1_dldesign_0_mpnn0.A_binder.a3m | -rw-r--r--. 1 root root 791095 Oct 30 04:15 design_ppi_rYqqfV9_1_dldesign_0_mpnn0.B_target.a3m
+workdir: s3://nvidia-nims-workdir/work/42/91387ed894724518c4402d9ae5e59a
+[ERROR] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_2_dldesign_0_mpnn0)
+exit: 1
+cmd: set -euo pipefail mkdir -p queries search msas if [ ! -d "/fsx/colabfold-db" ]; then echo "MSA database directory not found: /fsx/colabfold-db" >&2 exit 1 fi openfold...
+[PROCESS c3/f5c311] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_1_dldesign_0_mpnn0)
+stderr: INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/uniref.a3m | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/res | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb_h | colabfold_search produced no alignment for chain A | total 796 | drwxr-xr-x. 2 root root    122 Oct 30 04:20 . | drwx------. 5 root root  16384 Oct 30 02:59 .. | -rw-r--r--. 1 root root     94 Oct 30 04:20 design_ppi_rYqqfV9_2_dldesign_0_mpnn0.A_binder.a3m | -rw-r--r--. 1 root root 791095 Oct 30 04:20 design_ppi_rYqqfV9_2_dldesign_0_mpnn0.B_target.a3m
+workdir: s3://nvidia-nims-workdir/work/18/c78b28919ead7b180df640c2f28a73
+[PROCESS 2d/9c9c58] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_2_dldesign_0_mpnn0)
+[ERROR] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_0_dldesign_0_mpnn0)
+exit: 1
+cmd: set -euo pipefail mkdir -p queries search msas if [ ! -d "/fsx/colabfold-db" ]; then echo "MSA database directory not found: /fsx/colabfold-db" >&2 exit 1 fi openfold...
+stderr: INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/uniref.a3m | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/res | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb_h | colabfold_search produced no alignment for chain A | total 796 | drwxr-xr-x. 2 root root    122 Oct 30 04:29 . | drwx------. 5 root root  16384 Oct 30 03:13 .. | -rw-r--r--. 1 root root     85 Oct 30 04:29 design_ppi_rYqqfV9_0_dldesign_0_mpnn0.A_binder.a3m | -rw-r--r--. 1 root root 791095 Oct 30 04:29 design_ppi_rYqqfV9_0_dldesign_0_mpnn0.B_target.a3m
+workdir: s3://nvidia-nims-workdir/work/b3/a8c68a456a9a56264809363a627b51
+[PROCESS 64/73b947] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_0_dldesign_0_mpnn0)
+[ERROR] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_3_dldesign_0_mpnn0)
+exit: 1
+cmd: set -euo pipefail mkdir -p queries search msas if [ ! -d "/fsx/colabfold-db" ]; then echo "MSA database directory not found: /fsx/colabfold-db" >&2 exit 1 fi openfold...
+[ERROR] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_4_dldesign_0_mpnn0)
+exit: 1
+cmd: set -euo pipefail mkdir -p queries search msas if [ ! -d "/fsx/colabfold-db" ]; then echo "MSA database directory not found: /fsx/colabfold-db" >&2 exit 1 fi openfold...
+stderr: INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/uniref.a3m | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/res | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb_h | colabfold_search produced no alignment for chain A | total 796 | drwxr-xr-x. 2 root root    122 Oct 30 04:29 . | drwx------. 5 root root  16384 Oct 30 03:13 .. | -rw-r--r--. 1 root root    101 Oct 30 04:29 design_ppi_rYqqfV9_3_dldesign_0_mpnn0.A_binder.a3m | -rw-r--r--. 1 root root 791095 Oct 30 04:29 design_ppi_rYqqfV9_3_dldesign_0_mpnn0.B_target.a3m
+stderr: INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/uniref.a3m | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/res | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb_h | colabfold_search produced no alignment for chain A | total 796 | drwxr-xr-x. 2 root root    122 Oct 30 04:36 . | drwx------. 5 root root  16384 Oct 30 03:13 .. | -rw-r--r--. 1 root root     77 Oct 30 04:36 design_ppi_rYqqfV9_4_dldesign_0_mpnn0.A_binder.a3m | -rw-r--r--. 1 root root 791095 Oct 30 04:36 design_ppi_rYqqfV9_4_dldesign_0_mpnn0.B_target.a3m
+workdir: s3://nvidia-nims-workdir/work/e5/90087e02e21fbf8989655891424199
+workdir: s3://nvidia-nims-workdir/work/f2/337b9f673c81a634b2fef79ebb830e
+[PROCESS 16/5327a8] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_3_dldesign_0_mpnn0)
+[PROCESS 55/8dc014] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_4_dldesign_0_mpnn0)
+[ERROR] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_1_dldesign_0_mpnn0)
+exit: 1
+cmd: set -euo pipefail mkdir -p queries search msas if [ ! -d "/fsx/colabfold-db" ]; then echo "MSA database directory not found: /fsx/colabfold-db" >&2 exit 1 fi openfold...
+stderr: INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/uniref.a3m | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/res | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb_h | colabfold_search produced no alignment for chain A | total 796 | drwxr-xr-x. 2 root root    122 Oct 30 05:47 . | drwx------. 5 root root  16384 Oct 30 04:31 .. | -rw-r--r--. 1 root root    100 Oct 30 05:47 design_ppi_rYqqfV9_1_dldesign_0_mpnn0.A_binder.a3m | -rw-r--r--. 1 root root 791095 Oct 30 05:47 design_ppi_rYqqfV9_1_dldesign_0_mpnn0.B_target.a3m
+workdir: s3://nvidia-nims-workdir/work/c3/f5c311ac2bf2b637706ce7e4b58579
+[ERROR] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_2_dldesign_0_mpnn0)
+exit: 1
+cmd: set -euo pipefail mkdir -p queries search msas if [ ! -d "/fsx/colabfold-db" ]; then echo "MSA database directory not found: /fsx/colabfold-db" >&2 exit 1 fi openfold...
+stderr: INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/uniref.a3m | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/res | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb_h | colabfold_search produced no alignment for chain A | total 796 | drwxr-xr-x. 2 root root    122 Oct 30 05:53 . | drwx------. 5 root root  16384 Oct 30 04:32 .. | -rw-r--r--. 1 root root     94 Oct 30 05:53 design_ppi_rYqqfV9_2_dldesign_0_mpnn0.A_binder.a3m | -rw-r--r--. 1 root root 791095 Oct 30 05:53 design_ppi_rYqqfV9_2_dldesign_0_mpnn0.B_target.a3m
+workdir: s3://nvidia-nims-workdir/work/2d/9c9c58f0a084b81f72afb4b8bb7827
+[ERROR] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_0_dldesign_0_mpnn0)
+exit: 1
+cmd: set -euo pipefail mkdir -p queries search msas if [ ! -d "/fsx/colabfold-db" ]; then echo "MSA database directory not found: /fsx/colabfold-db" >&2 exit 1 fi openfold...
+stderr: INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/uniref.a3m | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/res | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb_h | colabfold_search produced no alignment for chain A | total 796 | drwxr-xr-x. 2 root root    122 Oct 30 06:10 . | drwx------. 5 root root  16384 Oct 30 04:48 .. | -rw-r--r--. 1 root root     85 Oct 30 06:10 design_ppi_rYqqfV9_0_dldesign_0_mpnn0.A_binder.a3m | -rw-r--r--. 1 root root 791095 Oct 30 06:10 design_ppi_rYqqfV9_0_dldesign_0_mpnn0.B_target.a3m
+workdir: s3://nvidia-nims-workdir/work/64/73b947dcb8b23e950651ba1901cc02
+[ERROR] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_3_dldesign_0_mpnn0)
+exit: 1
+cmd: set -euo pipefail mkdir -p queries search msas if [ ! -d "/fsx/colabfold-db" ]; then echo "MSA database directory not found: /fsx/colabfold-db" >&2 exit 1 fi openfold...
+stderr: INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/uniref.a3m | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/res | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb_h | colabfold_search produced no alignment for chain A | total 796 | drwxr-xr-x. 2 root root    122 Oct 30 06:08 . | drwx------. 5 root root  16384 Oct 30 04:48 .. | -rw-r--r--. 1 root root    101 Oct 30 06:08 design_ppi_rYqqfV9_3_dldesign_0_mpnn0.A_binder.a3m | -rw-r--r--. 1 root root 791095 Oct 30 06:08 design_ppi_rYqqfV9_3_dldesign_0_mpnn0.B_target.a3m
+[ERROR] RFD_OPENFOLD:OPENFOLD3_MSA_LOCAL (design_ppi_rYqqfV9_4_dldesign_0_mpnn0)
+exit: 1
+cmd: set -euo pipefail mkdir -p queries search msas if [ ! -d "/fsx/colabfold-db" ]; then echo "MSA database directory not found: /fsx/colabfold-db" >&2 exit 1 fi openfold...
+stderr: INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/uniref.a3m | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/res | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb | INFO:colabfold.mmseqs.search:Running mmseqs rmdb search/qdb_h | colabfold_search produced no alignment for chain A | total 796 | drwxr-xr-x. 2 root root    122 Oct 30 06:04 . | drwx------. 5 root root  16384 Oct 30 04:48 .. | -rw-r--r--. 1 root root     77 Oct 30 06:04 design_ppi_rYqqfV9_4_dldesign_0_mpnn0.A_binder.a3m | -rw-r--r--. 1 root root 791095 Oct 30 06:04 design_ppi_rYqqfV9_4_dldesign_0_mpnn0.B_target.a3m
+workdir: s3://nvidia-nims-workdir/work/16/5327a802285684201bbfb3322d7d80
+workdir: s3://nvidia-nims-workdir/work/55/8dc01410ce92b797c10b26ffc78613
+Pipeline parameters saved to: s3://nvidia-nims-output/benchmark-20261029T231227Z/baseline/params.json
+[FAILED] completed=36 failed=20 cached=0
+=== finished cleanly on attempt 1

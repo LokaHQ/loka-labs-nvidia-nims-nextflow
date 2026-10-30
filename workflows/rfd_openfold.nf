@@ -89,6 +89,19 @@ params.msa_shared_remote = false
 // these same args, so the filtering is matched either way, which is what the
 // comparison needs.
 params.msa_local_search_args = '--db-load-mode 2 --use-env 0 --use-templates 0'
+// A target alignment searched once and reused by every design. The target is
+// the same cropped chain throughout, and the binder is de novo with no
+// homologues, so searching per design repeats one identical result and finds
+// nothing for the other chain - 78 minutes per design either way. Takes
+// precedence over msa_db_dir. See benchmarks/plan-2026-10-30.md.
+params.msa_target_a3m = false
+// This workflow includes OPENFOLD3_MSA too, which reads these when msa_nim_url
+// is set. Undeclared here they resolve to null on this arm only - the same
+// silent asymmetry msa_local_search_args had. Keep in step with rfd_nim.nf.
+params.msa_nim_url = false
+params.msa_nim_databases = 'uniref30'
+params.msa_nim_max_sequences = 10000
+params.msa_nim_e_value = 0.1
 
 include { UNIQUE_ID } from '../modules/local/common/unique_id'
 include { RFDIFFUSION } from '../modules/local/rfd/rfdiffusion'
@@ -96,6 +109,7 @@ include { RFDIFFUSION_STANDALONE } from '../modules/local/rfd/rfdiffusion_standa
 include { DL_BINDER_DESIGN_PROTEINMPNN } from '../modules/local/rfd/dl_binder_design'
 include { OPENFOLD3 } from '../modules/local/rfd/openfold3'
 include { OPENFOLD3_MSA_LOCAL } from '../modules/local/rfd/openfold3_msa_local'
+include { OPENFOLD3_MSA_PRECOMPUTED } from '../modules/local/rfd/openfold3_msa_precomputed'
 include { OPENFOLD3_MSA } from '../modules/local/rfd/openfold3_msa'
 include { RELAX_ONLY } from '../modules/local/rfd/relax_only'
 include { BINDCRAFT_SCORING as BINDCRAFT_SCORING_AF2IG } from '../modules/local/rfd/bindcraft_scoring'
@@ -206,7 +220,15 @@ workflow RFD_OPENFOLD {
     else {
         ch_threaded_pdbs = DL_BINDER_DESIGN_PROTEINMPNN.out.pdbs
     }
-    if (params.msa_shared_remote) {
+    if (params.msa_target_a3m) {
+        OPENFOLD3_MSA_PRECOMPUTED(
+            ch_threaded_pdbs.flatten().map { pdb -> tuple(pdb.baseName, pdb) },
+            Channel.fromPath(params.msa_target_a3m, checkIfExists: true).first(),
+        )
+        ch_of3_input = OPENFOLD3_MSA_PRECOMPUTED.out.designs_with_msas
+            .map { design_id, pdb, msa_a, msa_b -> tuple(pdb, [msa_a, msa_b]) }
+    }
+    else if (params.msa_shared_remote) {
         OPENFOLD3_MSA(
             ch_threaded_pdbs.flatten().map { pdb -> tuple(pdb.baseName, pdb) }
         )

@@ -29,6 +29,7 @@ process OPENFOLD3_MSA {
         --output search/ \\
         --host "${params.msa_nim_url}" \\
         --databases "${params.msa_nim_databases}" \\
+        --e-value ${params.msa_nim_e_value} \\
         --max-msa-sequences ${params.msa_nim_max_sequences}""" : """colabfold_remote_msa.py \\
         --fasta "queries/${design_id}.fasta" \\
         --output search/ \\

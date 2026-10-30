@@ -26,8 +26,20 @@ params.rfd_random_seed = false
 // use the same list or designs cannot be paired.
 params.rfd_seeds = false
 params.msa_nim_url = false
-params.msa_nim_databases = 'all'
-params.msa_nim_max_sequences = 500
+// Must match what the baseline's colabfold_search actually reads. 'all' adds
+// colabfold_envdb_202108, which the baseline does not host and runs with
+// --use-env 0, so the NIM would search a larger database than the arm it is
+// being compared against.
+params.msa_nim_databases = 'uniref30'
+// The baseline search returns 4,324 sequences for the PD-L1 target. Capping
+// the NIM at 500 would not just change timing: MSA depth changes how OpenFold3
+// folds the target, which lands in interface_dG and iptm and would read as a
+// NIM effect. Note NIM_GLOBAL_MAX_MSA_DEPTH also defaults to 500 server-side,
+// so the deployment may need raising too.
+params.msa_nim_max_sequences = 10000
+// colabfold_search runs at -e 0.1; bin/msa_search_nim.py defaults to 0.0001,
+// a thousand times stricter.
+params.msa_nim_e_value = 0.1
 // Set to the databases on the FSx mount to run the MSA Search NIM in-task
 // against the same files the baseline arm's colabfold_search reads. Unset
 // leaves this arm on the public ColabFold API, which is NOT comparable with a
@@ -47,6 +59,9 @@ params.msa_use_nim = true
 // to contribute nothing, and a hard failure besides, since the default
 // --use-env 1 needs an environmental database that is not hosted.
 params.msa_local_search_args = '--db-load-mode 2 --use-env 0 --use-templates 0'
+// A target alignment searched once and reused by every design; see the matching
+// comment in rfd_openfold.nf. Takes precedence over msa_db_dir and msa_use_nim.
+params.msa_target_a3m = false
 
 include { UNIQUE_ID } from '../modules/local/common/unique_id'
 include { RFDIFFUSION_NIM } from '../modules/local/rfd/rfdiffusion_nim'
@@ -55,6 +70,7 @@ include { THREAD_AND_RELAX } from '../modules/local/rfd/thread_and_relax'
 include { OPENFOLD3_MSA } from '../modules/local/rfd/openfold3_msa'
 include { OPENFOLD3_MSA_NIM } from '../modules/local/rfd/openfold3_msa_nim'
 include { OPENFOLD3_MSA_LOCAL } from '../modules/local/rfd/openfold3_msa_local'
+include { OPENFOLD3_MSA_PRECOMPUTED } from '../modules/local/rfd/openfold3_msa_precomputed'
 include { OPENFOLD3_NIM } from '../modules/local/rfd/openfold3_nim'
 include { BINDCRAFT_SCORING as BINDCRAFT_SCORING_OPENFOLD3 } from '../modules/local/rfd/bindcraft_scoring'
 
@@ -152,7 +168,16 @@ workflow RFD_NIM {
     // Self-hosted when msa_db_dir is set, matching the baseline arm. Otherwise
     // the public ColabFold API, which is only appropriate when the baseline is
     // on it too.
-    if (params.msa_db_dir && params.msa_use_nim) {
+    if (params.msa_target_a3m) {
+        OPENFOLD3_MSA_PRECOMPUTED(
+            THREAD_AND_RELAX.out.designs,
+            Channel.fromPath(params.msa_target_a3m, checkIfExists: true).first(),
+        )
+        ch_designs_with_msas = OPENFOLD3_MSA_PRECOMPUTED.out.designs_with_msas
+        ch_msas = OPENFOLD3_MSA_PRECOMPUTED.out.msas
+        ch_msa_queries = Channel.empty()
+    }
+    else if (params.msa_db_dir && params.msa_use_nim) {
         OPENFOLD3_MSA_NIM(THREAD_AND_RELAX.out.designs)
         ch_designs_with_msas = OPENFOLD3_MSA_NIM.out.designs_with_msas
         ch_msas = OPENFOLD3_MSA_NIM.out.msas

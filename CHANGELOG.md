@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `examples/pdl1-rfd/run-aws-batch-nims.sh`: AWS Batch smoke test for the complete NIM workflow.
 - `examples/pdl1-rfd/run-aws-batch-openfold-comparison.sh`: sequential one-design local versus NIM OpenFold3 comparison.
 - BindCraft-derived PyRosetta and interface scoring for every OpenFold3 NIM prediction.
+- `--msa_target_a3m`: reuse one precomputed target alignment across every design and build each binder's alignment from its own sequence, instead of searching per design. The target is the same cropped chain throughout and a de novo binder has no homologues, so the per-design search repeated one identical result and found nothing for the other chain - 78 minutes per design either way.
 - `--pmpnn_external_relax`: relax after a single ProteinMPNN pass rather than inside MPNN-FastRelax, so the baseline arm can match the NIM arm's design protocol. Requires `--pmpnn_relax_cycles 0`.
 
 ### Changed
@@ -27,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - BindCraft interface scoring no longer evaluates an unused ProteinMPNN parameter or warns when that parameter is absent.
 - AWS Batch NIM tasks retrieve the NGC API key from Secrets Manager instead of persisting it in Nextflow work scripts.
 - Pipeline parameter manifests are written through Nextflow's filesystem provider so S3 output paths receive `params.json`.
+- MSA Search NIM settings now match what the baseline's `colabfold_search` actually runs: UniRef30 only rather than `all` (which adds an environmental database the baseline does not host), E-value `0.1` rather than `0.0001`, and a 10,000-sequence ceiling rather than 500. The sequence cap mattered beyond timing - MSA depth changes how OpenFold3 folds the target, so it would have surfaced in `interface_dG` and `iptm` and read as a NIM effect.
+- `OPENFOLD3_MSA_LOCAL` accepts the A3M filenames `colabfold_search` actually writes. It only checked three spellings, none of them the `<design_id>.A_binder.a3m` form produced from `openfold3_msa.py`'s headers, so every task ran a full search and then failed on the name.
 - `--msa_local_search_args` is declared in both `rfd_nim` and `rfd_openfold`. It was only in `rfd_openfold`, so the NIM arm silently fell back to `colabfold_search`'s own defaults - an unmatched MSA step, and a hard failure since the default `--use-env 1` needs a database that is not hosted.
 - Local MSA search defaults now work against a UniRef30-only database: `--use-env 0 --use-templates 0` instead of aborting on the missing environmental and template databases, and no `--align-eval 0.0001`, which this `colabfold_search` parses as an integer and rejects.
 
