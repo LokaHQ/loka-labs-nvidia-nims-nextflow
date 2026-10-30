@@ -81,10 +81,17 @@ baseline through OpenFold3's own internal call, the NIM arm through
 `OPENFOLD3` with no `OPENFOLD3_MSA` task.
 
 `--msa_shared_remote` exists to close this and routes both through
-`OPENFOLD3_MSA`, but it fails: it feeds OpenFold3 `main_msa_file_paths`, which
-the current docs describe but OpenFold3 v0.5 does not honour, giving an
-`IndexError` in `parse_msas`. Worth retesting against a newer OpenFold3 build
-before the N=100 run.
+`OPENFOLD3_MSA`. It failed on 2026-10-29 with every OpenFold3 task reporting
+`Successful Queries: 0`.
+
+**Corrected 2026-10-30.** An earlier version of this note blamed
+`main_msa_file_paths`, saying OpenFold3 v0.5 does not honour it. That was a
+guess, not a finding. The `IndexError` was in our own `openfold3_predict.py`
+(`pdb_matches[0]` on an empty list), which crashed looking for output OpenFold3
+never wrote - and in doing so hid OpenFold3's own reason for declining the
+query. The script now prints that output and exits with a clear message, so the
+next occurrence is diagnosable. Whether supplied MSAs work is **unknown**, not
+established.
 
 Until then the two MSAs are not guaranteed identical, only drawn from the same
 service. This is the remaining known confounder.

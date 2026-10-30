@@ -89,6 +89,18 @@ for query_id in queries:
     pdb_matches = sorted(glob.glob(f"{raw_out}/{query_id}/seed_*/{query_id}_seed_*_sample_*.pdb"))
     conf_matches = sorted(glob.glob(f"{raw_out}/{query_id}/seed_*/{query_id}_seed_*_confidences_aggregated.json"))
 
+    # run_openfold exits 0 even when a query fails, so an empty match list means
+    # it declined this query. Surface its own log instead of an IndexError on
+    # pdb_matches[0] - that masked the real reason on 2026-10-29 and left us
+    # guessing at a cause we never confirmed.
+    if not pdb_matches or not conf_matches:
+        print(f"OpenFold3 produced no output for {query_id}", file=sys.stderr)
+        for log_path in sorted(Path(raw_out).rglob("*.log")) + sorted(Path(raw_out).rglob("*.txt")):
+            print(f"--- {log_path} ---", file=sys.stderr)
+            print(log_path.read_text()[-4000:], file=sys.stderr)
+        print(f"--- query sent ---\n{json.dumps(queries[query_id], indent=2)[:4000]}", file=sys.stderr)
+        sys.exit(f"No prediction for {query_id}; see the OpenFold3 output above")
+
     shutil.copy(pdb_matches[0], f"{PDBS_OUT}/{query_id}.pdb")
 
     conf = json.loads(Path(conf_matches[0]).read_text())
