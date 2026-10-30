@@ -41,21 +41,19 @@ if [ "${N_DESIGNS}" != "${N_SEEDS}" ]; then
     echo "Pass SEEDS= with one seed per design, e.g. SEEDS=0,5,34 ./run-benchmark.sh 3" >&2
     exit 1
 fi
-# MSA mode. "local" searches self-hosted databases on the FSx mount, and both
-# arms run the identical module, so the MSA step contributes nothing to the
-# comparison.
+# Both arms read one precomputed target alignment and build each binder's
+# alignment from its own sequence, so the MSA step is identical on both sides
+# and contributes nothing to the comparison.
 #
-# "remote" is NOT matched. --msa_shared_remote was meant to route both arms
-# through OPENFOLD3_MSA, but it hands OpenFold3 main_msa_file_paths, which
-# v0.5 does not honour: every OPENFOLD3 task died with an IndexError in
-# parse_msas on 2026-10-29. So it is not passed here. The baseline instead
-# makes its own ColabFold call from inside OpenFold3 while the NIM arm uses
-# bin/colabfold_remote_msa.py - same service, different code path. This is the
-# one remaining unmatched step; see benchmarks/parity-audit.md.
-MSA_MODE="${MSA_MODE:-remote}"
-# The ColabFold-format databases colabfold_search reads, NOT /fsx/msa, which
-# held NVIDIA's GPU-format copy that stock MMseqs2 cannot open.
-MSA_DB_DIR=/fsx/colabfold-db
+# The target is the same cropped PD-L1 chain in every design, so searching per
+# design returned an identical result 100 times; the binder is de novo, so the
+# other half of each search found nothing. Measured over the 20 searches of the
+# 2026-10-29 run, 78 minutes each. Agreed with Manuel 2026-10-30.
+TARGET_A3M="${TARGET_A3M:-${PIPELINE_DIR}/assets/msa/pdl1_target.a3m}"
+if [ ! -f "${TARGET_A3M}" ]; then
+    echo "Target alignment not found: ${TARGET_A3M}" >&2
+    exit 1
+fi
 # One MPNN pass and one relax on both sides.
 #
 # dl_binder_design's MPNN-FastRelax does relax_cycles+1 MPNN passes, and its
@@ -96,7 +94,7 @@ echo "=== baseline arm: N=${N_DESIGNS}, tag ${RUN_TAG} ==="
   --pmpnn_gpu true \
   --pmpnn_container_tag "${PMPNN_CONTAINER}" \
   --pmpnn_seed="${PMPNN_SEED}" \
-  $([ "${MSA_MODE}" = local ] && echo "--msa_db_dir ${MSA_DB_DIR}" || true) \
+  --msa_target_a3m "${TARGET_A3M}" \
   -profile aws_batch_openfold
 
 echo "=== NIM arm: N=${N_DESIGNS}, tag ${RUN_TAG} ==="
@@ -111,7 +109,7 @@ echo "=== NIM arm: N=${N_DESIGNS}, tag ${RUN_TAG} ==="
   --rfd_seeds="${SEEDS}" \
   --pmpnn_seqs_per_struct=1 \
   --of3_diffusion_samples=1 \
-  $([ "${MSA_MODE}" = local ] && echo "--msa_db_dir ${MSA_DB_DIR} --msa_use_nim false" || true) \
+  --msa_target_a3m "${TARGET_A3M}" \
   -profile aws_batch_nims
 
 echo "=== done: s3://nvidia-nims-output/benchmark-${RUN_TAG}/ ==="
