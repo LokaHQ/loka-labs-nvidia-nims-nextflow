@@ -44,12 +44,24 @@ def chain_sequence(pdb_path, chain_id):
 Path(PDBS_OUT).mkdir(parents=True, exist_ok=True)
 Path(SCORES_OUT).mkdir(parents=True, exist_ok=True)
 
-def msa_path(query_id, chain_id):
-    """Path to a supplied per-chain alignment, named as openfold3_msa.py writes it."""
-    path = Path(MSA_DIR) / f"{query_id}.{chain_id}.a3m"
-    if not path.is_file():
-        sys.exit(f"Missing alignment for {query_id} chain {chain_id}: {path}")
-    return str(path)
+# OpenFold3 identifies an alignment by its filename: the stem names the source
+# database. A file it does not recognise is skipped with a warning rather than
+# rejected, so our own <query>.<chain>.a3m names left it with no alignments at
+# all - an empty all_msas_per_chain and an IndexError in parse_msas, which is
+# what every OPENFOLD3 task hit on 2026-10-29 and 2026-10-30.
+MSA_FILENAME = "uniref90_hits.a3m"
+
+
+def msa_dir(query_id, chain_id):
+    """Per-chain directory holding that chain's alignment under a name
+    OpenFold3 recognises. The docs' preferred layout is one folder per chain."""
+    source = Path(MSA_DIR) / f"{query_id}.{chain_id}.a3m"
+    if not source.is_file():
+        sys.exit(f"Missing alignment for {query_id} chain {chain_id}: {source}")
+    destination = Path("of3_msas") / f"{query_id}_{chain_id}"
+    destination.mkdir(parents=True, exist_ok=True)
+    shutil.copy(source, destination / MSA_FILENAME)
+    return str(destination.resolve())
 
 
 queries = {}
@@ -61,7 +73,7 @@ for pdb_path in sorted(glob.glob(f"{INPUT_DIR}/*.pdb")):
     ]
     if MSA_DIR:
         for chain in chains:
-            chain["main_msa_file_paths"] = [msa_path(query_id, chain["chain_ids"][0])]
+            chain["main_msa_file_paths"] = msa_dir(query_id, chain["chain_ids"][0])
     queries[query_id] = {
         "chains": chains,
         # Paired-MSA queries hung indefinitely against the ColabFold server in
