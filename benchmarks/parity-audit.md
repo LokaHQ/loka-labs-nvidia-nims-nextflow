@@ -103,3 +103,32 @@ The 3-seed numbers were produced before these fixes. Sequence identity,
 protocol mismatch, so they should not be quoted as a NIM-vs-baseline result.
 Re-run the baseline arm (~20-30 min; the NIM arm is unchanged and its outputs
 remain valid).
+
+## ProteinMPNN divergence: closed 2026-10-31
+
+The 5-design run of 2026-10-30 gave 54.8% binder sequence identity between arms
+(42.0-73.2% across five seeds). Every configurable cause was eliminated:
+
+| Candidate | Finding |
+|---|---|
+| Backbone | **byte-identical**, SHA-256 match, 0.000 Å RMSD on all five seeds |
+| MPNN checkpoint | `v_48_002` both - baseline from its command line, NIM from its own FASTA header |
+| Seed | `102` both |
+| Sampling temperature | `1e-06` both |
+| `omit_AAs` | moot - **zero cysteines** in any design on either arm |
+| Device | GPU both |
+
+What remains is the software stack: the NIM runs PyTorch 2.10 / CUDA 13.1, our
+container PyTorch 2.0 / CUDA 11.8. This is the same root cause the 2026-10-01
+benchmark found for RFdiffusion - with inputs proven byte-identical, the first
+raw model prediction already differs - and the same ~26% residual it measured
+for ProteinMPNN after matching checkpoint and seed.
+
+Amino-acid composition shows the divergence is systematic, not random: across
+all five designs the baseline produces 58 more alanines, the NIM 41 more
+glutamates and 20 more arginines.
+
+**This is not a confound to remove before the N=100 run.** The sequences differ
+because the implementations differ, and no configuration closes it. That
+difference *is* what the benchmark compares, so the quality comparison is valid
+as it stands.
