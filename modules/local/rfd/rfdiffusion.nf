@@ -33,7 +33,12 @@ process RFDIFFUSION {
     // zero-offset here since we run one design per task - so pass base + index to
     // land on the same seed as upstream. Set rfd_explicit_seed only for containers
     // that accept the key; Hydra rejects it on upstream builds.
-    def seed_arg = params.rfd_random_seed != false
+    //
+    // rfd_seeds counts as seeded too: the caller then passes the seed itself as
+    // design_startnum, which is what i_des becomes at num_designs=1. Without
+    // this the upstream arm ran unseeded and irreproducible, which is how the
+    // 2026-11-02 plain-image runs drew different backbones from the same seeds.
+    def seed_arg = params.rfd_random_seed != false || (params.rfd_seeds ?: false)
         ? (params.rfd_explicit_seed
             ? "inference.deterministic=True inference.random_seed=${(params.rfd_random_seed as int) + (design_startnum as int)}"
             : 'inference.deterministic=True')

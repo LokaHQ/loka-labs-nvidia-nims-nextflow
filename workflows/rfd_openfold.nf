@@ -189,7 +189,10 @@ workflow RFD_OPENFOLD {
             params.contigs,
             hotspot_res,
             1,
-            ch_design_seed.map { index, seed -> index },
+            // Upstream takes no seed argument, so the seed goes in as
+            // design_startnum - make_deterministic(i_des) then seeds from it.
+            // Designs are named by seed rather than by index on this path.
+            ch_design_seed.map { index, seed -> seed != false ? seed : index },
             ch_unique_id,
         )
         ch_rfd_pdbs = RFDIFFUSION.out.pdbs
