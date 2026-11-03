@@ -158,7 +158,7 @@ workflow RFD_NIM {
         params.contigs,
         hotspot_res,
         ch_design_seed
-            .collate(params.rfd_batch_size as int)
+            .buffer(size: params.rfd_batch_size as int, remainder: true)
             .map { group ->
                 tuple(group.collect { idx, _seed -> idx }, group.collect { _idx, seed -> seed })
             },
@@ -212,11 +212,11 @@ workflow RFD_NIM {
         ch_msa_queries = OPENFOLD3_MSA.out.queries
     }
 
-    // collate(1) keeps the default one-design-per-task shape; larger batches
-    // serve several designs from a single NIM server boot.
+    // buffer size 1 keeps the default one-design-per-task shape; larger
+    // batches serve several designs from a single NIM server boot.
     OPENFOLD3_NIM(
         ch_designs_with_msas
-            .collate(params.of3_batch_size as int)
+            .buffer(size: params.of3_batch_size as int, remainder: true)
             .map { group ->
                 tuple(
                     group.collect { did, _pdb, _bm, _tm -> did },

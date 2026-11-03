@@ -263,12 +263,13 @@ workflow RFD_OPENFOLD {
         ch_of3_input = ch_threaded_pdbs.flatten().map { pdb -> tuple(pdb, []) }
     }
 
-    // collate(1) still yields one design per task, so the default path is
+    // buffer size 1 still yields one design per task, so the default path is
     // unchanged; the map just reshapes each group into the directory-shaped
-    // tuple the process already accepts.
+    // tuple the process already accepts. remainder:true keeps a short final
+    // group instead of silently dropping it.
     OPENFOLD3(
         ch_of3_input
-            .collate(params.of3_batch_size as int)
+            .buffer(size: params.of3_batch_size as int, remainder: true)
             .map { group -> tuple(group.collect { pdb, _msas -> pdb }, group.collect { _pdb, msas -> msas }.flatten()) }
     )
 
