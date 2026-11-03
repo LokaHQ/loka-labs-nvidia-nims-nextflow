@@ -56,6 +56,7 @@ process OPENFOLD3_NIM {
     fi
 
     /opt/nim/start_server.sh > nim_server.log 2>&1 &
+    boot_t0=\$(date +%s)
 
     # Longer budget than the RFdiffusion/ProteinMPNN NIMs - OpenFold3 pulls
     # ~15GB of model parameters into its cache on a cold start.
@@ -67,6 +68,7 @@ process OPENFOLD3_NIM {
         echo "Waiting for NIM server to be ready (\${i}/120)..."
         sleep 10
     done
+    echo "NIM_BOOT_SECONDS=\$(( \$(date +%s) - boot_t0 ))"
 
     if ! curl -sf http://localhost:8000/v1/health/ready > /dev/null 2>&1; then
         echo "NIM server never became ready. Last 100 lines of nim_server.log:" >&2

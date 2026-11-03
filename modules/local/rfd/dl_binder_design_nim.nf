@@ -49,6 +49,7 @@ process DL_BINDER_DESIGN_PROTEINMPNN_NIM {
     fi
 
     /opt/nim/start_server.sh > nim_server.log 2>&1 &
+    boot_t0=\$(date +%s)
 
     for i in \$(seq 1 60); do
         if curl -sf http://localhost:8000/v1/health/ready > /dev/null 2>&1; then
@@ -58,6 +59,7 @@ process DL_BINDER_DESIGN_PROTEINMPNN_NIM {
         echo "Waiting for NIM server to be ready (\${i}/60)..."
         sleep 5
     done
+    echo "NIM_BOOT_SECONDS=\$(( \$(date +%s) - boot_t0 ))"
     curl -sf http://localhost:8000/v1/health/ready
 
     proteinmpnn_nim_call.py
