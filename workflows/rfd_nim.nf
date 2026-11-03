@@ -25,6 +25,15 @@ params.rfd_random_seed = false
 // can only produce consecutive seeds (base + design index). Both pipelines must
 // use the same list or designs cannot be paired.
 params.rfd_seeds = false
+// Designs served per OpenFold3 NIM task. The server boot is ~105 s against
+// ~17 s of inference, so batching is what makes this arm measure the model
+// rather than the startup. Must match rfd_openfold.nf for a fair comparison.
+params.of3_batch_size = 1
+
+// Designs served per RFdiffusion NIM task. Safe to raise: each design is a
+// separate request with its own seed, so batching changes timing only.
+params.rfd_batch_size = 1
+
 params.msa_nim_url = false
 // Must match what the baseline's colabfold_search actually reads. 'all' adds
 // colabfold_envdb_202108, which the baseline does not host and runs with
@@ -148,7 +157,11 @@ workflow RFD_NIM {
         ch_input_pdb,
         params.contigs,
         hotspot_res,
-        ch_design_seed,
+        ch_design_seed
+            .collate(params.rfd_batch_size as int)
+            .map { group ->
+                tuple(group.collect { idx, _seed -> idx }, group.collect { _idx, seed -> seed })
+            },
         ch_unique_id,
     )
 
@@ -199,10 +212,24 @@ workflow RFD_NIM {
         ch_msa_queries = OPENFOLD3_MSA.out.queries
     }
 
-    OPENFOLD3_NIM(ch_designs_with_msas)
+    // collate(1) keeps the default one-design-per-task shape; larger batches
+    // serve several designs from a single NIM server boot.
+    OPENFOLD3_NIM(
+        ch_designs_with_msas
+            .collate(params.of3_batch_size as int)
+            .map { group ->
+                tuple(
+                    group.collect { did, _pdb, _bm, _tm -> did },
+                    group.collect { _did, pdb, _bm, _tm -> pdb },
+                    group.collect { _did, _pdb, bm, _tm -> bm },
+                    group.collect { _did, _pdb, _bm, tm -> tm },
+                )
+            }
+    )
 
+    // flatten: a batched task emits several PDBs, BindCraft scores one each.
     BINDCRAFT_SCORING_OPENFOLD3(
-        OPENFOLD3_NIM.out.pdbs,
+        OPENFOLD3_NIM.out.pdbs.flatten(),
         'A',
         'default_4stage_multimer',
         'rfd/openfold3_nim/extra_scores/',
@@ -214,7 +241,7 @@ workflow RFD_NIM {
     threaded_pdbs = THREAD_AND_RELAX.out.pdbs
     msa_queries = ch_msa_queries
     msas = ch_msas
-    refolded_pdbs = OPENFOLD3_NIM.out.pdbs
+    refolded_pdbs = OPENFOLD3_NIM.out.pdbs.flatten()
     refold_scores = OPENFOLD3_NIM.out.scores
     predictions = OPENFOLD3_NIM.out.predictions
     raw_predictions = OPENFOLD3_NIM.out.raw

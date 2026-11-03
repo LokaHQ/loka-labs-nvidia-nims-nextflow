@@ -6,13 +6,21 @@ process RFDIFFUSION_NIM {
     path input_pdb
     val contigs
     val hotspot_res
-    tuple val(design_index), val(random_seed)
+    // Lists, one entry per design in the batch. Each design is an independent
+    // request carrying its own RFD_RANDOM_SEED, so batching cannot change which
+    // seed a design gets - unlike the upstream path, where the seed rides in as
+    // design_startnum and num_designs would shift it.
+    tuple val(design_indices), val(random_seeds)
     val unique_id
 
     output:
     path 'pdbs/*.pdb', emit: pdbs
 
     script:
+    def batch_rows = [design_indices, random_seeds]
+        .transpose()
+        .collect { idx, seed -> "${idx}\t${seed != false ? (seed as int) : ''}" }
+        .join('\n')
     """
     set -euo pipefail
     mkdir -p pdbs
@@ -33,8 +41,6 @@ process RFDIFFUSION_NIM {
     export RFD_INPUT_PDB="${input_pdb}"
     export RFD_CONTIGS="${contigs}"
     export RFD_HOTSPOT_RES="${hotspot_res}"
-    export RFD_OUTPUT_PDB="pdbs/design_ppi_${unique_id}_${design_index}.pdb"
-    ${random_seed != false ? "export RFD_RANDOM_SEED=\"${random_seed as int}\"" : ''}
     if [ -n "${params.ngc_api_key_secret ?: ''}" ]; then
         export NGC_API_KEY=\$(/opt/aws-cli/bin/aws secretsmanager get-secret-value \
             --secret-id "${params.ngc_api_key_secret ?: ''}" \
@@ -59,6 +65,21 @@ process RFDIFFUSION_NIM {
     done
     curl -sf http://localhost:8000/v1/health/ready
 
-    rfdiffusion_nim_call.py
+    cat > batch_designs.tsv <<'DESIGNS'
+${batch_rows}
+DESIGNS
+
+    # One server, N requests. The ~75 s boot is paid once for the whole batch.
+    while IFS=\$'\\t' read -r idx seed; do
+        [ -n "\${idx}" ] || continue
+        export RFD_OUTPUT_PDB="pdbs/design_ppi_${unique_id}_\${idx}.pdb"
+        if [ -n "\${seed}" ]; then
+            export RFD_RANDOM_SEED="\${seed}"
+        else
+            unset RFD_RANDOM_SEED || true
+        fi
+        echo "=== design \${idx} (seed \${seed:-none}) ==="
+        rfdiffusion_nim_call.py
+    done < batch_designs.tsv
     """
 }

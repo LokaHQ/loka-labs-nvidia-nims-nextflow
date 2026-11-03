@@ -65,6 +65,11 @@ params.pmpnn_omit_aas = 'CX'
 // its own FASTA header. Needs the seed-patch container for -seed.
 params.pmpnn_seed = false
 
+// Designs per OpenFold3 task. openfold3_predict.py already folds a whole input
+// directory in one invocation, so batching amortises the ~57 s model load that
+// otherwise gets paid once per design.
+params.of3_batch_size = 1
+
 // Unset leaves MSA search to OpenFold3 itself (public ColabFold API). Set to a
 // container-visible database directory to search locally instead, so this arm
 // is hardware-comparable with the MSA Search NIM.
@@ -138,6 +143,7 @@ workflow RFD_OPENFOLD {
             --pmpnn_temperature   Sampling temperature for ProteinMPNN [default: ${params.pmpnn_temperature}]
             --pmpnn_weights       Path to ProteinMPNN weights file (leave unset to use default weights) [default: ${params.pmpnn_weights}]
             --pmpnn_external_relax Relax after a single MPNN pass instead of inside MPNN-FastRelax; needs --pmpnn_relax_cycles 0 [default: ${params.pmpnn_external_relax}]
+            --of3_batch_size      Designs folded per OpenFold3 task [default: ${params.of3_batch_size}]
         """.stripIndent()
         )
         exit(1)
@@ -155,6 +161,10 @@ workflow RFD_OPENFOLD {
 
     if (params.pmpnn_external_relax && params.pmpnn_relax_cycles.toString() != '0') {
         error('--pmpnn_external_relax needs --pmpnn_relax_cycles 0, or the design is relaxed twice')
+    }
+
+    if ((params.of3_batch_size as int) < 1) {
+        error('--of3_batch_size must be >= 1')
     }
 
     // One task per seed. The seed travels with the design index so the two
@@ -253,10 +263,19 @@ workflow RFD_OPENFOLD {
         ch_of3_input = ch_threaded_pdbs.flatten().map { pdb -> tuple(pdb, []) }
     }
 
-    OPENFOLD3(ch_of3_input)
+    // collate(1) still yields one design per task, so the default path is
+    // unchanged; the map just reshapes each group into the directory-shaped
+    // tuple the process already accepts.
+    OPENFOLD3(
+        ch_of3_input
+            .collate(params.of3_batch_size as int)
+            .map { group -> tuple(group.collect { pdb, _msas -> pdb }, group.collect { _pdb, msas -> msas }.flatten()) }
+    )
 
+    // flatten: a batched OpenFold3 task emits several PDBs at once, but
+    // BindCraft scores one design per task.
     BINDCRAFT_SCORING_AF2IG(
-        OPENFOLD3.out.pdbs,
+        OPENFOLD3.out.pdbs.flatten(),
         'A',
         'default_4stage_multimer',
         'rfd/openfold3/extra_scores/',
@@ -264,6 +283,6 @@ workflow RFD_OPENFOLD {
 
     emit:
     backbones = ch_rfd_pdbs
-    openfold3_pdbs = OPENFOLD3.out.pdbs
+    openfold3_pdbs = OPENFOLD3.out.pdbs.flatten()
     scores = BINDCRAFT_SCORING_AF2IG.out.scores
 }
