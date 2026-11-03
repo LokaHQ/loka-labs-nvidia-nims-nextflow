@@ -1,3 +1,8 @@
+// Seeds are pinned in runner.yml rather than left to OpenFold3's default.
+// The default is already 42 (the logs print "Seed set to 42" for every query),
+// so this changes nothing - it just stops the run depending on an undocumented
+// default. Seeds cannot be set per query: the input format reference says the
+// seeds field must not appear in query.json.
 // Co-folds binder+target sequences (extracted from the ProteinMPNN-threaded
 // PDB) with OpenFold3, replacing AF2 initial-guess. See bin/openfold3_predict.py.
 process OPENFOLD3 {
@@ -28,6 +33,8 @@ process OPENFOLD3 {
     cat > runner.yml <<'YAML'
 output_writer_settings:
   structure_format: pdb
+experiment_settings:
+  seeds: [42]
 YAML
 
     msa_arg=""
