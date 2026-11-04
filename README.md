@@ -26,6 +26,98 @@ Nextflow pipelines for _de novo_ protein binder design.
 
 ----
 
+## This fork: NVIDIA NIM vs open-source benchmark
+
+Loka's fork of [nf-binder-design](https://github.com/Australian-Protein-Design-Initiative/nf-binder-design),
+used to benchmark NVIDIA NIM containers against the equivalent open-source
+containers on AWS Batch. Everything upstream still works; this section covers
+only what is specific to the benchmark.
+
+### The two arms
+
+| arm | `--method` | profile | RFdiffusion | ProteinMPNN | folding |
+|---|---|---|---|---|---|
+| open source | `rfd_openfold` | `aws_batch_openfold` | upstream image | upstream | OpenFold3 (pixi build) |
+| NIM | `rfd_nim` | `aws_batch_nims` | RFdiffusion NIM | ProteinMPNN NIM | OpenFold3 NIM |
+
+Both arms share the MSA, threading/relax and BindCraft scoring steps, so a
+difference between them is a difference in the three model containers.
+
+### Prerequisites
+
+1. **AWS credentials.** `aws sso login --profile lokalabs-nims`. Account
+   520168724997, `us-east-1`.
+2. **NGC API key in Secrets Manager** under `nvidia-nims/ngc-api-key`, as a
+   personal key (`nvapi-…`). The NIM tasks read it at runtime; a service key
+   will not authenticate.
+3. **Container images in ECR** (`520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims`).
+   See `assets/` for how each was built.
+4. **Batch compute environments enabled.** They are left `DISABLED` between
+   runs so nothing can accrue cost; the run scripts enable them on start and
+   disable them again on exit, including on failure.
+
+### Running the benchmark
+
+```bash
+cd examples/pdl1-rfd
+./run-n150.sh          # both arms, 150 designs each, ~3 h
+```
+
+Or one arm directly:
+
+```bash
+nextflow run main.nf --method rfd_nim \
+  --input_pdb input/PDL1.pdb \
+  --contigs "[A18-132/0 78-78]" \
+  --hotspot_res A56,A63,A113,A123,A124 \
+  --rfd_n_designs 150 --rfd_seeds "$(seq -s, 0 149)" \
+  --msa_target_a3m assets/msa/pdl1_target.a3m \
+  --outdir s3://nvidia-nims-output/my-run \
+  -profile aws_batch_nims -with-trace
+```
+
+Pass the same `--rfd_seeds` to both arms. RFdiffusion is deterministic across
+the two implementations, so matched seeds give bit-identical backbones and the
+comparison becomes paired rather than two independent groups.
+
+### Options specific to this fork
+
+| option | default | what it does |
+|---|---|---|
+| `--of3_batch_size` | 1 | designs served per OpenFold3 NIM server boot |
+| `--rfd_batch_size` | 1 | designs per RFdiffusion NIM server boot |
+| `--rfd_nim_container_tag` | `rfdiffusion-nim` | set to `rfdiffusion-nim-cached` for the weight-cached image |
+| `--pmpnn_nim_container_tag` | `proteinmpnn-nim` | set to `proteinmpnn-nim-cached` likewise |
+| `--openfold3_nim_image` | *(unset)* | full image reference, overrides the default tag |
+| `--rfd_standalone` | false | open-source arm uses the same RFdiffusion the NIM wraps |
+
+**Batch size is the lever that matters.** Each NIM task boots an HTTP server
+before it infers, and at one design per container that boot dominates. See
+`benchmarks/` for the measured figures.
+
+### Cost
+
+Both profiles use Spot by default. Guardrails exist in the account: a $40/day
+and a $250/month budget, both measured on gross usage with credits excluded,
+and CloudWatch alarms on NAT gateway throughput. Check them before a long run:
+
+```bash
+aws budgets describe-budgets --account-id 520168724997 --profile lokalabs-nims
+aws cloudwatch describe-alarms --alarm-name-prefix nims- --profile lokalabs-nims
+```
+
+Container execution is only part of the bill. Model weights and any image not
+held in ECR are pulled over the NAT gateway, which on the N=150 run cost more
+than the compute did. `assets/nim_weight_cache/` builds images with the weights
+already inside to avoid the repeated download.
+
+### Results
+
+`benchmarks/` holds the findings documents and `benchmarks/scripts/` the
+analysis that produced them.
+
+----
+
 ## Documentation
 
 ----

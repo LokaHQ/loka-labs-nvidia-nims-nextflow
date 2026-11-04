@@ -8,6 +8,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- Weight-cached NIM images (`assets/nim_weight_cache/`) that bake the NGC model
+  weights into the container, removing a per-task download.
+- `--rfd_nim_container_tag` and `--pmpnn_nim_container_tag` so the NIM images
+  can be swapped without editing the platform config.
+- The N=150 analysis scripts under `benchmarks/scripts/`, so the published
+  figures can be re-derived.
+- A README section covering this fork: the two benchmark arms, prerequisites,
+  how to run them, and the cost guardrails.
+
+### Removed
+
+- The one-off investigation scripts from the repository root: 20 `*_check.nf`
+  and `*_probe.nf` files, 8 `ad_hoc_*.config` files, and `refold_inputs/`.
+  All are recoverable from git history.
+
+### Changed
+
+- Benchmark run logs under `examples/pdl1-rfd/` are now ignored rather than
+  committed.
+
+### Added
 - `rfd_openfold`: non-NIM RFdiffusion and ProteinMPNN/Rosetta followed by unpaired per-chain MSA generation, local OpenFold3 co-folding and BindCraft-derived scoring.
 - `rfd_nim`: independent unpaired ColabFold alignments for binder and target chains and OpenFold3 NIM co-folding, with per-design structures, complete MSA/request/response provenance and separate binder/target pLDDT plus interaction PAE scores.
 - Reproducible OpenFold3 response patch exposing the model's existing PAE matrix and original atom pLDDT, without changing weights or predictions.
