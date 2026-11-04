@@ -31,3 +31,7 @@ tmp
 *.zip
 
 *.local.md
+
+# Benchmark run logs and wrapper output - kept locally, not in the repo
+examples/pdl1-rfd/*.log
+examples/pdl1-rfd/*.out
