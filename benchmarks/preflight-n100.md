@@ -160,3 +160,9 @@ Only if the 3-seed results warrant it - not a foregone conclusion.
 - [ ] Same script as the 3-seed run, N changed only.
 - [ ] Afterwards, tear down anything created for the run (MSA server, storage, SG rule)
   the same day.
+
+---
+
+*The one-off `*_check.nf`, `*_probe.nf` and `ad_hoc_*.config` files named above were
+removed from the repository root during the 2026-11-04 cleanup. They served their purpose and
+are recoverable from git history at `69e0d89`.*

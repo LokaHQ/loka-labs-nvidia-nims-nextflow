@@ -85,3 +85,9 @@ Tested with `colabfold_search` from `quay.io/nf-core/proteinfold_colabfold:1.1.1
 (MMseqs2 as bundled there). A newer MMseqs2 with GPU support may well read these
 databases; that was not tested, and the claim should be stated as being about
 this version rather than about MMseqs2 in general.
+
+---
+
+*The one-off `*_check.nf`, `*_probe.nf` and `ad_hoc_*.config` files named above were
+removed from the repository root during the 2026-11-04 cleanup. They served their purpose and
+are recoverable from git history at `69e0d89`.*

@@ -62,3 +62,9 @@ sides, RFdiffusion is the same speed to within 4 s, and produces identical outpu
   reference run and is kept for that reason; nobody has run the pair without it. One run
   with `--rfd_nim_warmup_pdb false` would settle it and save 53 s per design if it is not
   needed.
+
+---
+
+*The one-off `*_check.nf`, `*_probe.nf` and `ad_hoc_*.config` files named above were
+removed from the repository root during the 2026-11-04 cleanup. They served their purpose and
+are recoverable from git history at `69e0d89`.*
