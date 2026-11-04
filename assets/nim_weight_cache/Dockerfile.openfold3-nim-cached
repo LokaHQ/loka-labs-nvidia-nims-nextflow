@@ -1,0 +1,18 @@
+# Pushed to ECR as tag: openfold3-nim-cached
+#
+# Identical to openfold3-nim except the NGC model weights are already present,
+# so start_server.sh finds them instead of downloading them from NGC on every
+# task. The base is the exact tag that ran the N=150 benchmark, so the cache is
+# the only difference between the two images.
+#
+# cache/openfold3-nim is produced by populate-cache.sh, which must run on a
+# linux/amd64 host. Build this image only after that directory exists.
+FROM 520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:openfold3-nim
+
+USER root
+COPY cache/openfold3-nim /opt/nim-cache
+# The NIMs run as a non-root user; make the cache readable to whoever that is.
+RUN chmod -R a+rX /opt/nim-cache
+USER 1000:1000
+
+ENV NIM_CACHE_PATH=/opt/nim-cache
