@@ -45,6 +45,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CPU-only stages in the AWS Batch and AWS NIM profiles use the CPU queue instead of provisioning GPU instances.
 
 ### Fixed
+- The RFdiffusion and ProteinMPNN NIM modules print the last 100 lines of
+  `nim_server.log` when their server never becomes ready, instead of failing on
+  a bare `curl` that discards the reason. Matches the OpenFold3 NIM module.
 - NIM workflow channels keep each backbone, designed sequence, structure and score associated throughout processing.
 - AWS Batch OpenFold3 shared memory resolves to 16 GiB with both Nextflow 24.04.3's integer-MiB parser and supported stable unit-aware runtimes from 24.04.4 onward.
 - BindCraft interface scoring no longer evaluates an unused ProteinMPNN parameter or warns when that parameter is absent.

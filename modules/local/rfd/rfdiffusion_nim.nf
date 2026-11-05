@@ -65,7 +65,12 @@ process RFDIFFUSION_NIM {
         sleep 5
     done
     echo "NIM_BOOT_SECONDS=\$(( \$(date +%s) - boot_t0 ))"
-    curl -sf http://localhost:8000/v1/health/ready
+
+    if ! curl -sf http://localhost:8000/v1/health/ready > /dev/null 2>&1; then
+        echo "NIM server never became ready. Last 100 lines of nim_server.log:" >&2
+        tail -n 100 nim_server.log >&2
+        exit 1
+    fi
 
     cat > batch_designs.tsv <<'DESIGNS'
 ${batch_rows}
