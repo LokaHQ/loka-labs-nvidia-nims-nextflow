@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   figures can be re-derived.
 - A README section covering this fork: the two benchmark arms, prerequisites,
   how to run them, and the cost guardrails.
+- `examples/pdl1-rfd/stop-all-compute.sh`: disables every Batch compute
+  environment and terminates the instances it already launched, then verifies
+  both are zero. Disabling a compute environment alone leaves running instances
+  billing, which is how a GPU instance survived the end of a run.
+- `examples/pdl1-rfd/run-batch-validation.sh` and `cost-guard.config`: the N=30
+  batched NIM run, with fork caps on the unbatched GPU steps.
 
 ### Removed
 
