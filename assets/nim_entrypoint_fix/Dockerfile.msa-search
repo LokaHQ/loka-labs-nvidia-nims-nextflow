@@ -1,0 +1,8 @@
+# Pushed to ECR as tag: msa-search-updated
+#
+# Same entrypoint fix as the RFdiffusion and ProteinMPNN NIMs. Without it the
+# image's own ENTRYPOINT runs start_server.sh with the baked-in (empty)
+# NGC_API_KEY, so the task script never gets to supply the real key.
+FROM nvcr.io/nim/colabfold/msa-search:2.6.0
+ENTRYPOINT []
+CMD []

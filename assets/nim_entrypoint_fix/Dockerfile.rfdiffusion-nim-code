@@ -1,0 +1,10 @@
+# Pushed to ECR as tag: rfdiffusion-nim-code-updated
+#
+# Same entrypoint fix as the NIM images. The upstream container's entrypoint.py
+# execs run_inference.py with whatever argv it gets, so under Nextflow the Batch
+# wrapper command is passed as Hydra arguments and parsing fails. Clearing it
+# lets the module call run_inference.py itself, which is the path entrypoint.py
+# would have selected anyway.
+FROM 520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:rfdiffusion-nim-code
+ENTRYPOINT []
+CMD []

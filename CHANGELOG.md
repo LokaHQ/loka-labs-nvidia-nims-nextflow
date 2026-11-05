@@ -8,12 +8,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- Weight-cached NIM images (`assets/nim_weight_cache/`) that bake the NGC model
+  weights into the container, removing a per-task download.
+- `--rfd_nim_container_tag` and `--pmpnn_nim_container_tag` so the NIM images
+  can be swapped without editing the platform config.
+- The N=150 analysis scripts under `benchmarks/scripts/`, so the published
+  figures can be re-derived.
+- A README section covering this fork: the two benchmark arms, prerequisites,
+  how to run them, and the cost guardrails.
+- `examples/pdl1-rfd/stop-all-compute.sh`: disables every Batch compute
+  environment and terminates the instances it already launched, then verifies
+  both are zero. Disabling a compute environment alone leaves running instances
+  billing, which is how a GPU instance survived the end of a run.
+- `examples/pdl1-rfd/run-batch-validation.sh` and `cost-guard.config`: the N=30
+  batched NIM run, with fork caps on the unbatched GPU steps.
+
+### Removed
+
+- The one-off investigation scripts from the repository root: 20 `*_check.nf`
+  and `*_probe.nf` files, 8 `ad_hoc_*.config` files, and `refold_inputs/`.
+  All are recoverable from git history.
+
+### Changed
+
+- Benchmark run logs under `examples/pdl1-rfd/` are now ignored rather than
+  committed.
+
+### Added
 - `rfd_openfold`: non-NIM RFdiffusion and ProteinMPNN/Rosetta followed by unpaired per-chain MSA generation, local OpenFold3 co-folding and BindCraft-derived scoring.
 - `rfd_nim`: independent unpaired ColabFold alignments for binder and target chains and OpenFold3 NIM co-folding, with per-design structures, complete MSA/request/response provenance and separate binder/target pLDDT plus interaction PAE scores.
 - Reproducible OpenFold3 response patch exposing the model's existing PAE matrix and original atom pLDDT, without changing weights or predictions.
 - `examples/pdl1-rfd/run-aws-batch-nims.sh`: AWS Batch smoke test for the complete NIM workflow.
 - `examples/pdl1-rfd/run-aws-batch-openfold-comparison.sh`: sequential one-design local versus NIM OpenFold3 comparison.
 - BindCraft-derived PyRosetta and interface scoring for every OpenFold3 NIM prediction.
+- `--msa_target_a3m`: reuse one precomputed target alignment across every design and build each binder's alignment from its own sequence, instead of searching per design. The target is the same cropped chain throughout and a de novo binder has no homologues, so the per-design search repeated one identical result and found nothing for the other chain - 78 minutes per design either way.
+- `--pmpnn_external_relax`: relax after a single ProteinMPNN pass rather than inside MPNN-FastRelax, so the baseline arm can match the NIM arm's design protocol. Requires `--pmpnn_relax_cycles 0`.
 
 ### Changed
 - OpenFold3 reads binder A and cropped target B sequences from the threaded complex, validates their independently searched A3Ms and requires one diffusion sample per design. It folds from sequence without AF2 initial-guess coordinate seeding; matching score definitions does not make the models' confidence estimates interchangeable.
@@ -21,11 +51,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CPU-only stages in the AWS Batch and AWS NIM profiles use the CPU queue instead of provisioning GPU instances.
 
 ### Fixed
+- The RFdiffusion and ProteinMPNN NIM modules print the last 100 lines of
+  `nim_server.log` when their server never becomes ready, instead of failing on
+  a bare `curl` that discards the reason. Matches the OpenFold3 NIM module.
 - NIM workflow channels keep each backbone, designed sequence, structure and score associated throughout processing.
 - AWS Batch OpenFold3 shared memory resolves to 16 GiB with both Nextflow 24.04.3's integer-MiB parser and supported stable unit-aware runtimes from 24.04.4 onward.
 - BindCraft interface scoring no longer evaluates an unused ProteinMPNN parameter or warns when that parameter is absent.
 - AWS Batch NIM tasks retrieve the NGC API key from Secrets Manager instead of persisting it in Nextflow work scripts.
 - Pipeline parameter manifests are written through Nextflow's filesystem provider so S3 output paths receive `params.json`.
+- MSA Search NIM settings now match what the baseline's `colabfold_search` actually runs: UniRef30 only rather than `all` (which adds an environmental database the baseline does not host), E-value `0.1` rather than `0.0001`, and a 10,000-sequence ceiling rather than 500. The sequence cap mattered beyond timing - MSA depth changes how OpenFold3 folds the target, so it would have surfaced in `interface_dG` and `iptm` and read as a NIM effect.
+- `OPENFOLD3_MSA_LOCAL` accepts the A3M filenames `colabfold_search` actually writes. It only checked three spellings, none of them the `<design_id>.A_binder.a3m` form produced from `openfold3_msa.py`'s headers, so every task ran a full search and then failed on the name.
+- `--msa_local_search_args` is declared in both `rfd_nim` and `rfd_openfold`. It was only in `rfd_openfold`, so the NIM arm silently fell back to `colabfold_search`'s own defaults - an unmatched MSA step, and a hard failure since the default `--use-env 1` needs a database that is not hosted.
+- Local MSA search defaults now work against a UniRef30-only database: `--use-env 0 --use-templates 0` instead of aborting on the missing environmental and template databases, and no `--align-eval 0.0001`, which this `colabfold_search` parses as an integer and rejects.
 
 ## [0.3.1] - 2026-09-09
 

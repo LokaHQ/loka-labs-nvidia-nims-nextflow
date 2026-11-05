@@ -1,0 +1,70 @@
+queue	job_name	status	image	vcpus_requested	gpus_requested	ec2_instance_id	instance_type	runtime_seconds
+nvidia-nims-cpu-small	DB_STATE	SUCCEEDED	quay.io/nf-core/proteinfold_colabfold:1.1.1	2	0			12.5
+nvidia-nims-cpu-small	DOWNLOAD_COLABFOLD_DATABASES	FAILED	quay.io/nf-core/proteinfold_colabfold:1.1.1	8	0			9.4
+nvidia-nims-cpu-small	DOWNLOAD_COLABFOLD_DATABASES	FAILED	quay.io/nf-core/proteinfold_colabfold:1.1.1	8	0			9.8
+nvidia-nims-cpu-small	DOWNLOAD_COLABFOLD_DATABASES	FAILED	quay.io/nf-core/proteinfold_colabfold:1.1.1	8	0			9.9
+nvidia-nims-cpu-small	DOWNLOAD_COLABFOLD_DATABASES	FAILED	quay.io/nf-core/proteinfold_colabfold:1.1.1	8	0			9.6
+nvidia-nims-cpu-small	DOWNLOAD_COLABFOLD_DATABASES	FAILED	quay.io/nf-core/proteinfold_colabfold:1.1.1	8	0			9.3
+nvidia-nims-cpu-small	DOWNLOAD_COLABFOLD_DATABASES	FAILED	quay.io/nf-core/proteinfold_colabfold:1.1.1	8	0			9.1
+nvidia-nims-cpu-small	DOWNLOAD_COLABFOLD_DATABASES	FAILED	quay.io/nf-core/proteinfold_colabfold:1.1.1	8	0			6179.1
+nvidia-nims-cpu-small	DOWNLOAD_COLABFOLD_DATABASES	FAILED	quay.io/nf-core/proteinfold_colabfold:1.1.1	8	0			9.1
+nvidia-nims-cpu-small	DOWNLOAD_COLABFOLD_DATABASES	SUCCEEDED	quay.io/nf-core/proteinfold_colabfold:1.1.1	8	0			11.1
+nvidia-nims-cpu-small	RFD_NIMBINDCRAFT_SCORING_OPENFOLD3_1	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:bindcraft	2	0	i-016a5ce0ce25ad393	m5.large	89.1
+nvidia-nims-cpu-small	RFD_NIMBINDCRAFT_SCORING_OPENFOLD3_2	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:bindcraft	2	0	i-0c63d07656d71111e	m5.large	95.7
+nvidia-nims-cpu-small	RFD_NIMBINDCRAFT_SCORING_OPENFOLD3_3	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:bindcraft	2	0	i-036efd52f5f091ef8	m5.large	86.3
+nvidia-nims-cpu-small	RFD_NIMOPENFOLD3_MSA_design_ppi_VvCTP23_0_0	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:nf-binder-design-utils	2	0	i-05c9a2d9b0f8d41c4	m5.large	17.7
+nvidia-nims-cpu-small	RFD_NIMOPENFOLD3_MSA_design_ppi_VvCTP23_1_0	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:nf-binder-design-utils	2	0	i-06548cc3117d85a9e	m5.large	86.2
+nvidia-nims-cpu-small	RFD_NIMOPENFOLD3_MSA_design_ppi_VvCTP23_2_0	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:nf-binder-design-utils	2	0	i-0670a86cc1274ce9d	m5.large	77.0
+nvidia-nims-cpu-small	RFD_NIMTHREAD_AND_RELAX_1	SUCCEEDED	ghcr.io/australian-protein-design-initiative/containers/proteinmpnn_dl_binder_design:latest	1	0			132.3
+nvidia-nims-cpu-small	RFD_NIMTHREAD_AND_RELAX_1	SUCCEEDED	ghcr.io/australian-protein-design-initiative/containers/proteinmpnn_dl_binder_design:latest	1	0	i-06548cc3117d85a9e	m5.large	98.3
+nvidia-nims-cpu-small	RFD_NIMTHREAD_AND_RELAX_1	SUCCEEDED	ghcr.io/australian-protein-design-initiative/containers/proteinmpnn_dl_binder_design:latest	1	0	i-0b4f28f97d9c332c4	c5.xlarge	85.7
+nvidia-nims-cpu-small	RFD_NIMTHREAD_AND_RELAX_2	SUCCEEDED	ghcr.io/australian-protein-design-initiative/containers/proteinmpnn_dl_binder_design:latest	1	0	i-006cecd3bcd18acd9	m5.large	104.8
+nvidia-nims-cpu-small	RFD_NIMTHREAD_AND_RELAX_2	SUCCEEDED	ghcr.io/australian-protein-design-initiative/containers/proteinmpnn_dl_binder_design:latest	1	0			99.4
+nvidia-nims-cpu-small	RFD_NIMTHREAD_AND_RELAX_2	SUCCEEDED	ghcr.io/australian-protein-design-initiative/containers/proteinmpnn_dl_binder_design:latest	1	0	i-05c9a2d9b0f8d41c4	m5.large	113.6
+nvidia-nims-cpu-small	RFD_NIMTHREAD_AND_RELAX_3	SUCCEEDED	ghcr.io/australian-protein-design-initiative/containers/proteinmpnn_dl_binder_design:latest	1	0	i-0670a86cc1274ce9d	m5.large	126.5
+nvidia-nims-cpu-small	RFD_NIMTHREAD_AND_RELAX_3	SUCCEEDED	ghcr.io/australian-protein-design-initiative/containers/proteinmpnn_dl_binder_design:latest	1	0	i-0bea19cd0d6c98a19	m5.xlarge	124.2
+nvidia-nims-cpu-small	RFD_NIMTHREAD_AND_RELAX_3	SUCCEEDED	ghcr.io/australian-protein-design-initiative/containers/proteinmpnn_dl_binder_design:latest	1	0			109.6
+nvidia-nims-cpu-small	RFD_NIMUNIQUE_ID	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:nf-binder-design-utils	1	0			10.6
+nvidia-nims-cpu-small	RFD_OPENFOLDBINDCRAFT_SCORING_AF2IG_1	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:bindcraft	2	0			78.1
+nvidia-nims-cpu-small	RFD_OPENFOLDBINDCRAFT_SCORING_AF2IG_1	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:bindcraft	2	0			68.5
+nvidia-nims-cpu-small	RFD_OPENFOLDBINDCRAFT_SCORING_AF2IG_2	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:bindcraft	2	0			78.6
+nvidia-nims-cpu-small	RFD_OPENFOLDBINDCRAFT_SCORING_AF2IG_2	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:bindcraft	2	0			79.1
+nvidia-nims-cpu-small	RFD_OPENFOLDBINDCRAFT_SCORING_AF2IG_3	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:bindcraft	2	0			67.1
+nvidia-nims-cpu-small	RFD_OPENFOLDBINDCRAFT_SCORING_AF2IG_3	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:bindcraft	2	0			82.0
+nvidia-nims-cpu-small	RFD_OPENFOLDOPENFOLD3_MSA_design_ppi_nHAgN7b_0_dldesign_0_cycle1_mpnn0	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:nf-binder-design-utils	2	0			83.9
+nvidia-nims-cpu-small	RFD_OPENFOLDOPENFOLD3_MSA_design_ppi_nHAgN7b_1_dldesign_0_cycle1_mpnn0	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:nf-binder-design-utils	2	0			77.2
+nvidia-nims-cpu-small	RFD_OPENFOLDOPENFOLD3_MSA_design_ppi_nHAgN7b_2_dldesign_0_cycle1_mpnn0	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:nf-binder-design-utils	2	0			75.5
+nvidia-nims-cpu-small	RFD_OPENFOLDUNIQUE_ID	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:nf-binder-design-utils	1	0			10.2
+nvidia-nims-gpu-standard	RFD_NIMDL_BINDER_DESIGN_PROTEINMPNN_NIM_1	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:proteinmpnn-nim	1	1			15.6
+nvidia-nims-gpu-standard	RFD_NIMDL_BINDER_DESIGN_PROTEINMPNN_NIM_1	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:proteinmpnn-nim	1	1	i-0f7019eb9cc116489	g6e.4xlarge	20.3
+nvidia-nims-gpu-standard	RFD_NIMDL_BINDER_DESIGN_PROTEINMPNN_NIM_2	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:proteinmpnn-nim	1	1	i-0f7019eb9cc116489	g6e.4xlarge	15.5
+nvidia-nims-gpu-standard	RFD_NIMDL_BINDER_DESIGN_PROTEINMPNN_NIM_2	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:proteinmpnn-nim	1	1			15.5
+nvidia-nims-gpu-standard	RFD_NIMDL_BINDER_DESIGN_PROTEINMPNN_NIM_3	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:proteinmpnn-nim	1	1	i-032a169a1050ec4c2	g6e.4xlarge	15.3
+nvidia-nims-gpu-standard	RFD_NIMDL_BINDER_DESIGN_PROTEINMPNN_NIM_3	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:proteinmpnn-nim	1	1			15.3
+nvidia-nims-gpu-standard	RFD_NIMOPENFOLD3_NIM_design_ppi_VvCTP23_0_0	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:openfold3-nim	8	1	i-06077547c0ecf7171	g6e.4xlarge	124.8
+nvidia-nims-gpu-standard	RFD_NIMOPENFOLD3_NIM_design_ppi_VvCTP23_1_0	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:openfold3-nim	8	1	i-0061361c979e85865	g6e.4xlarge	125.7
+nvidia-nims-gpu-standard	RFD_NIMOPENFOLD3_NIM_design_ppi_VvCTP23_2_0	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:openfold3-nim	8	1	i-06077547c0ecf7171	g6e.4xlarge	124.3
+nvidia-nims-gpu-standard	RFD_NIMRFDIFFUSION_NIM_1	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:rfdiffusion-nim	2	1	i-032a169a1050ec4c2	g6e.4xlarge	102.9
+nvidia-nims-gpu-standard	RFD_NIMRFDIFFUSION_NIM_2	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:rfdiffusion-nim	2	1	i-0f7019eb9cc116489	g6e.4xlarge	109.2
+nvidia-nims-gpu-standard	RFD_NIMRFDIFFUSION_NIM_3	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:rfdiffusion-nim	2	1	i-032a169a1050ec4c2	g6e.4xlarge	103.5
+nvidia-nims-gpu-standard	RFD_OPENFOLDDL_BINDER_DESIGN_PROTEINMPNN_1	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:proteinmpnn-seed-patch-v2	1	1			69.5
+nvidia-nims-gpu-standard	RFD_OPENFOLDDL_BINDER_DESIGN_PROTEINMPNN_2	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:proteinmpnn-seed-patch-v2	1	1			52.1
+nvidia-nims-gpu-standard	RFD_OPENFOLDDL_BINDER_DESIGN_PROTEINMPNN_3	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:proteinmpnn-seed-patch-v2	1	1			53.5
+nvidia-nims-gpu-standard	RFD_OPENFOLDOPENFOLD3_1	FAILED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:openfold3-v0.5-pixi	8	1			59.4
+nvidia-nims-gpu-standard	RFD_OPENFOLDOPENFOLD3_1	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:openfold3-v0.5-pixi	8	1			112.3
+nvidia-nims-gpu-standard	RFD_OPENFOLDOPENFOLD3_1	FAILED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:openfold3-v0.5-pixi	8	1			55.2
+nvidia-nims-gpu-standard	RFD_OPENFOLDOPENFOLD3_1	FAILED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:openfold3-v0.5-pixi	8	1			55.8
+nvidia-nims-gpu-standard	RFD_OPENFOLDOPENFOLD3_1	FAILED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:openfold3-v0.5-pixi	8	1			55.1
+nvidia-nims-gpu-standard	RFD_OPENFOLDOPENFOLD3_2	FAILED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:openfold3-v0.5-pixi	8	1			60.3
+nvidia-nims-gpu-standard	RFD_OPENFOLDOPENFOLD3_2	FAILED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:openfold3-v0.5-pixi	8	1			55.5
+nvidia-nims-gpu-standard	RFD_OPENFOLDOPENFOLD3_2	FAILED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:openfold3-v0.5-pixi	8	1			55.7
+nvidia-nims-gpu-standard	RFD_OPENFOLDOPENFOLD3_2	FAILED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:openfold3-v0.5-pixi	8	1			55.0
+nvidia-nims-gpu-standard	RFD_OPENFOLDOPENFOLD3_2	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:openfold3-v0.5-pixi	8	1			112.8
+nvidia-nims-gpu-standard	RFD_OPENFOLDOPENFOLD3_3	FAILED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:openfold3-v0.5-pixi	8	1			54.9
+nvidia-nims-gpu-standard	RFD_OPENFOLDOPENFOLD3_3	FAILED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:openfold3-v0.5-pixi	8	1			58.8
+nvidia-nims-gpu-standard	RFD_OPENFOLDOPENFOLD3_3	FAILED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:openfold3-v0.5-pixi	8	1			57.2
+nvidia-nims-gpu-standard	RFD_OPENFOLDOPENFOLD3_3	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:openfold3-v0.5-pixi	8	1			121.6
+nvidia-nims-gpu-standard	RFD_OPENFOLDOPENFOLD3_3	FAILED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:openfold3-v0.5-pixi	8	1			55.3
+nvidia-nims-gpu-standard	RFD_OPENFOLDRFDIFFUSION_STANDALONE_1	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:rfdiffusion-fixed	2	1			107.3
+nvidia-nims-gpu-standard	RFD_OPENFOLDRFDIFFUSION_STANDALONE_2	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:rfdiffusion-fixed	2	1			110.5
+nvidia-nims-gpu-standard	RFD_OPENFOLDRFDIFFUSION_STANDALONE_3	SUCCEEDED	520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:rfdiffusion-fixed	2	1			107.7

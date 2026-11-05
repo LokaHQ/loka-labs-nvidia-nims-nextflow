@@ -1,3 +1,8 @@
+// Seeds are pinned in runner.yml rather than left to OpenFold3's default.
+// The default is already 42 (the logs print "Seed set to 42" for every query),
+// so this changes nothing - it just stops the run depending on an undocumented
+// default. Seeds cannot be set per query: the input format reference says the
+// seeds field must not appear in query.json.
 // Co-folds binder+target sequences (extracted from the ProteinMPNN-threaded
 // PDB) with OpenFold3, replacing AF2 initial-guess. See bin/openfold3_predict.py.
 process OPENFOLD3 {
@@ -7,7 +12,12 @@ process OPENFOLD3 {
     publishDir "${params.outdir}/rfd/openfold3", pattern: 'scores/*.tsv', mode: 'copy'
 
     input:
-    path 'input/*'
+    // One design per task. The alignments are carried in the same tuple rather
+    // than a parallel channel, so a design can never be paired with another
+    // design's MSA if an operator upstream stops preserving order.
+    // Per-chain alignments are named <query_id>.{A,B}.a3m; an empty list leaves
+    // OpenFold3 to run its own MSA search.
+    tuple path('input/*'), path('msas/*')
 
     output:
     tuple path('pdbs/*.pdb'), path('openfold3_scores.tsv'), emit: pdbs_with_scores
@@ -23,9 +33,16 @@ process OPENFOLD3 {
     cat > runner.yml <<'YAML'
 output_writer_settings:
   structure_format: pdb
+experiment_settings:
+  seeds: [42]
 YAML
 
-    openfold3_predict.py input/ pdbs/ scores/ runner.yml
+    msa_arg=""
+    if ls msas/*.a3m >/dev/null 2>&1; then
+        msa_arg="msas/"
+    fi
+
+    openfold3_predict.py input/ pdbs/ scores/ runner.yml \${msa_arg}
     openfold3_combine_scores.py scores/ -o openfold3_scores.tsv
     """
 }

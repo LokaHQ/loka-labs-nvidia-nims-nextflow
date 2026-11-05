@@ -1,0 +1,4 @@
+=== attempt 1 at 06:16:20Z 
+[33mNextflow 26.10.4 is available - Please consider updating your version to it(B[m
+Cannot create work-dir 's3://nvidia-nims-workdir/work' -- Make sure you have write permissions or specify a different directory by using the `-w` command line option
+=== attempt 1 failed for a reason other than credentials or network - stopping

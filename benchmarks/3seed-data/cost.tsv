@@ -1,0 +1,13 @@
+pipeline	process	tasks	failed_tasks	queue	total_seconds	median_seconds	usd_per_hour	estimated_usd
+baseline	RFD_OPENFOLD:BINDCRAFT_SCORING_AF2IG	3	0	nvidia-nims-cpu-small	190.9	65.0	0.384	0.0204
+baseline	RFD_OPENFOLD:DL_BINDER_DESIGN_PROTEINMPNN	3	0	nvidia-nims-gpu-standard	150.2	45.2	2.240	0.0935
+baseline	RFD_OPENFOLD:OPENFOLD3	3	0	nvidia-nims-gpu-standard	320.0	104.0	2.240	0.1991
+baseline	RFD_OPENFOLD:RFDIFFUSION_STANDALONE	3	0	nvidia-nims-gpu-standard	297.0	98.0	2.240	0.1848
+baseline	RFD_OPENFOLD:UNIQUE_ID	1	0	nvidia-nims-cpu-small	0.2	0.2	0.384	0.0000
+nim	RFD_NIM:BINDCRAFT_SCORING_OPENFOLD3	3	0	nvidia-nims-cpu-small	226.0	74.0	0.384	0.0241
+nim	RFD_NIM:DL_BINDER_DESIGN_PROTEINMPNN_NIM	3	0	nvidia-nims-gpu-standard	24.6	6.6	2.240	0.0153
+nim	RFD_NIM:OPENFOLD3_MSA	3	0	nvidia-nims-cpu-small	135.8	62.0	0.384	0.0145
+nim	RFD_NIM:OPENFOLD3_NIM	3	0	nvidia-nims-gpu-standard	341.0	114.0	2.240	0.2122
+nim	RFD_NIM:RFDIFFUSION_NIM	3	0	nvidia-nims-gpu-standard	286.0	94.0	2.240	0.1780
+nim	RFD_NIM:THREAD_AND_RELAX	3	0	nvidia-nims-cpu-small	295.0	99.0	0.384	0.0315
+nim	RFD_NIM:UNIQUE_ID	1	0	nvidia-nims-cpu-small	0.2	0.2	0.384	0.0000

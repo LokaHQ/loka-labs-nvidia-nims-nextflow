@@ -36,6 +36,19 @@ def prepare(input_pdb: Path, design_id: str, output: Path) -> None:
     )
 
 
+def query_only(input_pdb: Path, design_id: str, chain: str, output: Path) -> None:
+    """Write an A3M holding just the chain's own sequence.
+
+    A de novo binder has no homologues, so searching for them costs 78 minutes and
+    returns this exact file. Measured over 20 searches on 2026-10-29: every one came
+    back with the query and nothing else.
+    """
+    validate_design_id(design_id)
+    sequences = sequences_from_pdb(input_pdb)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(f">{design_id}.{chain}\n{sequences[chain]}\n")
+
+
 def finalise(
     input_pdb: Path,
     design_id: str,
@@ -67,6 +80,12 @@ def main() -> int:
     prepare_parser.add_argument("--design-id", required=True)
     prepare_parser.add_argument("--output", type=Path, required=True)
 
+    query_only_parser = subparsers.add_parser("query-only", help="write a single-sequence A3M for one chain")
+    query_only_parser.add_argument("--input-pdb", type=Path, required=True)
+    query_only_parser.add_argument("--design-id", required=True)
+    query_only_parser.add_argument("--chain", default="A", choices=("A", "B"))
+    query_only_parser.add_argument("--output", type=Path, required=True)
+
     finalise_parser = subparsers.add_parser("finalise", help="validate and name returned A3Ms")
     finalise_parser.add_argument("--input-pdb", type=Path, required=True)
     finalise_parser.add_argument("--design-id", required=True)
@@ -79,6 +98,8 @@ def main() -> int:
     try:
         if args.command == "prepare":
             prepare(args.input_pdb, args.design_id, args.output)
+        elif args.command == "query-only":
+            query_only(args.input_pdb, args.design_id, args.chain, args.output)
         else:
             finalise(
                 args.input_pdb,

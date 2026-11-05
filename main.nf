@@ -138,13 +138,20 @@ workflow {
 
         def output_file = "${params.outdir}/params.json"
         def json_string = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(params_json))
-        def output_path = file(output_file)
 
-        if (output_path.fileSystem.provider().scheme == 'file') {
-            java.nio.file.Files.createDirectories(output_path.parent)
+        // A manifest write must not decide the fate of the run. A brief network
+        // drop here on 2026-10-30 killed a run whose tasks had all succeeded
+        // (completed=6 failed=0) and reported it as FAILED.
+        try {
+            def output_path = file(output_file)
+            if (output_path.fileSystem.provider().scheme == 'file') {
+                java.nio.file.Files.createDirectories(output_path.parent)
+            }
+            output_path.text = json_string
+            log.info("Pipeline parameters saved to: ${output_file}")
         }
-        output_path.text = json_string
-
-        log.info("Pipeline parameters saved to: ${output_file}")
+        catch (Exception e) {
+            log.warn("Could not save pipeline parameters to ${output_file}: ${e.message}")
+        }
     }
 }
