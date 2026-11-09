@@ -35,3 +35,7 @@ tmp
 # Benchmark run logs and wrapper output - kept locally, not in the repo
 examples/pdl1-rfd/*.log
 examples/pdl1-rfd/*.out
+
+# Structures and score files pulled back from S3 to build benchmarks/data/*.csv.
+# The CSVs are committed; the hundreds of MB they are derived from are not.
+benchmarks/data/raw/
