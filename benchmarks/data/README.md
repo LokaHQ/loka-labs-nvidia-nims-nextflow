@@ -14,10 +14,17 @@ results can be plotted without re-running any analysis. Produced by
 
 ## Runs
 
-| run_id | what | designs | batch size |
-|---|---|---|---|
-| `n150` | the published head-to-head, run `n150-20261103T153827Z` | 150 per arm | 1 |
-| `batchval30` | the batching test, run `batchval-20261105T085217Z` | 30, NIM arm only | 15 |
+| run_id | arm | what | designs | batch size |
+|---|---|---|---|---|
+| `n150` | `nonim`, `nim` | the published head-to-head, `n150-20261103T153827Z` | 150 per arm | 1 |
+| `batchval30` | `nim` | the batching test, `batchval-20261105T085217Z` | 30 | 15 |
+| `n5` | `nonim_plain` | plain upstream RFdiffusion, `benchmark-20261102T224825Z/seeded-plainrfd` | 5 | 1 |
+| `n5` | `nonim` | optimised baseline, `benchmark-20261030T182807Z/baseline` | 5 | 1 |
+| `n5` | `nim` | NIM arm, `benchmark-20261030T182807Z/nim` | 5 | 1 |
+
+`n5` is the three-way from the 5-binder report. Its arms come from two different
+runs, because the plain baseline was only seeded correctly from commit 9012ef7
+and had to be re-run on 2 November.
 
 ## Regenerating
 
@@ -35,7 +42,17 @@ python3 ../scripts/export_csv.py designs --run-id n150 --nonim raw/n150/nonim --
 python3 ../scripts/export_csv.py pairs   --run-id n150 --nonim raw/n150/nonim --nim raw/n150/nim -o pairs.csv
 ```
 
-## Two things to know before using these
+## Three things to know before using these
+
+**`n5` does not reproduce the 5-binder report's time and cost tables.** Every
+figure in these CSVs is the Nextflow trace's `realtime`, which is what the
+N=150 report used and what `steptime.py` computes. The 5-binder report instead
+used AWS Batch job durations (`stoppedAt - startedAt`), which include container
+start and stop and run about 25% higher: it reports $0.117 / $0.149 / $0.175
+per design where the same tasks here give $0.093 / $0.125 / $0.150. The ratio
+between the arms is almost unchanged; the absolute numbers are not comparable
+across the two reports. Batch no longer retains those jobs, so the report's
+figures cannot be regenerated - only the trace-based ones can.
 
 **`realtime_s` is blank, not zero, for a task that never ran.** Aborted and
 failed tasks keep their row so the run's history stays visible, but averaging
