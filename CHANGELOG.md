@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   billing, which is how a GPU instance survived the end of a run.
 - `examples/pdl1-rfd/run-batch-validation.sh` and `cost-guard.config`: the N=30
   batched NIM run, with fork caps on the unbatched GPU steps.
+- `benchmarks/scripts/export_csv.py` and `benchmarks/data/`: the benchmark
+  results as long-form CSVs (per task, per design, per matched pair), so they
+  can be plotted without re-running the analysis.
 
 ### Removed
 
