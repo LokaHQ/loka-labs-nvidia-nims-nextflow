@@ -135,11 +135,17 @@ All images live in ECR at
 
 | option | default | alternative |
 |---|---|---|
-| `--rfd_nim_container_tag` | `rfdiffusion-nim` | `rfdiffusion-nim-cached` |
-| `--pmpnn_nim_container_tag` | `proteinmpnn-nim` | `proteinmpnn-nim-cached` |
-| `--openfold3_nim_image` | *(unset, uses `openfold3-nim`)* | full image reference |
+| `--rfd_nim_container_tag` | *(unset, pinned to the `rfdiffusion-nim` digest)* | `rfdiffusion-nim-cached` |
+| `--pmpnn_nim_container_tag` | *(unset, pinned to the `proteinmpnn-nim` digest)* | `proteinmpnn-nim-cached` |
+| `--openfold3_nim_image` | *(unset, pinned to the `openfold3-nim` digest)* | full image reference |
 | `--pmpnn_container_tag` | — | open-source arm's ProteinMPNN, e.g. `proteinmpnn-seed-patch-v2` |
 | `--rfd_container_tag` | — | open-source arm's RFdiffusion, e.g. `rfdiffusion-fixed` |
+
+The NIM defaults are pinned by digest, in
+`conf/platforms/aws_batch_nims.config`. Tags in this repository are mutable
+and have been overwritten in place, so a tag does not identify what ran.
+Passing a `*_container_tag` option selects by tag again and gives up that
+guarantee.
 
 The `*-cached` tags carry the NGC model weights inside the image, so the
 server finds them present instead of downloading them on every task. Built by
