@@ -39,7 +39,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   rather than tag. ECR tags here are mutable and have been overwritten in
   place, so a tag did not identify which image a run used. The digests are the
   ones that produced the N=150 benchmark, so behaviour is unchanged; the
-  `*_container_tag` options still select by tag when passed.
+  `*_container_tag` options still select by tag when passed. This includes
+  the open-source `OPENFOLD3` process on the `aws_batch_openfold` profile,
+  where the process-level container had been overriding the module's.
 - Benchmark run logs under `examples/pdl1-rfd/` are now ignored rather than
   committed.
 
