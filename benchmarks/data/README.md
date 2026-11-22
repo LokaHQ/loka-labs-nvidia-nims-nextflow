@@ -74,3 +74,22 @@ batched tasks instead carry their exact `realtime` from `.command.trace` in
 The second OpenFold3 batch is absent from the cache entirely - the index file
 for the attempt that ran it was lost - and was recovered by scanning the work
 bucket. Note that the speed-up is two batches per model, not a distribution.
+
+## aws-cost-2026-11-03.csv
+
+Cost Explorer usage records for the N=150 benchmark day, one row per usage
+type, at list prices before credits. Usage records only, so credit and refund
+lines are excluded.
+
+The two transfer lines are the ones the blog post quotes:
+
+- `NatGateway-Bytes`, 2,265.9 GB, traffic leaving for the internet. About 15 GB
+  per design, consistent with roughly five per-task model-weight downloads of
+  2-3 GB, since neither arm shared a weight cache between tasks.
+- `DataTransfer-Regional-Bytes`, 3,576.4 GB, cross-AZ traffic. Mostly container
+  images, which are 10-18 GB each in this project, pulled onto new instances.
+  A weight cache does not reduce this.
+
+Compute lines sum to $67.46 and the two transfer lines to $137.73. The day
+total of $212.43 includes verification runs, not only the two benchmark arms,
+and transfer is not attributed per arm.
