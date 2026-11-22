@@ -6,7 +6,9 @@
 // Co-folds binder+target sequences (extracted from the ProteinMPNN-threaded
 // PDB) with OpenFold3, replacing AF2 initial-guess. See bin/openfold3_predict.py.
 process OPENFOLD3 {
-    container "520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims:openfold3-v0.5-pixi"
+    // Pinned by digest: the ECR tag is mutable, and upstream 0.5-pixi was
+    // re-pushed after we copied it, so the tag no longer names what we ran.
+    container "520168724997.dkr.ecr.us-east-1.amazonaws.com/nvidia-nims@sha256:8764f7320ff12c52e9b9ec6bb0047f71df0ab197d401d04a78a51f48e9913335"
 
     publishDir "${params.outdir}/rfd/openfold3", pattern: 'pdbs/*.pdb', mode: 'copy'
     publishDir "${params.outdir}/rfd/openfold3", pattern: 'scores/*.tsv', mode: 'copy'

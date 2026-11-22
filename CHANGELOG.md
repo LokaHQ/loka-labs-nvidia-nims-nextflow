@@ -32,6 +32,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Container images for the NIM and OpenFold3 processes are pinned by digest
+  rather than tag. ECR tags here are mutable and have been overwritten in
+  place, so a tag did not identify which image a run used. The digests are the
+  ones that produced the N=150 benchmark, so behaviour is unchanged; the
+  `*_container_tag` options still select by tag when passed.
 - Benchmark run logs under `examples/pdl1-rfd/` are now ignored rather than
   committed.
 
