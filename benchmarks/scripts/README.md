@@ -10,6 +10,7 @@ trust.
 | `analyse150.py` | per-arm folding confidence, per-chain pLDDT, self-consistency |
 | `extra150.py` | cross-arm fold RMSD, amino-acid composition, paired Wilcoxon with BH correction |
 | `kabsch.py` | Cα RMSD by Horn quaternion superposition, used by the two above |
+| `export_csv.py` | the same data as long-form CSVs in `../data/` - see its README |
 
 No third-party packages: the Wilcoxon signed-rank test and the superposition
 are implemented directly because scipy and numpy were not available on the
