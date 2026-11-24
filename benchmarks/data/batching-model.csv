@@ -1,0 +1,8 @@
+stage,oss_1_per_container_s,oss_1_per_container_usd,nim_1_per_container_s,nim_1_per_container_usd,nim_15_per_container_s,nim_15_per_container_usd,nim_15_source
+RFdiffusion,98.03,0.061,93.87,0.0584,15.96,0.0099,"measured, batchval30 (2 tasks x 15 designs)"
+ProteinMPNN,10.31,0.0064,6.57,0.0041,6.57,0.0041,"unchanged by batching, n150 value carried over"
+Thread/relax,104.71,0.0112,108.5,0.0116,108.5,0.0116,"unchanged by batching, n150 value carried over"
+MSA assembly,0.42,0.0,0.41,0.0,0.41,0.0,"unchanged by batching, n150 value carried over"
+OpenFold3,66.47,0.0414,114.27,0.0711,18.97,0.0118,"measured, batchval30 (2 tasks x 15 designs)"
+BindCraft,65.67,0.007,64.57,0.0069,64.57,0.0069,"unchanged by batching, n150 value carried over"
+TOTAL,345.61,0.127,388.19,0.1521,214.98,0.0443,
