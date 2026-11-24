@@ -9,8 +9,10 @@ results can be plotted without re-running any analysis. Produced by
 | `tasks.csv` | one pipeline task | time, queue and cost for every task of every run |
 | `designs.csv` | one design, one arm | folding confidence, per-chain pLDDT, self-consistency, BindCraft metrics |
 | `pairs.csv` | one design, both arms | the matched comparison: backbone identity, sequence identity, cross-arm fold RMSD |
+| `versions.csv` | one design, both NIM versions | OpenFold3 NIM 1.5.0 against 1.6.0 on the same inputs: per-chain and complex RMSD, ipTM, pLDDT |
+| `batching-model.csv` | one pipeline stage | the stage times and costs the batched whole-pipeline estimate is assembled from |
 
-`run_id` joins the three. `arm` is `nonim` (open source) or `nim`.
+`run_id` joins them. `arm` is `nonim` (open source) or `nim`.
 
 ## Runs
 
@@ -83,9 +85,14 @@ lines are excluded.
 
 The two transfer lines are the ones the blog post quotes:
 
-- `NatGateway-Bytes`, 2,265.9 GB, traffic leaving for the internet. About 15 GB
-  per design, consistent with roughly five per-task model-weight downloads of
-  2-3 GB, since neither arm shared a weight cache between tasks.
+- `NatGateway-Bytes`, 2,265.9 GB, traffic leaving for the internet. Model
+  weights account for roughly 1,317 GB of it. The `*-cached` images are the
+  same images with the NGC weights baked in, so the ECR size delta is what a
+  task downloads: 5.34 GB for OpenFold3, 1.66 GB for RFdiffusion, 0.12 GB for
+  ProteinMPNN. The run started 450 NIM servers, plus 150 open-source
+  RFdiffusion tasks that ship no weights either, and none shared a cache. The
+  remainder covers the verification runs on the same day. This is arithmetic,
+  not flow logs: VPC flow logs were never enabled and are not retroactive.
 - `DataTransfer-Regional-Bytes`, 3,576.4 GB, cross-AZ traffic. Mostly container
   images, which are 10-18 GB each in this project, pulled onto new instances.
   A weight cache does not reduce this.
@@ -93,3 +100,48 @@ The two transfer lines are the ones the blog post quotes:
 Compute lines sum to $67.46 and the two transfer lines to $137.73. The day
 total of $212.43 includes verification runs, not only the two benchmark arms,
 and transfer is not attributed per arm.
+
+## versions.csv
+
+OpenFold3 NIM 1.5.0 against 1.6.0 on the same 150 inputs, one L40S, identical
+harness. The 1.5.0 side is the benchmark's own NIM arm
+(`n150-20261103T153827Z/nim`, the PAE-patched 1.5.0 image); the 1.6.0 side is a
+replay through the stock 1.6.0 container. Cα RMSD by the Horn quaternion
+superposition in `../scripts/kabsch.py`, each chain superposed on itself.
+
+Chain A is the 78-residue binder, chain B the PD-L1 target.
+
+What the post quotes from this file: no prediction identical to 1.5.0's, the
+binder chain within 2 Å on 89 of 150, the whole complex on 46 of 150, the
+target chain reproducing to a median 0.30 Å, and 13 of the top 20 by ipTM the
+same under both versions.
+
+Mean fold time was 12.050 s on 1.5.0 and 3.746 s on 1.6.0 (n=150 each), which
+is the 3.2x in the post. Those come from the replay harness, not from this
+file.
+
+## batching-model.csv
+
+The whole-pipeline batched figures in the post are assembled, not observed, and
+this file is the assembly. RFdiffusion and OpenFold3 carry their measured
+`batchval30` times at 15 designs per container; the other four stages keep
+their `n150` values, because batching did not change them. Cost per stage is
+scaled by the same ratio as the time, at the queue rate that stage already
+paid.
+
+It totals 215.0 s and $0.044 per design, which is 37.8% less summed task time
+and 65.1% lower modeled compute cost than the open-source arm at one design per
+container.
+
+## What these files do not cover
+
+Some numbers in the blog post are not in this directory:
+
+- the elapsed times (about 2 h 30 and about 3 h). The Nextflow trace export
+  carries per-task runtimes, not timestamps.
+- the 20-binder pilot: the 52.6 s RFdiffusion warmup and the 56.6 to 108.4 s
+  step. AWS Batch no longer retains those jobs.
+- the batched open-source OpenFold3 baseline, 14.40 s per design.
+- the server readiness figures: 97 s for a batched start, 102 to 97 s with
+  preloaded weights. The 213 s cold boot and 86 s second container are in
+  `s3://nf-binder-workdir/of3-det/summary.txt`.
