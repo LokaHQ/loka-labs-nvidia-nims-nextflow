@@ -37,5 +37,8 @@
     "npm": "please-use-yarn",
     "node": ">=22",
     "yarn": "~1.22.0 <2"
+  },
+  "resolutions": {
+    "handlebars": "^4.7.10"
   }
 }
